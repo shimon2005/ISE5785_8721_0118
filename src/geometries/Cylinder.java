@@ -9,16 +9,18 @@ import primitives.Ray;
  * It extends the Tube class and adds a height property.
  */
 public class Cylinder extends Tube {
+    /** The height of the cylinder. */
     double height;
 
     /**
-     * Constructs a Cylinder with a given axis and height.
+     * Constructs a Cylinder with a given axis, radius, and height.
      *
      * @param axis the axis ray of the cylinder
+     * @param radius the radius of the cylinder
      * @param height the height of the cylinder
      */
-    public Cylinder(Ray axis, double height) {
-        super(axis);
+    public Cylinder(double height, Ray axis, double radius) {
+        super(axis, radius);
         this.height = height;
     }
 

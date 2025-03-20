@@ -8,6 +8,7 @@ import primitives.Vector;
  * It extends the RadialGeometry class and adds a center point.
  */
 public class Sphere extends RadialGeometry {
+    /** The center point of the sphere. */
     Point center;
 
     /**
@@ -16,7 +17,7 @@ public class Sphere extends RadialGeometry {
      * @param center the center point of the sphere
      * @param radius the radius of the sphere
      */
-    public Sphere(Point center, Vector radius) {
+    public Sphere(Point center, double radius) {
         super(radius);
         this.center = center;
     }

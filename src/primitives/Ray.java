@@ -16,12 +16,12 @@ public class Ray {
     /**
      * Constructs a Ray with the given starting point and direction vector.
      *
-     * @param point the starting point of the ray
-     * @param vector the direction vector of the ray
+     * @param head the starting point of the ray
+     * @param direction the direction vector of the ray
      */
-    public Ray(Point point, Vector vector) {
-        this.head = point;
-        this.direction = vector;
+    public Ray(Point head, Vector direction) {
+        this.head = head;
+        this.direction = direction.normalize();   // the direction vector is not necessarily normalized, so we normalize it
     }
 
     /**
