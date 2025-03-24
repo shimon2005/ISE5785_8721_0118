@@ -1,8 +1,10 @@
-package unittests.primitives;
+package primitives;
 
 import org.junit.jupiter.api.Test;
 
-class VectorTests {
+import static org.junit.jupiter.api.Assertions.*;
+
+class VectorTest {
 
     @Test
     void dotProduct() {

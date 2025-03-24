@@ -7,7 +7,9 @@ import java.util.Objects;
  * It is defined by three coordinates (x, y, z) encapsulated in a Double3 object.
  */
 public class Point {
-    /** A constant representing the origin point (0, 0, 0). */
+    /**
+     * A constant representing the origin point (0, 0, 0).
+     * */
     public static final Point ZERO = new Point(0, 0, 0);
     final Double3 xyz;
 
@@ -38,9 +40,11 @@ public class Point {
      * @return true if the object is a Point with the same coordinates, false otherwise
      */
     @Override
-    public boolean equals(Object o) {
+    public  boolean equals(Object o) {
+        if (this== o) return true;
         if (!(o instanceof Point point)) return false;
-        return Objects.equals(xyz, point.xyz);
+
+        return xyz.equals(point.xyz);
     }
 
     /**
@@ -50,7 +54,7 @@ public class Point {
      */
     @Override
     public int hashCode() {
-        return Objects.hashCode(xyz);
+        return xyz.hashCode();
     }
 
     /**
@@ -93,9 +97,11 @@ public class Point {
         double x1 = xyz.d1();
         double y1 = xyz.d2();
         double z1 = xyz.d3();
+
         double x2 = point.xyz.d1();
         double y2 = point.xyz.d2();
         double z2 = point.xyz.d3();
+
         return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2);
     }
 

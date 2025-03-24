@@ -16,7 +16,7 @@ public class Vector extends Point {
      */
     public Vector(Double3 xyz) {
         super(xyz);
-        if (xyz.d1() == 0 && xyz.d2() == 0 && xyz.d3() == 0)
+        if (xyz.equals(Double3.ZERO))
             throw new IllegalArgumentException("Vector cannot be the zero vector");
     }
 
@@ -29,9 +29,7 @@ public class Vector extends Point {
      * @throws IllegalArgumentException if the vector is the zero vector
      */
     public Vector(double x, double y, double z) {
-        super(new Double3(x, y, z));
-        if (x == 0 && y == 0 && z == 0)
-            throw new IllegalArgumentException("Vector cannot be the zero vector");
+        this(new Double3(x, y, z));
     }
 
     /**
@@ -52,8 +50,9 @@ public class Vector extends Point {
      */
     @Override
     public boolean equals(Object o) {
+        if(this == o) return true;
         if (!(o instanceof Vector vector)) return false;
-        return Objects.equals(xyz, vector.xyz);
+        return xyz.equals(vector.xyz);
     }
 
     /**
