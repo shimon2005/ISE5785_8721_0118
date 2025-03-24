@@ -34,16 +34,12 @@ public class Ray {
         return "Head" + head + ", Direction" + direction;
     }
 
-    /**
-     * Checks if this ray is equal to another object.
-     *
-     * @param o the object to compare with
-     * @return true if the object is a Ray with the same head and direction, false otherwise
-     */
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
+        if (this == o) return true;
         if (!(o instanceof Ray ray)) return false;
-        return Objects.equals(head, ray.head) && Objects.equals(direction, ray.direction);
+
+        return head.equals(ray.head) && direction.equals(ray.direction);
     }
 
     /**
@@ -53,6 +49,8 @@ public class Ray {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(head, direction);
+        int result = head.hashCode();
+        result = 31 * result + direction.hashCode();
+        return result;
     }
 }

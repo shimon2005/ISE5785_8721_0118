@@ -55,6 +55,11 @@ public class Vector extends Point {
         return xyz.equals(vector.xyz);
     }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     /**
      * Calculates the dot product of this vector and another vector.
      *
