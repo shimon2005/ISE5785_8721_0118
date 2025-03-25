@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Vector;
+import primitives.Util;
 
 /**
  * The Plane class represents a plane in 3D space.
@@ -29,11 +30,31 @@ public class Plane extends Geometry {
      * @param point1 the first point on the plane
      * @param point2 the second point on the plane
      * @param point3 the third point on the plane
+     * @throws IllegalArgumentException if any two points are identical or if the points are collinear (on the same line)
      */
     public Plane(Point point1, Point point2, Point point3) {
+        // Check if any two points are identical
+        if (point1.equals(point2) || point1.equals(point3) || point2.equals(point3)) {
+            throw new IllegalArgumentException("Two or more points are identical.");
+        }
+
+        // Compute the vectors formed by the points
+        Vector v1 = point2.subtract(point1); // Vector from point1 to point2
+        Vector v2 = point3.subtract(point1); // Vector from point1 to point3
+
+        // Check if the vectors are collinear by computing their cross product
+        Vector crossProduct = v1.crossProduct(v2);
+
+        // If the cross product's length is zero, the points are collinear (on the same line)
+        if (Util.isZero(crossProduct.length())) {
+            throw new IllegalArgumentException("Points are collinear and do not form a valid plane.");
+        }
+
+        // Set the point and calculate the normal vector
         this.point = point1;
-        this.normal = null;
+        this.normal = crossProduct.normalize();  // Normal vector is the normalized cross product of v1 and v2
     }
+
 
     /**
      * Returns the normal vector to the plane.

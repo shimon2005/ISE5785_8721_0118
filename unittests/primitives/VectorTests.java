@@ -49,6 +49,23 @@ class VectorTests {
     }
 
     /**
+     * Test method for vector subtraction (even though there is no such method in vector and it will use the method from point)
+     */
+    @Test
+    void subtract() {
+        // ============ Equivalence Partitions Tests ==============
+
+        // TC01: Subtracting two general vectors
+        assertEquals(new Vector(5, 7, 9), V1.subtract(V2), "subtract() wrong result for V1 - V2");
+
+        // =============== Boundary Values Tests ==================
+
+        // TC10: Subtracting a vector from itself should throw exception (result zero vector)
+        assertThrows(IllegalArgumentException.class, () -> V1.subtract(V1),
+                "subtract() for vector and itself should throw exception");
+    }
+
+    /**
      * Test method for {@link primitives.Vector#scale(double)}.
      */
     @Test

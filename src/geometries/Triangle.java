@@ -21,18 +21,6 @@ public class Triangle extends Polygon {
     }
 
     /**
-     * Returns the normal vector to the triangle at a given point.
-     * Since a triangle is part of a plane, it should return the normal of its plane.
-     *
-     * @param point the point on the triangle
-     * @return null (as requested)
-     */
-    @Override
-    public Vector getNormal(Point point) {
-        return null;
-    }
-
-    /**
      * Returns a string representation of the triangle.
      *
      * @return a string representation of the triangle
