@@ -8,10 +8,10 @@ import java.util.Objects;
  */
 public class Ray {
     /** The starting point of the ray. */
-    final Point head;
+    private final Point head;
 
     /** The direction vector of the ray. */
-    final Vector direction;
+    private final Vector direction;
 
     /**
      * Constructs a Ray with the given starting point and direction vector.
@@ -22,6 +22,24 @@ public class Ray {
     public Ray(Point head, Vector direction) {
         this.head = head;
         this.direction = direction.normalize();   // the direction vector is not necessarily normalized, so we normalize it
+    }
+
+    /**
+     * Returns the starting point of the ray.
+     *
+     * @return the starting point of the ray
+     */
+    public Point getHead() {
+        return head;
+    }
+
+    /**
+     * Returns the direction vector of the ray.
+     *
+     * @return the direction vector of the ray
+     */
+    public Vector getDirection() {
+        return direction;
     }
 
     /**

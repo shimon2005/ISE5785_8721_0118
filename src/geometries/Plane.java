@@ -9,8 +9,8 @@ import primitives.Util;
  * It is defined by a point on the plane and a normal vector.
  */
 public class Plane extends Geometry {
-    final Point point;
-    final Vector normal;
+    private final Point point;
+    private final Vector normal;
 
     /**
      * Constructs a Plane with a given point and normal vector.

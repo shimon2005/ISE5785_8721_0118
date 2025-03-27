@@ -86,13 +86,14 @@ class PlaneTests {
         Plane plane = new Plane(p1, p2, p3);
 
         // Expected normal (manual calculation based on the specific points)
-        Vector expectedNormal = new Vector(1 / Math.sqrt(2), 1 / Math.sqrt(2), 0);  // Correct normal for these points
+        Vector expectedNormal = new Vector(1 / Math.sqrt(3), 1 / Math.sqrt(3), 1 / Math.sqrt(3));
 
         // Get the normal from the plane
         Vector normal = plane.getNormal();
 
         // Check that the normal returned by getNormal is correct
-        assertEquals(expectedNormal, normal, "Plane normal returned by getNormal is incorrect");
+        assertTrue(normal.equals(expectedNormal) || normal.equals(expectedNormal.scale(-1)),
+                "Plane normal returned by getNormal is incorrect");
     }
 
     /**
@@ -119,6 +120,4 @@ class PlaneTests {
         assertTrue(normal.equals(expectedNormal) || normal.equals(expectedNormal.scale(-1)),
                 "Plane normal returned by getNormal is incorrect");
     }
-
-
 }

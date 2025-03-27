@@ -11,7 +11,7 @@ public class Point {
      * A constant representing the origin point (0, 0, 0).
      * */
     public static final Point ZERO = new Point(0, 0, 0);
-    final Double3 xyz;
+    protected final Double3 xyz;
 
     /**
      * Constructs a Point with the given Double3 object.

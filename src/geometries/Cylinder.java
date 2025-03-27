@@ -32,8 +32,37 @@ public class Cylinder extends Tube {
      */
     @Override
     public Vector getNormal(Point point) {
-        return null;
+        // The starting point of the axis
+        Point p0 = axis.getHead();
+
+        // The direction vector of the axis
+        Vector v = axis.getDirection();
+
+        // Check if the point is exactly at p0 (bottom base center), it is necessary to treat it separately to avoid creating a zero vector in the next step (substraction)
+        if (point.equals(p0)) {
+            return v.scale(-1).normalize();
+        }
+
+        // Vector from the axis point to the given point
+        Vector p0ToP = point.subtract(p0);
+
+        // Project the point onto the axis to find the closest point on the axis
+        double t = p0ToP.dotProduct(v);
+
+        // Determine the closest point on the axis
+        Point o = (t == 0) ? p0 : p0.add(v.scale(t));
+
+        // If the point is on one of the caps (top or bottom)
+        if (t <= 0) {
+            return v.scale(-1).normalize(); // Bottom cap
+        } else if (t >= height) {
+            return v.normalize(); // Top cap
+        }
+
+        // Otherwise, the point is on the curved surface
+        return point.subtract(o).normalize();
     }
+
 
     /**
      * Returns a string representation of the cylinder.

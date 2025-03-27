@@ -26,7 +26,6 @@ public class Vector extends Point {
      * @param x the x-coordinate of the vector
      * @param y the y-coordinate of the vector
      * @param z the z-coordinate of the vector
-     * @throws IllegalArgumentException if the vector is the zero vector
      */
     public Vector(double x, double y, double z) {
         this(new Double3(x, y, z));
