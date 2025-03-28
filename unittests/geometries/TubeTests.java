@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link geometries.Tube} class (infinite cylinder).
  */
 class TubeTests {
-
     /**
      * Test method for {@link geometries.Tube#getNormal(Point)}.
      * This test checks that the normal vector returned by getNormal is correct for a point on the surface of the tube.

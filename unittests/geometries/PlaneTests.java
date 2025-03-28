@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
 import primitives.Util;
-import geometries.Plane;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link geometries.Plane} class.
  */
 class PlaneTests {
-
+    private static final double DELTA = 1e-10;
     /**
      * Test method for {@link geometries.Plane#Plane(Point, Point, Point)}.
      */
@@ -32,8 +31,8 @@ class PlaneTests {
         Vector normal = plane.getNormal();
 
         // Check that the normal is perpendicular to both vectors
-        assertTrue(Util.isZero(normal.dotProduct(v1)), "Plane normal is not perpendicular to v1");
-        assertTrue(Util.isZero(normal.dotProduct(v2)), "Plane normal is not perpendicular to v2");
+        assertEquals(0, normal.dotProduct(v1),DELTA ,  "Plane normal is not perpendicular to v1");
+        assertEquals(0, normal.dotProduct(v2),DELTA , "Plane normal is not perpendicular to v2");
 
         // Check that the normal is a unit vector
         assertTrue(Util.isZero(normal.length() - 1), "Plane normal is not a unit vector");

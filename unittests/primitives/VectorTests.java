@@ -18,6 +18,48 @@ class VectorTests {
     private static final Vector V_ZERO_LENGTH_3 = new Vector(0, 3, 0);
 
     /**
+     * Test method for {@link primitives.Vector#Vector(double, double, double)}.
+     */
+    @Test
+    void constructor3Parameters() {
+        // ============ Equivalence Partitions Tests ==============
+
+        // Check the components of the vector
+        assertEquals(1, V1.xyz.d1(), DELTA, "X component is incorrect after constructor");
+        assertEquals(2, V1.xyz.d2(), DELTA, "Y component is incorrect after constructor");
+        assertEquals(3, V1.xyz.d3(), DELTA, "Z component is incorrect after constructor");
+
+        // =============== Boundary Values Tests ==================
+
+        // TC10: Zero vector should throw exception
+        assertThrows(IllegalArgumentException.class, () -> new Vector(0, 0, 0),
+                "Vector constructor for zero vector should throw exception");
+    }
+
+
+    /**
+     * Test method for {@link primitives.Vector#Vector(Double3)}.
+     */
+    @Test
+    void constructor1Parameter() {
+        // ============ Equivalence Partitions Tests ==============
+
+        // Create a vector using the Double3 constructor
+        Vector v = new Vector(new Double3(1, 2, 3));
+
+        // Check the components of the vector
+        assertEquals(1, v.xyz.d1(), DELTA, "X component is incorrect after constructor");
+        assertEquals(2, v.xyz.d2(), DELTA, "Y component is incorrect after constructor");
+        assertEquals(3, v.xyz.d3(), DELTA, "Z component is incorrect after constructor");
+
+        // =============== Boundary Values Tests ==================
+
+        // TC10: Zero vector should throw exception
+        assertThrows(IllegalArgumentException.class, () -> new Vector(Double3.ZERO),
+                "Vector constructor for zero vector should throw exception");
+    }
+
+    /**
      * Test method for {@link primitives.Vector#dotProduct(Vector)}.
      */
     @Test
@@ -25,10 +67,10 @@ class VectorTests {
         // ============ Equivalence Partitions Tests ==============
 
         // TC01: Dot product of orthogonal vectors should be zero
-        assertEquals(0, V1.dotProduct(V3), DELTA, "dotProduct() for orthogonal vectors should be zero");
+        assertEquals(0, V1.dotProduct(V3), "dotProduct() for orthogonal vectors should be zero");
 
         // TC02: Dot product of V1 and V2, check calculated value
-        assertEquals(-32, V1.dotProduct(V2), DELTA, "dotProduct() wrong result for V1 and V2");
+        assertEquals(-32, V1.dotProduct(V2), "dotProduct() wrong result for V1 and V2");
     }
 
     /**
@@ -148,10 +190,9 @@ class VectorTests {
 
         // Check that u is parallel to V1 (cross product should throw)
         assertThrows(IllegalArgumentException.class, () -> V1.crossProduct(u),
-                "normalize() vector should be parallel to original");
+                "cross product() of parallel vectors should throw exception");
 
         // Check that u points in the same direction (dot product > 0)
         assertTrue(V1.dotProduct(u) > 0, "normalize() vector points in opposite direction");
     }
-
 }
