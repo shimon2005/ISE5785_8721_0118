@@ -1,3 +1,15 @@
+/*
+submitter1:
+name: Asher Abensour
+id: 215340118
+gmail: asher.abensour@gmail.com
+
+submitter2:
+name: Shimon Khakshour
+id: 328308721
+gmail: shimony2017@gmail.com
+ */
+
 package test;
 
 import static java.lang.System.out;
