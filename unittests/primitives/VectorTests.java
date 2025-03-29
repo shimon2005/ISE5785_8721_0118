@@ -9,7 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VectorTests {
 
-    private static final double DELTA = 1e-10;
+    /**
+     * Delta value for accuracy when comparing the numbers of type 'double' in
+     * assertEquals
+     */
+    private static final double DELTA = 0.000001;
 
     private static final Vector V1 = new Vector(1, 2, 3);
     private static final Vector V2 = new Vector(-4, -5, -6);

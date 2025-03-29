@@ -40,7 +40,7 @@ public class Cylinder extends Tube {
 
         // Check if the point is exactly at p0 (bottom base center), it is necessary to treat it separately to avoid creating a zero vector in the next step (substraction)
         if (point.equals(p0)) {
-            return v.scale(-1).normalize();
+            return v.scale(-1); // No need to normalize, since v is already a unit vector
         }
 
         // Vector from the axis point to the given point
@@ -49,18 +49,22 @@ public class Cylinder extends Tube {
         // Project the point onto the axis to find the closest point on the axis
         double t = p0ToP.dotProduct(v);
 
-        // Determine the closest point on the axis
-        Point o = (t == 0) ? p0 : p0.add(v.scale(t));
-
         // If the point is on one of the caps (top or bottom)
-        if (t <= 0) {
-            return v.scale(-1).normalize(); // Bottom cap
-        } else if (t >= height) {
-            return v.normalize(); // Top cap
+        if (t == 0) {
+            return v.scale(-1); // Bottom cap, no need to normalize, since v is already a unit vector
+        } else if (t == height) {
+            return v; // Top cap, no need to normalize, since v is already a unit vector
         }
+        // If reach here the point is on the curved surface
 
-        // Otherwise, the point is on the curved surface
-        return point.subtract(o).normalize();
+        // Determine the closest point to the point parameter on the axis
+        Point o = p0.add(v.scale(t));
+
+        // Calculate the normal for a point on the curved surface
+        Vector normal = point.subtract(o);
+
+        // Return the normalized normal vector
+        return normal.normalize();
     }
 
 

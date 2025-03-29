@@ -9,12 +9,17 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PointTests {
 
+    /**
+     * Delta value for accuracy when comparing the numbers of type 'double' in
+     * assertEquals
+     */
+    private static final double DELTA = 0.000001;
+
     private static final Point P1 = new Point(1, 2, 3);
     private static final Point P2 = new Point(2, 3, 4);
     private static final Point P3 = new Point(1, 2, 6);
     private static final Vector V1 = new Vector(1, 1, 1);
     private static final Vector oppositeOfP1 = new Vector(-1, -2, -3);
-    private static final double DELTA = 1e-10;
 
     /**
      * Test method for {@link primitives.Point#subtract(primitives.Point)}.

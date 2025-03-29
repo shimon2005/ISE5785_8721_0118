@@ -11,7 +11,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link geometries.Plane} class.
  */
 class PlaneTests {
-    private static final double DELTA = 1e-10;
+    /**
+     * Delta value for accuracy when comparing the numbers of type 'double' in
+     * assertEquals
+     */
+    private static final double DELTA = 0.000001;
+
     /**
      * Test method for {@link geometries.Plane#Plane(Point, Point, Point)}.
      */
