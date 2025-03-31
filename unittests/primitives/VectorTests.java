@@ -95,7 +95,7 @@ class VectorTests {
     }
 
     /**
-     * Test method for vector subtraction (even though there is no such method in vector and it will use the method from point)
+     * Test method for vector subtraction (even though there is no such method in vector, and it will use the method from point)
      */
     @Test
     void subtract() {

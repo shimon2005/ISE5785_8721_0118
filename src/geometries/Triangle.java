@@ -1,7 +1,10 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
 
 /**
  * Triangle is a subclass of Polygon that represents a triangle.
@@ -28,6 +31,11 @@ public class Triangle extends Polygon {
     @Override
     public String toString() {
         return "Vertices: " + vertices;
+    }
+
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return null;
     }
 }
 

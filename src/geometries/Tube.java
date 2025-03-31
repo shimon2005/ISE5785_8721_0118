@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 
+import java.util.List;
+
 /**
  * The Tube class represents a tube in 3D space.
  * It is defined by an axis ray and a radius.
@@ -63,5 +65,10 @@ public class Tube extends RadialGeometry {
     @Override
     public String toString() {
         return super.toString() + ", Axis: " + axis;
+    }
+
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return null;
     }
 }

@@ -1,8 +1,11 @@
 package geometries;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 import primitives.Util;
+
+import java.util.List;
 
 /**
  * The Plane class represents a plane in 3D space.
@@ -84,5 +87,10 @@ public class Plane extends Geometry {
     @Override
     public String toString() {
         return "Point: " + point + ", Normal: " + normal;
+    }
+
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return null;
     }
 }

@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 
+import java.util.List;
+
 /**
  * The Cylinder class represents a cylinder in 3D space.
  * It extends the Tube class and adds a height property.
@@ -76,5 +78,10 @@ public class Cylinder extends Tube {
     @Override
     public String toString() {
         return super.toString() + ", Height: " + height;
+    }
+
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return null;
     }
 }

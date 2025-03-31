@@ -7,7 +7,7 @@ import primitives.Vector;
  * The Geometry class is an abstract class that represents a geometric object in 3D space.
  * It provides a method to get the normal vector to the geometry at a given point.
  */
-public abstract class Geometry {
+public abstract class Geometry implements Intersectable {
 
     /**
      * Returns the normal vector to the geometry at a given point.

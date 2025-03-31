@@ -18,6 +18,7 @@ public class Vector extends Point {
         super(xyz);
         if (xyz.equals(Double3.ZERO))
             throw new IllegalArgumentException("Vector cannot be the zero vector");
+
     }
 
     /**

@@ -42,6 +42,7 @@ public class Ray {
         return direction;
     }
 
+
     /**
      * Returns a string representation of this ray.
      *
