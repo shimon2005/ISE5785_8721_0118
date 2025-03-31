@@ -158,6 +158,7 @@ class PlaneTests {
                 plane.findIntersections(new Ray(new Point(0, 0, 2), new Vector(1, 1, -1))),
                 "Ray orthogonal and starts before the plane, should return intersection point");
 
+
         // TC013: Ray is orthogonal and starts inside the plane
         assertNull(plane.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 1, -1))),
                 "Ray orthogonal and starts inside the plane, should return null");

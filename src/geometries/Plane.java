@@ -100,8 +100,14 @@ public class Plane extends Geometry {
     @Override
     public List<Point> findIntersections(Ray ray) {
 
+        // Check if the ray's head is equal to the point field of the plane to avoid creating 0 vector during subtraction later on,
+        if (point.equals(ray.getHead())) {
+            return null; // The ray starts on the plane, no intersection
+        }
+
         Vector rayDirection = ray.getDirection(); // Direction of the ray
         double denominator = Util.alignZero(normal.dotProduct(rayDirection)); // Dot product of the normal and ray direction
+
 
         // If the denominator is zero, the ray is parallel to the plane
         if (Util.isZero(denominator)) {

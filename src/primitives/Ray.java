@@ -10,7 +10,7 @@ public class Ray {
     /** The starting point of the ray. */
     private final Point head;
 
-    /** The direction vector of the ray. */
+    /** The direction vector of the ray (a unit vector). */
     private final Vector direction;
 
     /**

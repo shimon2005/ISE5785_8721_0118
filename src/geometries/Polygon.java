@@ -100,7 +100,7 @@ public class Polygon extends Geometry {
       if (planeIntersections == null) return null;
 
       // Get the intersection point
-      Point intersectionPoint = planeIntersections.get(0);
+      Point intersectionPoint = planeIntersections.getFirst();
 
       // Check if the intersection point is inside the polygon
       Vector v1, v2;

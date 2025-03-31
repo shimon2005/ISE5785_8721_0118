@@ -53,7 +53,7 @@ public class Triangle extends Polygon {
         Vector edge2 = p2.subtract(p0);
 
         // Compute determinant
-        Vector h = ray.getDirection().crossProduct(edge2);
+        Vector h = ray.getDirection().crossProduct(edge2); // The normal to the plane which contains the ray direction and edge2
         double det = edge1.dotProduct(h);
 
         // If determinant is near zero, ray is parallel to the triangle
