@@ -2,7 +2,11 @@ package geometries;
 
 import org.junit.jupiter.api.Test;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
+
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -34,5 +38,46 @@ class TriangleTests {
         assertTrue(normal.equals(expectedNormal) || normal.equals(expectedNormal.scale(-1)),
                 "Triangle normal returned by getNormal is incorrect");
     }
+
+    /**
+     * Test method for {@link geometries.Triangle#findIntersections(Ray)}.
+     */
+    @Test
+    void findIntersections() {
+        Triangle triangle = new Triangle(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0));
+
+        // ============ Equivalence Partitions Tests ==============
+
+        // TC01: Ray intersects inside the triangle
+        assertEquals(List.of(new Point(0.25, 0.25, 0.5)),
+                triangle.findIntersections(new Ray(new Point(0.25, 0.25, 1), new Vector(0, 0, -1))),
+                "Ray intersects inside the triangle");
+
+        // TC02: Ray intersects outside the triangle against an edge
+        assertNull(triangle.findIntersections(new Ray(new Point(2, 0.5, 0.5), new Vector(-1, 0, 0))),
+                "Ray intersects outside the triangle against an edge");
+
+        // TC03: Ray intersects outside the triangle against a vertex
+        assertNull(triangle.findIntersections(new Ray(new Point(1, 1, 1), new Vector(-1, -1, -1))),
+                "Ray intersects outside the triangle against a vertex");
+
+        // =============== Boundary Values Tests ==================
+
+        // TC04: Ray intersects on the edge of the triangle
+        assertEquals(List.of(new Point(0.5, 0, 0)),
+                triangle.findIntersections(new Ray(new Point(0.5, 0, 1), new Vector(0, 0, -1))),
+                "Ray intersects on the edge of the triangle");
+
+        // TC05: Ray intersects in the vertex of the triangle
+        assertEquals(List.of(new Point(0, 0, 1)),
+                triangle.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, -1))),
+                "Ray intersects in the vertex of the triangle");
+
+        // TC06: Ray intersects on the continuation of an edge
+        assertNull(triangle.findIntersections(new Ray(new Point(2, 0, 0), new Vector(-1, 0, 0))),
+                "Ray intersects on the continuation of an edge");
+    }
+
+
 
 }

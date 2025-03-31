@@ -89,8 +89,36 @@ public class Plane extends Geometry {
         return "Point: " + point + ", Normal: " + normal;
     }
 
+
+    /**
+     * Finds the intersections of a ray with the plane.
+     * If the ray intersects the plane, returns a list containing the intersection point.
+     * If the ray is parallel to the plane or does not intersect, returns null.
+     * @param ray The ray to check for intersection.
+     * @return A list containing the intersection point, or null if there is no intersection.
+     */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+
+        Vector rayDirection = ray.getDirection(); // Direction of the ray
+        double denominator = Util.alignZero(normal.dotProduct(rayDirection)); // Dot product of the normal and ray direction
+
+        // If the denominator is zero, the ray is parallel to the plane
+        if (Util.isZero(denominator)) {
+            return null; // No intersection
+        }
+
+        // Calculate the distance from the ray's origin to the plane
+        double t = Util.alignZero(normal.dotProduct(point.subtract(ray.getHead())) / denominator);
+
+        // If t is zero or negative, there is no valid intersection
+        if (t <= 0) {
+            return null; // No intersection
+        }
+
+        // Calculate the intersection point
+        Point intersectionPoint = ray.getHead().add(rayDirection.scale(t));
+
+        return List.of(intersectionPoint); // Return a list containing the intersection point
     }
 }

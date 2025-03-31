@@ -4,6 +4,7 @@ import java.util.List;
 import static primitives.Util.*;
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 /**
@@ -78,11 +79,44 @@ public class Polygon extends Geometry {
       }
    }
 
+    /**
+     * Return the list of vertices of the polygon
+     * @return the list of vertices of the polygon
+     */
    @Override
    public Vector getNormal(Point point) { return plane.getNormal(point); }
 
+   /**
+    * Finds the intersections of the ray with the polygon.
+    * If the ray intersects the polygon, returns a list containing the intersection point.
+    * Otherwise, returns null.
+    * @param ray The ray to check for intersection.
+    * @return A list containing the intersection point, or null if there is no intersection.
+    */
    @Override
    public List<Point> findIntersections(Ray ray) {
-      return null;
+      // Find the intersection point with the plane
+      List<Point> planeIntersections = plane.findIntersections(ray);
+      if (planeIntersections == null) return null;
+
+      // Get the intersection point
+      Point intersectionPoint = planeIntersections.get(0);
+
+      // Check if the intersection point is inside the polygon
+      Vector v1, v2;
+      int numVertices = vertices.size();
+
+      for (int i = 0; i < numVertices; ++i) {
+         v1 = vertices.get(i).subtract(intersectionPoint);
+         v2 = vertices.get((i + 1) % numVertices).subtract(intersectionPoint);
+
+         // Use alignZero to avoid floating-point precision errors
+         if (Util.alignZero(v1.crossProduct(v2).dotProduct(plane.getNormal())) < 0) {
+            return null; // Intersection point is outside the polygon
+         }
+      }
+
+      return List.of(intersectionPoint); // Intersection point is inside the polygon
    }
+
 }
