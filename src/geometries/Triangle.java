@@ -48,38 +48,52 @@ public class Triangle extends Polygon {
         Point p1 = vertices.get(1);
         Point p2 = vertices.get(2);
 
-        // Edges of the triangle
+        // Triangle edges
         Vector edge1 = p1.subtract(p0);
         Vector edge2 = p2.subtract(p0);
 
-        // Compute determinant
-        Vector h = ray.getDirection().crossProduct(edge2); // The normal to the plane which contains the ray direction and edge2
-        double det = edge1.dotProduct(h);
+        Vector dir = ray.getDirection();
 
-        // If determinant is near zero, ray is parallel to the triangle
-        if (Util.isZero(det)) return null;
+        // Check if ray direction is parallel to edge2 before computing h (to prevent 0 vector build)
+        double dotDirEdge2 = Math.abs(dir.normalize().dotProduct(edge2.normalize()));
+        if (Util.isZero(dotDirEdge2 - 1.0)) {
+            return null;
+        }
+
+        // Compute h = ray direction x edge2
+        Vector h = dir.crossProduct(edge2);
+
+        double det = edge1.dotProduct(h);
+        if (Util.isZero(det))
+            return null; // Ray is parallel to the triangle
 
         double invDet = 1.0 / det;
 
-        // Calculate barycentric coordinates
+        // Calculate u parameter
         Vector s = ray.getHead().subtract(p0);
+
+        // Check if s is parallel to edge1 before computing q (to prevent 0 vector build)
+        double dotSEdge1 = Math.abs(s.normalize().dotProduct(edge1.normalize()));
+        if (Util.isZero(dotSEdge1 - 1.0)) {
+            return null;
+        }
+
         double u = s.dotProduct(h) * invDet;
-        if (u < 0 || u > 1) return null; // Intersection is outside the triangle
+        if (u < 0 || u > 1)
+            return null; // Intersection is outside the triangle
 
+        // Compute q = s x edge1
         Vector q = s.crossProduct(edge1);
-        double v = ray.getDirection().dotProduct(q) * invDet;
-        if (v < 0 || u + v > 1) return null; // Intersection is outside the triangle
 
-        // Compute t (distance along the ray)
+        double v = dir.dotProduct(q) * invDet;
+        if (v < 0 || u + v > 1)
+            return null; // Intersection is outside the triangle
+
         double t = edge2.dotProduct(q) * invDet;
+        if (t < 0)
+            return null; // Intersection is behind the ray's origin
 
-        // If t is negative, the intersection is behind the ray's origin
-        if (t < 0) return null;
-
-        // Compute intersection point
-        Point intersectionPoint = ray.getHead().add(ray.getDirection().scale(t));
-
+        Point intersectionPoint = ray.getPoint(t);
         return List.of(intersectionPoint);
     }
 }
-

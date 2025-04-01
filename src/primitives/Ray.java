@@ -1,7 +1,5 @@
 package primitives;
 
-import java.util.Objects;
-
 /**
  * The Ray class represents a ray in 3D space.
  * It is defined by a starting point (head) and a direction vector.
@@ -42,6 +40,15 @@ public class Ray {
         return direction;
     }
 
+    /**
+     * Returns a point on the ray at a distance t from the starting point.
+     *
+     * @param t the distance from the starting point
+     * @return a point on the ray at distance t from the starting point
+     */
+    public Point getPoint(double t){
+        return Util.isZero(t) ? head : head.add(direction.scale(t));
+    }
 
     /**
      * Returns a string representation of this ray.

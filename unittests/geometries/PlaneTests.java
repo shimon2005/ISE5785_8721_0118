@@ -153,18 +153,17 @@ class PlaneTests {
         assertNull(plane.findIntersections(new Ray(new Point(0, 0, 2), new Vector(1, 1, 0))),
                 "Ray is parallel and outside the plane, should return null");
 
-        // TC12: Ray is orthogonal and starts before the plane
-        assertEquals(List.of(new Point(1.0 / 3, 1.0 / 3, 1.0 / 3)),
-                plane.findIntersections(new Ray(new Point(0, 0, 2), new Vector(1, 1, -1))),
-                "Ray orthogonal and starts before the plane, should return intersection point");
-
+        // TC12: Ray intersects the plane and starts before the plane
+        assertEquals(List.of(new Point(2.0/3, 2.0/3, -1.0/3)),
+                plane.findIntersections(new Ray(new Point(0, 0, -1), new Vector(1, 1, 1))),
+                "Ray starts before the plane and intersects it, should return intersection point");
 
         // TC013: Ray is orthogonal and starts inside the plane
         assertNull(plane.findIntersections(new Ray(new Point(0, 0, 1), new Vector(1, 1, -1))),
                 "Ray orthogonal and starts inside the plane, should return null");
 
         // TC14: Ray is orthogonal and starts after the plane
-        assertNull(plane.findIntersections(new Ray(new Point(0, 0, -1), new Vector(1, 1, -1))),
+        assertNull(plane.findIntersections(new Ray(new Point(0, 0, 2), new Vector(1, 1, 1))),
                 "Ray orthogonal and starts after the plane, should return null");
 
         // TC15: Ray is neither orthogonal nor parallel and begins inside the plane

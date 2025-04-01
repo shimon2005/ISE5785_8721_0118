@@ -68,9 +68,10 @@ class SphereTests {
         // =============== Boundary Values Tests (13 tests) ==================
 
         // TC10: Ray intersects but does not pass through the center
-        assertEquals(List.of(new Point(0.866, 0.5, 0), new Point(-0.866, -0.5, 0)),
-                sphere.findIntersections(new Ray(new Point(2, 1, 0), new Vector(-2, -1, 0))),
+        assertEquals(List.of(new Point(0.8660254037844386, 0.5, 0), new Point(-0.8660254037844386, 0.5, 0)),
+                sphere.findIntersections(new Ray(new Point(2, 0.5, 0), new Vector(-1, 0, 0))),
                 "Ray intersects sphere but does not pass through center, should return two points");
+
 
         // TC11: Ray goes through the center - starts before and intersects twice
         assertEquals(List.of(new Point(0, -1, 0), new Point(0, 1, 0)),
@@ -90,23 +91,18 @@ class SphereTests {
                 sphere.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 1, 0))),
                 "Ray originates from sphere’s center, should return one intersection point");
 
-        // TC15: Ray is orthogonal to the segment P0O
-        assertEquals(List.of(new Point(0, 2, 0)),
-                sphere.findIntersections(new Ray(new Point(0, 1, 0), new Vector(0, 1, 0))),
-                "Ray is orthogonal to the segment and starts at the surface, should return one point");
+        // TC15: Ray is tangent to the sphere (ray's direction is orthogonal to the vector from the ray's origin to the sphere's center)
+        assertNull(sphere.findIntersections(new Ray(new Point(0, 1, 0), new Vector(1, 0, 0))),
+                "Ray is tangent to the sphere, should return null");
 
-        // TC16: Ray is parallel to the sphere and outside
+        // TC16: Ray is outside the sphere and does not intersect (parallel to an axis)
         assertNull(sphere.findIntersections(new Ray(new Point(2, 0, 0), new Vector(0, 1, 0))),
-                "Ray is parallel to the sphere and outside, should return null");
+                "Ray is outside the sphere and parallel to the Y-axis, should return null");
 
-        // TC17: Ray is parallel to the sphere and inside
-        assertNull(sphere.findIntersections(new Ray(new Point(0, 0, 0), new Vector(0, 1, 0))),
-                "Ray is parallel to the sphere and inside, should return null");
-
-        // TC18: Ray starts at a tangent point and moves inward
-        assertEquals(List.of(new Point(0, -1, 0)),
-                sphere.findIntersections(new Ray(new Point(1, 0, 0), new Vector(-1, 0, 0))),
-                "Ray starts at tangent point and moves inward, should return one point");
+        // TC17: Ray starts inside the sphere and exits once
+        assertEquals(List.of(new Point(0, 1, 0)),
+                sphere.findIntersections(new Ray(new Point(0, 0.5, 0), new Vector(0, 1, 0))),
+                "Ray starts inside the sphere and exits once, should return one point");
 
         // TC19: Ray starts at a tangent point and moves outward
         assertNull(sphere.findIntersections(new Ray(new Point(1, 0, 0), new Vector(1, 0, 0))),
@@ -118,7 +114,7 @@ class SphereTests {
                 "Ray intersects at the center, should return two points");
 
         // TC21: Ray passes near the sphere but does not touch it
-        assertNull(sphere.findIntersections(new Ray(new Point(2, 2, 2), new Vector(-1, -1, -1))),
+        assertNull(sphere.findIntersections(new Ray(new Point(2, 2, 2), new Vector(1, 0, 0))),
                 "Ray passes near the sphere but does not touch, should return null");
 
         // TC22: Ray grazes the edge of the sphere but does not intersect

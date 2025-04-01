@@ -5,6 +5,8 @@ import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -59,76 +61,61 @@ public class Sphere extends RadialGeometry {
      */
     @Override
     public List<Point> findIntersections(Ray ray) {
-        Point p0 = ray.getHead(); // Starting point of the ray.
-        Vector v = ray.getDirection(); // Direction of the ray.
+        Point p0 = ray.getHead();
+        Vector v = ray.getDirection();
 
-        // If the ray starts at the center of the sphere, it intersects at one point on the sphere.
+        // Special case: if the ray originates at the center, it intersects the sphere at exactly one point.
         if (center.equals(p0)) {
-            // The intersection point will be on the surface of the sphere, at the radius distance in the direction of the ray.
-            Point p1 = p0.add(v.scale(radius));
-            return List.of(p1); // Return the single intersection point.
+            Point intersection = p0.add(v.scale(radius));
+            return List.of(intersection);
         }
 
-        Vector u = center.subtract(p0); // Vector from the ray's head to the sphere's center.
+        // Compute vector from ray's origin to the sphere's center.
+        Vector u = center.subtract(p0);
 
-        // Calculate the projection of the ray's direction onto the vector u.
+        // Project u onto the ray direction v.
         double tm = Util.alignZero(v.dotProduct(u));
 
-        // Calculate the squared distance from the ray to the sphere's center, excluding the projection part.
+        // Compute the squared distance from the sphere's center to the projection.
         double dSquared = Util.alignZero(u.lengthSquared() - tm * tm);
-
-        // The squared radius of the sphere.
         double radiusSquared = radius * radius;
 
-        // If the squared distance is greater than the radius squared, there is no intersection.
-        if (dSquared >= radiusSquared) {
-            return null; // No intersections
+        // If the distance from the ray to the center is greater than the sphere's radius, no intersections occur.
+        if (dSquared > radiusSquared) {
+            return null;
         }
 
-        // Calculate the distance along the ray to the intersection points.
+        // Distance from the projection point to the intersection points along the ray.
         double th = Math.sqrt(radiusSquared - dSquared);
 
-        // Calculate the two potential intersection points along the ray.
+        // If the ray is tangent to the sphere, return null.
+        if (Util.isZero(th)) {
+            return null;
+        }
+
+        // Calculate potential intersection distances along the ray.
         double t1 = Util.alignZero(tm - th);
         double t2 = Util.alignZero(tm + th);
 
-        // If t1 and t2 are both negative there are no valid intersection.
-        // check here to quickly return null if there are no valid intersections.
-        // we dont need to check if either is zero because it means the ray is tangent to the sphere, and we already return null for that case.
-        if (t1 < 0 && t2 < 0) {
-            return null; // No valid intersections
-        }
-
-        // If we reach here, it means at least one of t1 or t2 is positive. (i.e., the ray intersects the sphere).
-
-        // Check if both intersection points are valid (i.e., t1 and t2 are positive).
-        List<Point> intersections = new java.util.ArrayList<>();
+        List<Point> intersections = new ArrayList<>();
 
         if (t1 > 0) {
-            Point p1 = p0.add(v.scale(t1)); // First intersection point.
-            intersections.add(p1);
+            intersections.add(ray.getPoint(t1));
         }
         if (t2 > 0) {
-            Point p2 = p0.add(v.scale(t2)); // Second intersection point.
-            intersections.add(p2);
+            intersections.add(ray.getPoint(t2));
         }
 
-        // If exactly two intersection points, sort them by their distance from the ray's head.
+        // If there are no valid intersection points, return null.
+        if (intersections.isEmpty()) {
+            return null;
+        }
+
+        // If two intersection points exist, sort them by distance from the ray's origin.
         if (intersections.size() == 2) {
-            Point p1 = intersections.get(0);
-            Point p2 = intersections.get(1);
-
-            double dist1 = p0.distance(p1);
-            double dist2 = p0.distance(p2);
-
-            // Sort points by distance (ascending).
-            if (dist1 > dist2) {
-                intersections.set(0, p2);
-                intersections.set(1, p1);
-            }
+            intersections.sort(Comparator.comparingDouble(p0::distance));
         }
 
-        // Return the sorted list of intersection points.
-        return intersections; // Always return the points in sorted order.
+        return intersections;
     }
 }
