@@ -60,7 +60,7 @@ public class Cylinder extends Tube {
         // If reach here the point is on the curved surface
 
         // Determine the closest point to the point parameter on the axis
-        Point o = p0.add(v.scale(t));
+        Point o = axis.getPoint(t);
 
         // Calculate the normal for a point on the curved surface
         Vector normal = point.subtract(o);

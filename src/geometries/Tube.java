@@ -45,8 +45,7 @@ public class Tube extends RadialGeometry {
         // Projecting p0ToP onto the tube's axis direction to find the closest point on the axis
         double t = p0ToP.dotProduct(v);
 
-        // If t is 0, set the closest point o to be p0 directly else calculate it
-        Point o = (t == 0) ? p0 : p0.add(v.scale(t));
+        Point o = axis.getPoint(t);
 
         // The normal vector is the direction from o to the given point
         Vector normal = point.subtract(o);
