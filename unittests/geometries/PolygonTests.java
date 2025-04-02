@@ -2,12 +2,9 @@ package geometries;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.Test;
 import java.util.List;
 
-import org.junit.jupiter.api.Test;
-
-import geometries.Plane;
-import geometries.Polygon;
 import primitives.*;
 
 /**
@@ -21,7 +18,7 @@ class PolygonTests {
     */
    private static final double DELTA = 0.000001;
 
-   /** Test method for {@link Polygon#Polygon(Point...)}. */
+   /** Test method for {@link geometries.Polygon#Polygon(primitives.Point...)}. */
    @Test
    void testConstructor() {
       // ============ Equivalence Partitions Tests ==============
@@ -69,7 +66,7 @@ class PolygonTests {
 
    }
 
-   /** Test method for {@link Polygon#getNormal(Point)}. */
+   /** Test method for {@link geometries.Polygon#getNormal(primitives.Point)}. */
    @Test
    void testGetNormal() {
       // ============ Equivalence Partitions Tests ==============
@@ -89,42 +86,56 @@ class PolygonTests {
                       "Polygon's normal is not orthogonal to one of the edges");
    }
 
-    /**
-     * Test method for {@link Polygon#findIntersections(Ray)}.
-     */
-    @Test
-    void testFindIntersections() {
-       Polygon polygon = new Polygon(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0), new Point(-1, 1, 1));
+   /**
+    * Test method for {@link Polygon#findIntersections(Ray)}.
+    */
+   @Test
+   void testFindIntersections() {
+      Polygon polygon = new Polygon(
+              new Point(0, 0, 1),
+              new Point(1, 0, 0),
+              new Point(0, 1, 0),
+              new Point(-1, 1, 1)
+      );
 
-       // ============ Equivalence Partitions Tests ==============
+      // ============ Equivalence Partitions Tests ==============
 
-       // TC01: Ray intersects inside the polygon
-       assertEquals(List.of(new Point(0.25, 0.25, 0.5)),
-               polygon.findIntersections(new Ray(new Point(0.25, 0.25, 1), new Vector(0, 0, -1))),
-               "Ray intersects inside the polygon");
+      // TC01: Ray intersects inside the polygon (an interior intersection)
+      // The ray starts at (0.25, 0.25, 1) and goes in the (0,0,-1) direction.
+      // It intersects the polygon at (0.25, 0.25, 0.5), which is strictly inside.
+      assertEquals(List.of(new Point(0.25, 0.25, 0.5)),
+              polygon.findIntersections(new Ray(new Point(0.25, 0.25, 1), new Vector(0, 0, -1))),
+              "Ray should intersect inside the polygon");
 
-       // TC02: Ray intersects outside the polygon against an edge
-       assertNull(polygon.findIntersections(new Ray(new Point(2, 0.5, 0.5), new Vector(-1, 0, 0))),
-               "Ray intersects outside the polygon against an edge");
+      // TC02: Ray intersects the plane of the polygon at a point clearly outside the polygon.
+      // The ray from (2,1,-1) in the direction (-1,0,0) meets the plane at (1,1,-1), which lies outside.
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 1, -1), new Vector(-1, 0, 0))),
+              "Ray intersects outside the polygon");
 
-       // TC03: Ray intersects outside the polygon against a vertex
-       assertNull(polygon.findIntersections(new Ray(new Point(1, 1, 1), new Vector(-1, -1, -1))),
-               "Ray intersects outside the polygon against a vertex");
+      // TC03: Ray intersects exactly at a vertex of the polygon (vertex B: (1,0,0)).
+      // With the decision that boundary intersections are not counted, we expect no intersection.
+      assertNull(polygon.findIntersections(new Ray(new Point(1, 0, 1), new Vector(0, 0, -1))),
+              "Ray intersects exactly at a vertex of the polygon, which should not count as an intersection");
 
-       // =============== Boundary Values Tests ==================
+      // =============== Boundary Values Tests ==================
 
-       // TC04: Ray intersects on the edge of the polygon
-       assertEquals(List.of(new Point(0.5, 0, 0)),
-               polygon.findIntersections(new Ray(new Point(0.5, 0, 1), new Vector(0, 0, -1))),
-               "Ray intersects on the edge of the polygon");
+      // TC04: Ray intersects on the edge of the polygon.
+      // For a ray from (0.5, 0, 1) in the (0,0,-1) direction, the intersection lies exactly on an edge.
+      // Hence, no intersection is counted.
+      assertNull(polygon.findIntersections(new Ray(new Point(0.5, 0, 1), new Vector(0, 0, -1))),
+              "Ray intersects on the edge of the polygon, which should not count as an intersection");
 
-       // TC05: Ray intersects in the vertex of the polygon
-       assertEquals(List.of(new Point(0, 0, 1)),
-               polygon.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, -1))),
-               "Ray intersects in the vertex of the polygon");
+      // TC05: Ray intersects exactly in the vertex of the polygon (vertex A: (0,0,1)).
+      // Even though the ray from (0,0,2) in the (0,0,-1) direction hits the vertex,
+      // boundary intersections are not counted.
+      assertNull(polygon.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, -1))),
+              "Ray intersects in the vertex of the polygon, which should not count as an intersection");
 
-       // TC06: Ray intersects on the continuation of an edge
-       assertNull(polygon.findIntersections(new Ray(new Point(2, 0, 0), new Vector(-1, 0, 0))),
-               "Ray intersects on the continuation of an edge");
-    }
+      // TC06: Ray intersects on the continuation of an edge (outside the polygon).
+      // The ray from (2, 0, 0) with direction (-1, 0, 0) intersects the plane along the line extending an edge,
+      // so no intersection with the polygon is counted.
+      assertNull(polygon.findIntersections(new Ray(new Point(2, 0, 0), new Vector(-1, 0, 0))),
+              "Ray intersects on the continuation of an edge, which should not count as an intersection");
+   }
+
 }

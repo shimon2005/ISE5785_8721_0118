@@ -102,21 +102,40 @@ public class Polygon extends Geometry {
       // Get the intersection point
       Point intersectionPoint = planeIntersections.getFirst();
 
-      // Check if the intersection point is inside the polygon
-      Vector v1, v2;
-      int numVertices = vertices.size();
-
-      for (int i = 0; i < numVertices; ++i) {
-         v1 = vertices.get(i).subtract(intersectionPoint);
-         v2 = vertices.get((i + 1) % numVertices).subtract(intersectionPoint);
-
-         // Use alignZero to avoid floating-point precision errors
-         if (Util.alignZero(v1.crossProduct(v2).dotProduct(plane.getNormal())) < 0) {
-            return null; // Intersection point is outside the polygon
+      // Check if the intersection point is exactly one of the polygon's vertices.
+      // If so, it is considered a boundary intersection.
+      for (Point vertex : vertices) {
+         if (vertex.equals(intersectionPoint)) {
+            return null;
          }
       }
 
-      return List.of(intersectionPoint); // Intersection point is inside the polygon
+      int numVertices = vertices.size();
+      for (int i = 0; i < numVertices; ++i) {
+         // Compute vectors from the intersection point to the vertices.
+         // We check if the subtraction would yield a zero vector and handle it upfront.
+         Vector v1 = vertices.get(i).subtract(intersectionPoint);
+         Vector v2 = vertices.get((i + 1) % numVertices).subtract(intersectionPoint);
+
+         // Before computing the cross product, check if v1 and v2 are collinear to avoid creating a zero vector.
+         // Two vectors are collinear if the absolute value of their normalized dot product is 1.
+         double normalizedDot = v1.normalize().dotProduct(v2.normalize());
+         if (Util.isZero(Math.abs(normalizedDot) - 1)) {
+            return null; // The intersection point lies on the boundary (edge or vertex)
+         }
+
+         // Now safely compute the cross product, knowing it won't be the zero vector.
+         Vector cross = v1.crossProduct(v2);
+
+         // Check the sign of the dot product with the plane's normal.
+         // A negative result means that the point is outside the polygon.
+         if (Util.alignZero(cross.dotProduct(plane.getNormal())) < 0) {
+            return null;
+         }
+      }
+
+      return List.of(intersectionPoint); // Intersection point is inside the polygon.
    }
+
 
 }
