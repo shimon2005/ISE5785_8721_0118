@@ -35,70 +35,56 @@ public class Triangle extends Polygon {
     }
 
 
-    /**
-     * Finds the intersection of a ray with the triangle using the Möller–Trumbore algorithm.
-     * This method directly computes the intersection without precomputing the plane.
-     * @param ray The ray to check for intersection.
-     * @return A list containing the intersection point, or null if there is no intersection.
-     */
-    @Override
     public List<Point> findIntersections(Ray ray) {
-        // Triangle vertices
-        Point p0 = vertices.get(0);
-        Point p1 = vertices.get(1);
-        Point p2 = vertices.get(2);
+        final double EPSILON = 1e-10;
 
-        // Triangle edges
-        Vector edge1 = p1.subtract(p0);
-        Vector edge2 = p2.subtract(p0);
+        // Triangle vertices: p1, p2, p3
+        Point p1 = vertices.get(0);
+        Point p2 = vertices.get(1);
+        Point p3 = vertices.get(2);
 
-        Vector dir = ray.getDirection();
+        // Compute two edges and the plane normal
+        Vector edge1 = p2.subtract(p1);
+        Vector edge2 = p3.subtract(p1);
+        Vector normal = edge1.crossProduct(edge2).normalize();
 
-        // Check if ray direction is parallel to edge2 before computing h (to prevent 0 vector build)
-        double dotDirEdge2 = Math.abs(dir.normalize().dotProduct(edge2.normalize()));
-        if (Util.isZero(dotDirEdge2 - 1.0)) {
-            return null;
-        }
+        // Calculate the denominator (dot product of ray direction and plane normal)
+        double denom = Util.alignZero(ray.getDirection().dotProduct(normal));
+        if (Util.isZero(denom))
+            return null; // Ray is parallel to the triangle's plane
 
-        // Compute h = ray direction x edge2
-        Vector h = dir.crossProduct(edge2);
-
-        double det = edge1.dotProduct(h);
-        if (Util.isZero(det))
-            return null; // Ray is parallel to the triangle
-
-        double invDet = 1.0 / det;
-
-        // Calculate u parameter
-        Vector s = ray.getHead().subtract(p0);
-
-        // Check if s is parallel to edge1 before computing q (to prevent 0 vector build)
-        double dotSEdge1 = Math.abs(s.normalize().dotProduct(edge1.normalize()));
-        if (Util.isZero(dotSEdge1 - 1.0)) {
-            return null;
-        }
-
-        double u = s.dotProduct(h) * invDet;
-        if (u < 0 || u > 1)
-            return null; // Intersection is outside the triangle
-
-        // Compute q = s x edge1
-        Vector q = s.crossProduct(edge1);
-
-        double v = dir.dotProduct(q) * invDet;
-        if (v < 0 || u + v > 1)
-            return null; // Intersection is outside the triangle
-
-        // If the intersection point is on the edge of the triangle, its not considered an intersection so we return null
-        if (Util.isZero(u) || Util.isZero(v) || Util.isZero(1 - u - v))
-            return null;
-
-        double t = edge2.dotProduct(q) * invDet;
-        if (t < 0)
+        // Compute the parameter t for the ray–plane intersection
+        double t = Util.alignZero(normal.dotProduct(p1.subtract(ray.getHead())) / denom);
+        if (t < EPSILON)
             return null; // Intersection is behind the ray's origin
 
-        Point intersectionPoint = ray.getPoint(t);
-        return List.of(intersectionPoint);
-    }
+        // Compute the intersection point P
+        Point P = ray.getPoint(t);
 
+        // Additional check: if the intersection point equals one of the vertices, return null.
+        if (P.equals(p1) || P.equals(p2) || P.equals(p3))
+            return null;
+
+        // Convert P to barycentric coordinates relative to the triangle (with p1 as reference)
+        Vector v0 = edge1;              // p1 -> p2
+        Vector v1 = edge2;              // p1 -> p3
+        Vector v2 = P.subtract(p1);     // p1 -> P
+
+        double dot00 = Util.alignZero(v0.dotProduct(v0));
+        double dot01 = Util.alignZero(v0.dotProduct(v1));
+        double dot02 = Util.alignZero(v0.dotProduct(v2));
+        double dot11 = Util.alignZero(v1.dotProduct(v1));
+        double dot12 = Util.alignZero(v1.dotProduct(v2));
+
+        double invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
+        double u = Util.alignZero((dot11 * dot02 - dot01 * dot12) * invDenom);
+        double v = Util.alignZero((dot00 * dot12 - dot01 * dot02) * invDenom);
+        double w = 1 - u - v;
+
+        // Check that all barycentric coordinates are strictly greater than EPSILON
+        if (u <= EPSILON || v <= EPSILON || w <= EPSILON)
+            return null;
+
+        return List.of(P);
+    }
 }
