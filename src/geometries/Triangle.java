@@ -89,6 +89,10 @@ public class Triangle extends Polygon {
         if (v < 0 || u + v > 1)
             return null; // Intersection is outside the triangle
 
+        // If the intersection point is on the edge of the triangle, its not considered an intersection so we return null
+        if (Util.isZero(u) || Util.isZero(v) || Util.isZero(1 - u - v))
+            return null;
+
         double t = edge2.dotProduct(q) * invDet;
         if (t < 0)
             return null; // Intersection is behind the ray's origin
@@ -96,4 +100,5 @@ public class Triangle extends Polygon {
         Point intersectionPoint = ray.getPoint(t);
         return List.of(intersectionPoint);
     }
+
 }

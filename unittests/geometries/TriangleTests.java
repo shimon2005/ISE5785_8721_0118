@@ -63,20 +63,20 @@ class TriangleTests {
 
         // =============== Boundary Values Tests ==================
 
-        // TC04: Ray intersects on the edge of the triangle
-        assertEquals(List.of(new Point(0.5, 0, 0)),
-                triangle.findIntersections(new Ray(new Point(0.5, 0, 1), new Vector(0, 0, -1))),
-                "Ray intersects on the edge of the triangle");
+        // TC04: Ray intersects exactly on an edge of the triangle (should return null)
+        assertNull(triangle.findIntersections(new Ray(new Point(0.5, 0, 1), new Vector(0, 0, -1))),
+                "Ray intersects exactly on an edge of the triangle");
 
-        // TC05: Ray intersects in the vertex of the triangle
-        assertEquals(List.of(new Point(0, 0, 1)),
-                triangle.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, -1))),
-                "Ray intersects in the vertex of the triangle");
+        // TC05: Ray intersects exactly at a vertex of the triangle (should return null)
+        assertNull(triangle.findIntersections(new Ray(new Point(0, 0, 2), new Vector(0, 0, -1))),
+                "Ray intersects exactly at a vertex of the triangle");
 
         // TC06: Ray intersects on the continuation of an edge
         assertNull(triangle.findIntersections(new Ray(new Point(2, 0, 0), new Vector(-1, 0, 0))),
                 "Ray intersects on the continuation of an edge");
     }
+
+
 
 
 
