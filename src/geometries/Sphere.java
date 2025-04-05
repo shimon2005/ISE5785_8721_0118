@@ -97,25 +97,18 @@ public class Sphere extends RadialGeometry {
         double t1 = Util.alignZero(tm - th);
         double t2 = Util.alignZero(tm + th);
 
-        List<Point> intersections = new ArrayList<>();
-
+        if (t1 > 0 && t2 > 0) {
+            Point p1 = ray.getPoint(t1);
+            Point p2 = ray.getPoint(t2);
+            return p0.distance(p1) <= p0.distance(p2) ?
+                    List.of(p1, p2) : List.of(p2, p1);
+        }
         if (t1 > 0) {
-            intersections.add(ray.getPoint(t1));
+            return List.of(ray.getPoint(t1));
         }
         if (t2 > 0) {
-            intersections.add(ray.getPoint(t2));
+            return List.of(ray.getPoint(t2));
         }
-
-        // If there are no valid intersection points, return null.
-        if (intersections.isEmpty()) {
-            return null;
-        }
-
-        // If two intersection points exist, sort them by distance from the ray's origin.
-        if (intersections.size() == 2) {
-            intersections.sort(Comparator.comparingDouble(p0::distance));
-        }
-
-        return intersections;
+        return null;
     }
 }
