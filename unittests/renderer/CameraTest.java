@@ -35,6 +35,7 @@ class CameraTest {
                    camera1.constructRay(4, 4, 1, 1), BAD_RAY);
 
       // =============== Boundary Values Tests ==================
+
       // BV01: 4X4 Corner (0,0)
       assertEquals(new Ray(Point.ZERO, new Vector(3, -3, -10)),
                    camera1.constructRay(4, 4, 0, 0), BAD_RAY);

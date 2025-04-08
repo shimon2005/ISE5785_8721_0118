@@ -18,6 +18,7 @@ public class Camera implements Cloneable {
     private double viewPlaneHeight = 0.0;
     private double viewPlaneWidth = 0.0;
     private double vpDistance = 0.0;
+    private Point viewPlanePC;
 
     public static class Builder {
         final Camera camera  = new Camera();
@@ -40,8 +41,9 @@ public class Camera implements Cloneable {
             if (target == this.camera.location) {
                 throw new IllegalArgumentException("the target point cannot be the camera position");
             }
-            this.camera.vTo = target.subtract(this.camera.vUp).normalize();
-            this.camera.vUp = (this.camera.vRight).crossProduct(this.camera.vTo).normalize();
+            this.camera.vTo = target.subtract(this.camera.location).normalize();
+            Vector vRight = (this.camera.vTo).crossProduct(vUp).normalize();
+            this.camera.vUp = vRight.crossProduct(this.camera.vTo).normalize();
             return this;
         }
 
@@ -52,7 +54,7 @@ public class Camera implements Cloneable {
             this.camera.vUp = new Vector(0,1,0);
             this.camera.vTo = target.subtract(this.camera.vUp).normalize();
             Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp).normalize();
-            this.camera.vUp = (this.camera.vRight).crossProduct(this.camera.vTo).normalize();
+            this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();
             return this;
         }
 
@@ -62,6 +64,7 @@ public class Camera implements Cloneable {
             }
             this.camera.viewPlaneHeight = height;
             this.camera.viewPlaneWidth = width;
+            return this;
         }
 
         public Builder setVpDistance (double vpDistance) {
@@ -83,13 +86,13 @@ public class Camera implements Cloneable {
             if (this.camera.vUp == null) {
                 throw new MissingResourceException(camFieldMissingMsg, "Camera" , "Vector vUp");
             }
-            if (this.camera.viewPlaneHeight == 0.0) {
+            if (Util.alignZero(camera.viewPlaneHeight) <= 0) {
                 throw new MissingResourceException(camFieldMissingMsg, "Camera" , "View plane Height");
             }
-            if (this.camera.viewPlaneWidth == 0.0) {
+            if (Util.alignZero(camera.viewPlaneWidth) <= 0) {
                 throw new MissingResourceException(camFieldMissingMsg, "Camera" , "View plane Width");
             }
-            if (this.camera.vpDistance == 0.0) {
+            if (Util.alignZero(camera.vpDistance) <= 0){
                 throw new MissingResourceException(camFieldMissingMsg, "Camera" , "view plane to camera distance");
             }
 
@@ -106,19 +109,43 @@ public class Camera implements Cloneable {
                 throw new RuntimeException("Cloning is not supported for Camera", e);
             }
         }
-
     }
-
-
-
     private Camera() {}
 
     public static Builder getBuilder() {
         return new Builder();
     }
 
+    /**
+     * Constructs a ray from the camera through pixel (j,i) on an nX×nY view plane.
+     *
+     * @param nX number of pixels in width
+     * @param nY number of pixels in height
+     * @param j  pixel column (0..nX-1)
+     * @param i  pixel row    (0..nY-1)
+     * @return the ray through the center of that pixel
+     */
     public Ray constructRay(int nX, int nY, int j, int i) {
-        return null;
+        // 1) Compute center point of view plane: P_c = P0 + vTo * d
+        Point pc = location.add(vTo.scale(vpDistance));
+
+        // 2) Pixel size
+        double rX = viewPlaneWidth  / nX;
+        double rY = viewPlaneHeight / nY;
+
+        // 3) Pixel’s center offsets from P_c
+        double xJ = (j - (nX - 1) / 2.0) * rX;
+        double yI = - (i - (nY - 1) / 2.0) * rY;
+
+        // 4) Compute P_ij = P_c + xJ * vRight + yI * vUp
+        Point pij = pc;
+        if (!Util.isZero(xJ)) pij = pij.add(vRight.scale(xJ));
+        if (!Util.isZero(yI)) pij = pij.add(vUp.scale(yI));
+
+        // 5) Ray direction is from P0 toward P_ij
+        Vector dir = pij.subtract(location).normalize();
+
+        return new Ray(location, dir);
     }
 
 }
