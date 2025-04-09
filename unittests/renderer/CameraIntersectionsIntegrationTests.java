@@ -21,23 +21,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class CameraIntersectionsIntegrationTests {
 
-    private static Camera cam0;
-    private static Camera camHalf;
+    private static Camera camera1;
+    private static Camera camera2;
+    private static Camera camFacingPositiveZ;
 
     @BeforeAll
     static void initCameras() {
-        // Camera at (0,0,0) looking at (0,0,-1) with up vector (0,-1,0)
-        cam0 = Camera.getBuilder()
+        // Camera at (0,0,0) looking at -Z with up vector -Y
+        camera1 = Camera.getBuilder()
                 .setLocation(Point.ZERO)
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .build();
 
-        // Camera at (0,0,0.5) looking at (0,0,-1) with up vector (0,-1,0)
-        camHalf = Camera.getBuilder()
+        // Camera at (0,0,0.5) looking at -Z with up vector -Y
+        camera2 = Camera.getBuilder()
                 .setLocation(new Point(0, 0, 0.5))
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
+                .setVpSize(3, 3)
+                .setVpDistance(1)
+                .build();
+
+        // Camera looking at +Z (for testing planes in front)
+        camFacingPositiveZ = Camera.getBuilder()
+                .setLocation(Point.ZERO)
+                .setDirection(new Vector(0, 0, 1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .build();
@@ -60,37 +69,41 @@ class CameraIntersectionsIntegrationTests {
                 "Total intersections for " + shape.getClass().getSimpleName());
     }
 
-    /** Sphere cases: radius→expectedCount */
+    /** Sphere cases: radius → expectedCount */
     @Test
     void testSphereIntegration() {
-        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, -3),   1  ),  2);
-        assertIntersectionsCount(camHalf, new Sphere(new Point(0,  0, -2.5), 2.5), 18);
-        assertIntersectionsCount(camHalf, new Sphere(new Point(0,  0, -2),   2  ), 10);
-        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, -1),   4  ),  9);
-        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, 1),   0.5),  0);
+        assertIntersectionsCount(camera1, new Sphere(new Point(0,  0, -3),   1  ),  2);
+        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, -2.5), 2.5), 18);
+        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, -2),   2  ), 10);
+        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, 1),   4  ),  9);
+        assertIntersectionsCount(camera1, new Sphere(new Point(0,  0, 1),   0.5),  0);
     }
 
     /** Plane cases: perpendicular → 9, vertical → 9, horizontal → 6 */
     @Test
     void testPlaneIntegration() {
-        // perpendicular to view direction
-        assertIntersectionsCount(cam0,
-                new Plane(new Point(0, 0, -1), new Vector(0, 0, 1)), 9);
+        // Plane facing camera (camera facing +Z)
+        assertIntersectionsCount(camFacingPositiveZ,
+                new Plane(new Point(0, 0, 5), new Vector(0, 0, 1)), 9);
 
-        // vertical plane through camera (x=0)
-        assertIntersectionsCount(cam0,
-                new Plane(Point.ZERO, new Vector(1, 0, 0)), 9);
+        // Diagonal plane
+        assertIntersectionsCount(camFacingPositiveZ,
+                new Plane(new Point(0, 0, 5), new Vector(0, -1, 2)), 9);
 
-        // horizontal plane through camera (y=0)
-        assertIntersectionsCount(cam0,
-                new Plane(Point.ZERO, new Vector(0, 1, 0)), 6);
+        // Diagonal obtuse angle (some miss)
+        assertIntersectionsCount(camFacingPositiveZ,
+                new Plane(new Point(0, 0, 2), new Vector(1, 1, 1)), 6);
+
+        // Plane behind the camera
+        assertIntersectionsCount(camFacingPositiveZ,
+                new Plane(new Point(0, 0, -4), new Vector(0, 0, 1)), 0);
     }
 
     /** Triangle cases: centered → 1, large → 2 */
     @Test
     void testTriangleIntegration() {
         // only center pixel hits
-        assertIntersectionsCount(cam0,
+        assertIntersectionsCount(camera1,
                 new Triangle(
                         new Point( 0,  1, -2),
                         new Point( 1, -1, -2),
@@ -98,7 +111,7 @@ class CameraIntersectionsIntegrationTests {
                 ), 1);
 
         // 2 pixels hit
-        assertIntersectionsCount(cam0,
+        assertIntersectionsCount(camera1,
                 new Triangle(
                         new Point( 0, 20, -2),
                         new Point( 1, -1, -2),
