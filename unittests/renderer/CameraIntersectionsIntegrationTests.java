@@ -16,37 +16,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Integration tests between Camera ray‐generation and geometry intersections.
- *
  * View‐plane: 3×3 pixels, physical size=3×3, distance=1.
  */
 class CameraIntersectionsIntegrationTests {
 
-    private static Camera camera1;
-    private static Camera camera2;
-    private static Camera camFacingPositiveZ;
+    private static Camera cam0;
+    private static Camera camHalf;
 
     @BeforeAll
     static void initCameras() {
-        // Camera at (0,0,0) looking at -Z with up vector -Y
-        camera1 = Camera.getBuilder()
+        // Camera at (0,0,0) looking at (0,0,-1) with up vector (0,-1,0)
+        cam0 = Camera.getBuilder()
                 .setLocation(Point.ZERO)
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .build();
 
-        // Camera at (0,0,0.5) looking at -Z with up vector -Y
-        camera2 = Camera.getBuilder()
+        // Camera at (0,0,0.5) looking at (0,0,-1) with up vector (0,-1,0)
+        camHalf = Camera.getBuilder()
                 .setLocation(new Point(0, 0, 0.5))
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
-                .setVpSize(3, 3)
-                .setVpDistance(1)
-                .build();
-
-        // Camera looking at +Z (for testing planes in front)
-        camFacingPositiveZ = Camera.getBuilder()
-                .setLocation(Point.ZERO)
-                .setDirection(new Vector(0, 0, 1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .build();
@@ -69,41 +59,56 @@ class CameraIntersectionsIntegrationTests {
                 "Total intersections for " + shape.getClass().getSimpleName());
     }
 
-    /** Sphere cases: radius → expectedCount */
+    /**
+     * Sphere cases:
+     * - Sphere centered at (0,0,-3) with radius 1: 2 intersections.
+     * - Sphere centered at (0,0,-2.5) with radius 2.5: 18 intersections.
+     * - Sphere centered at (0,0,-2) with radius 2: 10 intersections.
+     * - Sphere centered at (0,0,-1) with radius 4: 9 intersections.
+     * - Sphere centered at (0,0,1) with radius 0.5: 0 intersections.
+     */
     @Test
     void testSphereIntegration() {
-        assertIntersectionsCount(camera1, new Sphere(new Point(0,  0, -3),   1  ),  2);
-        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, -2.5), 2.5), 18);
-        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, -2),   2  ), 10);
-        assertIntersectionsCount(camera2, new Sphere(new Point(0,  0, 1),   4  ),  9);
-        assertIntersectionsCount(camera1, new Sphere(new Point(0,  0, 1),   0.5),  0);
+        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, -3),   1  ),  2);
+        assertIntersectionsCount(camHalf, new Sphere(new Point(0,  0, -2.5), 2.5), 18);
+        assertIntersectionsCount(camHalf, new Sphere(new Point(0,  0, -2),   2  ), 10);
+        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, -1),   4  ),  9);
+        assertIntersectionsCount(cam0, new Sphere(new Point(0,  0, 1),   0.5),  0);
     }
 
-    /** Plane cases: perpendicular → 9, vertical → 9, horizontal → 6 */
+    /**
+     * Plane cases:
+     * - Plane parallel to the y-axis: 9 intersections (all camera rays hit it).
+     * - Tilted plane such that every ray from the view plane intersects it: 9 intersections.
+     * - Tilted plane so that only the upper 6 rays (from the top two rows) hit the plane: 6 intersections.
+     */
     @Test
     void testPlaneIntegration() {
-        // Plane facing camera (camera facing +Z)
-        assertIntersectionsCount(camFacingPositiveZ,
-                new Plane(new Point(0, 0, 5), new Vector(0, 0, 1)), 9);
+       // Case 1: Plane parallel to the y-axis (normal = (0, 0, 1)).
+        assertIntersectionsCount(cam0,
+                new Plane(new Point(0, 0, -1), new Vector(0, 0, 1)),
+                9);
 
-        // Diagonal plane
-        assertIntersectionsCount(camFacingPositiveZ,
-                new Plane(new Point(0, 0, 5), new Vector(0, -1, 2)), 9);
+        // Case 2: Tilted plane such that every ray from the view plane intersects it.
+        assertIntersectionsCount(cam0,
+                new Plane(new Point(0, 0, -1), new Vector(0, 0.5, -1)),
+                9);
 
-        // Diagonal obtuse angle (some miss)
-        assertIntersectionsCount(camFacingPositiveZ,
-                new Plane(new Point(0, 0, 2), new Vector(1, 1, 1)), 6);
-
-        // Plane behind the camera
-        assertIntersectionsCount(camFacingPositiveZ,
-                new Plane(new Point(0, 0, -4), new Vector(0, 0, 1)), 0);
+        // Case 3: Tilted plane so that only the upper 6 rays (from the top two rows) hit the plane.
+        assertIntersectionsCount(cam0,
+                new Plane(new Point(0, 0, -1), new Vector(0, 2, -1)),
+                6);
     }
 
-    /** Triangle cases: centered → 1, large → 2 */
+
+    /** Triangle cases:
+     * - Triangle with vertices at (0,1,-2), (1,-1,-2), (-1,-1,-2): 1 intersection.
+     * - Triangle with vertices at (0,20,-2), (1,-1,-2), (-1,-1,-2): 2 intersections.
+     */
     @Test
     void testTriangleIntegration() {
         // only center pixel hits
-        assertIntersectionsCount(camera1,
+        assertIntersectionsCount(cam0,
                 new Triangle(
                         new Point( 0,  1, -2),
                         new Point( 1, -1, -2),
@@ -111,7 +116,7 @@ class CameraIntersectionsIntegrationTests {
                 ), 1);
 
         // 2 pixels hit
-        assertIntersectionsCount(camera1,
+        assertIntersectionsCount(cam0,
                 new Triangle(
                         new Point( 0, 20, -2),
                         new Point( 1, -1, -2),

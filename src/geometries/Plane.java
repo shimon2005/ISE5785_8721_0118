@@ -118,7 +118,7 @@ public class Plane extends Geometry {
         double t = Util.alignZero(normal.dotProduct(point.subtract(ray.getHead())) / denominator);
 
         // If t is negative, there is no valid intersection
-        if (t < 0) {
+        if (t <= 0) {
             return null; // No intersection
         }
 
