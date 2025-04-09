@@ -67,7 +67,7 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("the target point cannot be the camera position");
             }
             this.camera.vTo = target.subtract(this.camera.location).normalize();
-            Vector vRight = (this.camera.vTo).crossProduct(vUp).normalize();
+            Vector vRight = (this.camera.vTo).crossProduct(vUp);    // no need to normalize since it is only a temporary vector and not the actual vRight field
             this.camera.vUp = vRight.crossProduct(this.camera.vTo).normalize();
             return this;
         }
@@ -84,7 +84,7 @@ public class Camera implements Cloneable {
             }
             this.camera.vUp = new Vector(0, 1, 0);
             this.camera.vTo = target.subtract(this.camera.location).normalize();
-            Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp).normalize();
+            Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp);    // no need to normalize since it is only a temporary vector and not the actual vRight field
             this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();
             return this;
         }
@@ -163,7 +163,9 @@ public class Camera implements Cloneable {
             }
 
             // Calculate vRight
-            this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp).normalize();
+            // No need to normalize since vTo and vUp are both normalized and are orthogonal to each other,
+            // so the result of their cross product will be a unit vector.
+            this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
             try {
                 return (Camera) this.camera.clone();
             } catch (CloneNotSupportedException e) {
