@@ -52,7 +52,7 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("the target point cannot be the camera position");
             }
             this.camera.vUp = new Vector(0,1,0);
-            this.camera.vTo = target.subtract(this.camera.vUp).normalize();
+            this.camera.vTo = target.subtract(this.camera.location).normalize();
             Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp).normalize();
             this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();
             return this;
@@ -72,6 +72,11 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("vpDistance must be greater than zero");
             }
             this.camera.vpDistance = vpDistance;
+            return this;
+        }
+
+        public Builder setResolution (int nX, int nY) {
+            // Does nothing for now
             return this;
         }
 

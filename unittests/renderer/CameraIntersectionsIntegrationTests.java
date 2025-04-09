@@ -4,6 +4,7 @@ import geometries.Intersectable;
 import geometries.Plane;
 import geometries.Sphere;
 import geometries.Triangle;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Ray;
@@ -15,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Integration tests between Camera ray‐generation and geometry intersections,
- * covering the exact cases and counts from the “Intersections” slides.
  *
  * View‐plane: 3×3 pixels, physical size=3×3, distance=1.
  */
@@ -30,6 +30,11 @@ class CameraIntersectionsIntegrationTests {
                 .setVpSize(3, 3)
                 .setVpDistance(1)
                 .build();
+    }
+
+    @BeforeAll
+    static void setUp() {
+        initCamera();
     }
 
     /**
@@ -49,7 +54,7 @@ class CameraIntersectionsIntegrationTests {
                 "Total intersections for " + shape.getClass().getSimpleName());
     }
 
-    /** Sphere cases (r=1→2,2.5→18,2→10,4→9,0.5→0) :contentReference[oaicite:0]{index=0} */
+    /** Sphere cases (r=1→2,2.5→18,2→10,4→9,0.5→0) */
     @Test
     void testSphereIntegration() {
         assertIntersectionsCount(new Sphere(new Point(0,  0, -3),   1  ),  2);
@@ -60,13 +65,7 @@ class CameraIntersectionsIntegrationTests {
     }
 
     /**
-     * Plane cases exactly as on the slides:
-     * <ul>
-     *   <li>Plane at z=–1, n=(0,0,1) → 9 intersections</li>
-     *   <li>Plane at x= 0, n=(1,0,0) → 9 intersections</li>
-     *   <li>Plane at y= 0, n=(0,1,0) → 6 intersections</li>
-     * </ul>
-     * :contentReference[oaicite:1]{index=1}
+     * Plane cases (perpendicular to view‐direction→9, vertical→9, horizontal→6) :
      */
     @Test
     void testPlaneIntegration() {
@@ -87,7 +86,7 @@ class CameraIntersectionsIntegrationTests {
         );
     }
 
-    /** Triangle cases (centered→1, shifted up→2) :contentReference[oaicite:2]{index=2} */
+    /** Triangle cases (centered→1, shifted up→2) */
     @Test
     void testTriangleIntegration() {
         assertIntersectionsCount(
