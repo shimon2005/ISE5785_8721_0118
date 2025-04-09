@@ -34,6 +34,7 @@ public class Camera implements Cloneable {
             }
             this.camera.vTo = vTo.normalize();
             this.camera.vUp = vUp.normalize();
+            this.camera.vRight = this.camera.vUp.crossProduct(this.camera.vTo).normalize();
             return this;
         }
 

@@ -117,8 +117,8 @@ public class Plane extends Geometry {
         // Calculate the distance from the ray's origin to the plane
         double t = Util.alignZero(normal.dotProduct(point.subtract(ray.getHead())) / denominator);
 
-        // If t is zero or negative, there is no valid intersection
-        if (t <= 0) {
+        // If t is negative, there is no valid intersection
+        if (t < 0) {
             return null; // No intersection
         }
 
