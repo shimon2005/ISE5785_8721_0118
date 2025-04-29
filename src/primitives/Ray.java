@@ -53,6 +53,16 @@ public class Ray {
         return Util.isZero(t) ? head : head.add(direction.scale(t));
     }
 
+    /**
+     * Finds the closest point from a list of points to the head of this ray.
+     * This method iterates through the list of points and calculates the squared distance
+     * from the head of the ray to each point.
+     * The point with the minimum squared distance is returned.
+     * If the list is empty, null is returned.
+     *
+     * @param pointList the list of points to search
+     * @return the closest point to the head of this ray, or null if the list is empty
+     */
     public Point findClosestPoint (List<Point> pointList){
         if (pointList == null || pointList.isEmpty()) {
             return null; // or throw an exception

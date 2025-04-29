@@ -1,10 +1,10 @@
 package renderer;
+
 import org.junit.jupiter.api.Test;
 import primitives.Color;
-import java.awt.image.BufferedImage;
 
 /**
- * Unit test for ImageWriter class.
+ * Unit test for the {@link renderer.ImageWriter} class.
  * This test creates an image with a uniform background and a grid overlay.
  */
 public class ImageWriterTest {
@@ -13,7 +13,13 @@ public class ImageWriterTest {
      * Test method for {@link renderer.ImageWriter#writePixel(int, int, Color)} and
      * {@link renderer.ImageWriter#writeToImage(String)}.
      * <p>
-     * The image is initialized with a light blue background and a red grid of 16x10 squares.
+     * This test creates an image with a light blue background and a red grid of 16x10 squares.
+     * It verifies that the {@code writePixel} method correctly sets the pixel colors
+     * and that the {@code writeToImage} method outputs the image to a file.
+     * </p>
+     * <p>
+     * The resulting image is saved as "ImageWriterTest_Grid.png" in the output directory.
+     * </p>
      */
     @Test
     void testImageWriterWithGrid() {
