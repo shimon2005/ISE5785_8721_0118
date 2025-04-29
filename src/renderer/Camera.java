@@ -4,7 +4,10 @@ import primitives.Point;
 import primitives.Vector;
 import primitives.Ray;
 import primitives.Util;
+import primitives.Color;
+import scene.Scene;
 
+import java.awt.*;
 import java.util.MissingResourceException;
 
 /**
@@ -17,6 +20,10 @@ public class Camera implements Cloneable {
     private Vector vTo;     // The forward direction vector
     private Vector vUp;     // The upward direction vector
     private Vector vRight;  // The rightward direction vector
+    private ImageWriter imageWriter; // The image writer for rendering images
+    private RayTracerBase rayTracer; // The ray tracer for rendering
+    private int nX; // Number of pixels in width
+    private int nY; // Number of pixels in height
 
     // View plane fields
     private double viewPlaneHeight = 0.0; // Height of the view plane
@@ -120,13 +127,41 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the ray tracer for the camera.
+         * @param rayTracerType the ray tracer to be used
+         * @param scene the scene to be rendered
+         * @return the builder instance
+         */
+        public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
+           switch (rayTracerType) {
+               case SIMPLE:
+                     this.camera.rayTracer = new SimpleRayTracer(scene);
+                     break;
+
+               case GRID:
+                     this.camera.rayTracer = null;
+                     break;
+
+                default:
+                     throw new IllegalArgumentException("Unknown ray tracer type");
+              }
+
+            return this;
+        }
+
+        /**
          * Sets the resolution of the view plane.
          * @param nX the number of horizontal pixels
          * @param nY the number of vertical pixels
          * @return the builder instance
          */
         public Builder setResolution(int nX, int nY) {
-            // Does nothing for now
+            if (nX <= 0 || nY <= 0) {
+                throw new IllegalArgumentException("nX and nY must be greater than zero");
+            }
+            this.camera.nX = nX;
+            this.camera.nY = nY;
+            this.camera.imageWriter = new ImageWriter(nX, nY);
             return this;
         }
 
@@ -218,4 +253,44 @@ public class Camera implements Cloneable {
 
         return new Ray(location, dir);
     }
+
+    public Camera renderImage (){
+        for(int x = 0; x < nX; ++x){
+            for(int y = 0; y < nY; ++y){
+                castRay(x, y);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Draws a grid on the image by coloring horizontal and vertical lines at fixed intervals.
+     *
+     * @param interval the spacing in pixels between the grid lines
+     * @param color    the color of the grid lines
+     */
+    public Camera printGrid(int interval, Color color) {
+        for (int y = 0; y < nY; y++) {
+            for (int x = 0; x < nX; x++) {
+                if (x % interval == 0 || y % interval == 0) {
+                    imageWriter.writePixel(x, y, color);
+                }
+            }
+        }
+        return this;
+    }
+
+
+    public Camera writeToImage (String imageName){
+        imageWriter.writeToImage(imageName);
+        return this;
+    }
+
+    public void castRay (int x, int y) {
+        Ray ray = constructRay(nX, nY, x, y);
+        Color color = rayTracer.traceRay(ray);
+        imageWriter.writePixel(x, y, color);
+    }
+
+
 }
