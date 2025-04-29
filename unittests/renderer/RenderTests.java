@@ -80,6 +80,12 @@ public class RenderTests {
          .writeToImage("color render test");
    }*/
 
+
+
+
+
+
+   // For the bonus in stage 5
    /*
    @Test
    public void basicRenderXml() {

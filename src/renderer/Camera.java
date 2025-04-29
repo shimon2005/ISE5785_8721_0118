@@ -272,22 +272,33 @@ package renderer;
                 }
 
                 /**
-                 * Draws a grid on the image by coloring horizontal and vertical lines at fixed intervals.
+                 * Draws a grid on the image with the specified interval and color.
+                 * Grid lines are drawn every 'interval' pixels, meaning the spacing between them is (interval - 1) pixels.
+                 * For example, if interval = 10, grid lines appear at x = 0, 10, 20, ..., and spacing between lines is 9 pixels.
                  *
-                 * @param interval the spacing in pixels between the grid lines
-                 * @param color    the color of the grid lines
-                 * @return the camera instance
+                 * @param interval The distance in pixels between consecutive grid lines.
+                 * @param color    The color used to draw the grid lines.
+                 * @return         The current Camera instance (for method chaining).
                  */
+
                 public Camera printGrid(int interval, Color color) {
-                    for (int y = 0; y < nY; y++) {
-                        for (int x = 0; x < nX; x++) {
-                            if (x % interval == 0 || y % interval == 0) {
-                                imageWriter.writePixel(x, y, color);
-                            }
+                    // Draw vertical grid lines
+                    for (int x = 0; x < nX; x += interval) {
+                        for (int y = 0; y < nY; y++) {
+                            imageWriter.writePixel(x, y, color);
                         }
                     }
+
+                    // Draw horizontal grid lines
+                    for (int y = 0; y < nY; y += interval) {
+                        for (int x = 0; x < nX; x++) {
+                            imageWriter.writePixel(x, y, color);
+                        }
+                    }
+
                     return this;
                 }
+
 
                 /**
                  * Writes the rendered image to a file.
