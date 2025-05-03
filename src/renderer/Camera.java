@@ -7,7 +7,6 @@ package renderer;
             import primitives.Color;
             import scene.Scene;
 
-            import java.awt.*;
             import java.util.MissingResourceException;
 
             /**
@@ -35,10 +34,10 @@ package renderer;
                 private RayTracerBase rayTracer;
 
                 /** Number of pixels in the width of the view plane. */
-                private int nX;
+                private int nX = 1;
 
                 /** Number of pixels in the height of the view plane. */
-                private int nY;
+                private int nY = 1;
 
                 // View plane fields
                 /** Height of the view plane. */
