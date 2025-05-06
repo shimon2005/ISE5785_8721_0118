@@ -2,12 +2,16 @@ package renderer;
 
 import static java.awt.Color.*;
 
+import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 
 import geometries.*;
 import lighting.AmbientLight;
 import primitives.*;
+import scene.JsonScene;
 import scene.Scene;
+
+import java.io.IOException;
 
 /**
  * Test rendering a basic image
@@ -105,9 +109,12 @@ public class RenderTests {
          .writeToImage("xml render test");
    }
 
+    */
+
+
    @Test
-   public void basicRenderJson() {
-      Scene scene = new Scene("Using Json");
+   public void basicRenderJson() throws IOException, ParseException {
+      Scene scene = JsonScene.importScene("C:\\Users\\baruc\\mini_project_software_engineering\\ISE5785_8721_0118\\unittests\\scene\\testScene.json");
       // enter XML file name and parse from JSON file into scene object instead of the
       // new Scene above,
       // Use the code you added in appropriate packages
@@ -120,8 +127,7 @@ public class RenderTests {
          .build() //
          .renderImage() //
          .printGrid(100, new Color(YELLOW)) //
-         .writeToImage("xml render test");
+         .writeToImage("json render test");
    }
-   */
 
 }
