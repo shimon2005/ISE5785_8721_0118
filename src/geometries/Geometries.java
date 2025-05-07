@@ -11,7 +11,7 @@ import java.util.List;
  * A composite class representing a collection of geometric objects.
  * Implements the Intersectable interface using the Composite design pattern.
  */
-public class Geometries implements Intersectable {
+public class Geometries extends Intersectable {
 
     /**
      * A list of geometric objects, initialized as an empty LinkedList.
@@ -51,27 +51,35 @@ public class Geometries implements Intersectable {
         Collections.addAll(this.geometries, geometries);
     }
 
+
     /**
-     * Finds intersection points of a given ray with all geometries in the collection.
-     * Currently, this method returns null (not implemented yet).
+     * Calculates the intersection points between a given ray and all the geometries
+     * in this composite geometry container (Geometries). Each intersection point is
+     * wrapped in an {@link Intersection} object that includes the geometry it belongs to.
      *
-     * @param ray the ray to check for intersections.
-     * @return a list of intersection points, or null if no intersections are found.
+     * @param ray the ray to intersect with the geometries
+     * @return a list of {@link Intersection} objects containing intersection points and
+     *         their corresponding geometries; returns {@code null} if there are no intersections
      */
     @Override
-    public List<Point> findIntersections(Ray ray){
-        List<Point> intersectionPoints = null;
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        List<Intersection> intersectionList = null;
 
         for (Intersectable geometry : geometries) {
-            List<Point> intersections = geometry.findIntersections(ray);
-            if (intersections != null) {
-                if (intersectionPoints == null) {
-                    intersectionPoints = new LinkedList<>();
+            List<Point> points = geometry.findIntersections(ray);
+            if (points != null) {
+                if (intersectionList == null) {
+                    intersectionList = new LinkedList<>();
                 }
-                intersectionPoints.addAll(intersections);
+                intersectionList.addAll(
+                        points.stream()
+                                .map(p -> new Intersection((Geometry) geometry, p))
+                                .toList()
+                );
             }
         }
-        return intersectionPoints;
+
+        return intersectionList;
     }
 
 }

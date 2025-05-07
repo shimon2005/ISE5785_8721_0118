@@ -35,7 +35,7 @@ public class Triangle extends Polygon {
     }
 
 
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         final double EPSILON = 1e-10;
 
         // Triangle vertices: p1, p2, p3
@@ -85,6 +85,6 @@ public class Triangle extends Polygon {
         if (u <= EPSILON || v <= EPSILON || w <= EPSILON)
             return null;
 
-        return List.of(P);
+        return List.of(new Intersection(this, P));
     }
 }

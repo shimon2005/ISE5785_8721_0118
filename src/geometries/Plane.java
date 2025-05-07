@@ -6,6 +6,7 @@ import primitives.Vector;
 import primitives.Util;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * The Plane class represents a plane in 3D space.
@@ -98,7 +99,7 @@ public class Plane extends Geometry {
      * @return A list containing the intersection point, or null if there is no intersection.
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
 
         // Check if the ray's head is equal to the point field of the plane to avoid creating 0 vector during subtraction later on,
         if (point.equals(ray.getHead())) {
@@ -125,6 +126,9 @@ public class Plane extends Geometry {
         // Calculate the intersection point
         Point intersectionPoint = ray.getPoint(t);
 
-        return List.of(intersectionPoint); // Return a list containing the intersection point
+        return Stream.of(intersectionPoint)
+                .map(p -> new Intersection(this, p))
+                .toList();
+
     }
 }

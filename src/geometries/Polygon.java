@@ -1,6 +1,8 @@
 package geometries;
 
 import java.util.List;
+import java.util.stream.Stream;
+
 import static primitives.Util.*;
 import primitives.Point;
 import primitives.Ray;
@@ -94,7 +96,7 @@ public class Polygon extends Geometry {
     * @return A list containing the intersection point, or null if there is no intersection.
     */
    @Override
-   public List<Point> findIntersections(Ray ray) {
+   public List<Intersection> calculateIntersectionsHelper(Ray ray) {
       // Find the intersection point with the plane
       List<Point> planeIntersections = plane.findIntersections(ray);
       if (planeIntersections == null) return null;
@@ -134,7 +136,9 @@ public class Polygon extends Geometry {
          }
       }
 
-      return List.of(intersectionPoint); // Intersection point is inside the polygon.
+      return Stream.of(intersectionPoint)
+              .map(p -> new Intersection(this, p))
+              .toList();
    }
 
 
