@@ -90,10 +90,10 @@ public class Polygon extends Geometry {
 
    /**
     * Finds the intersections of the ray with the polygon.
-    * If the ray intersects the polygon, returns a list containing the intersection point.
+    * If the ray intersects the polygon, returns a list containing the intersection.
     * Otherwise, returns null.
     * @param ray The ray to check for intersection.
-    * @return A list containing the intersection point, or null if there is no intersection.
+    * @return A list containing the intersections, or null if there is no intersections.
     */
    @Override
    public List<Intersection> calculateIntersectionsHelper(Ray ray) {

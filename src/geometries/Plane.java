@@ -93,10 +93,10 @@ public class Plane extends Geometry {
 
     /**
      * Finds the intersections of a ray with the plane.
-     * If the ray intersects the plane, returns a list containing the intersection point.
+     * If the ray intersects the plane, returns a list containing the intersection.
      * If the ray is parallel to the plane or does not intersect, returns null.
      * @param ray The ray to check for intersection.
-     * @return A list containing the intersection point, or null if there is no intersection.
+     * @return A list containing the intersections, or null if there is no intersections.
      */
     @Override
     public List<Intersection> calculateIntersectionsHelper(Ray ray) {

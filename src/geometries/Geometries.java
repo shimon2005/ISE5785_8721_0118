@@ -1,4 +1,5 @@
 package geometries;
+
 import primitives.Point;
 import primitives.Ray;
 
@@ -10,6 +11,8 @@ import java.util.List;
 /**
  * A composite class representing a collection of geometric objects.
  * Implements the Intersectable interface using the Composite design pattern.
+ * This class allows grouping multiple geometric objects and calculating their intersections
+ * with a given ray as a single entity.
  */
 public class Geometries extends Intersectable {
 
@@ -51,15 +54,14 @@ public class Geometries extends Intersectable {
         Collections.addAll(this.geometries, geometries);
     }
 
-
     /**
      * Calculates the intersection points between a given ray and all the geometries
      * in this composite geometry container (Geometries). Each intersection point is
      * wrapped in an {@link Intersection} object that includes the geometry it belongs to.
      *
-     * @param ray the ray to intersect with the geometries
+     * @param ray the ray to intersect with the geometries.
      * @return a list of {@link Intersection} objects containing intersection points and
-     *         their corresponding geometries; returns {@code null} if there are no intersections
+     *         their corresponding geometries; returns {@code null} if there are no intersections.
      */
     @Override
     protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
@@ -81,5 +83,4 @@ public class Geometries extends Intersectable {
 
         return intersectionList;
     }
-
 }

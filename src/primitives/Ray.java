@@ -1,6 +1,7 @@
 package primitives;
 
 import java.util.List;
+import geometries.Intersectable.Intersection;
 
 
 /**
@@ -54,32 +55,39 @@ public class Ray {
     }
 
     /**
-     * Finds the closest point from a list of points to the head of this ray.
-     * This method iterates through the list of points and calculates the squared distance
-     * from the head of the ray to each point.
-     * The point with the minimum squared distance is returned.
-     * If the list is empty, null is returned.
-     *
-     * @param pointList the list of points to search
-     * @return the closest point to the head of this ray, or null if the list is empty
+     * Finds the closest point to the head of the ray from a list of points.
+     * @param points
+     * @return the closest point to the head of the ray from the list of points
      */
-    public Point findClosestPoint (List<Point> pointList){
-        if (pointList == null || pointList.isEmpty()) {
+    public Point findClosestPoint(List<Point> points) {
+        return points == null ? null
+                : findClosestIntersection(points.stream().map(p -> new Intersection(null, p)).toList()).point;
+    }
+
+    /**
+     * Finds the closest intersection point from a list of intersections.
+     *
+     * @param intersectionsList the list of intersections
+     * @return the closest intersection point to the head of the ray
+     */
+    public Intersection findClosestIntersection(List<Intersection> intersectionsList) {
+        if (intersectionsList == null || intersectionsList.isEmpty()) {
             return null; // or throw an exception
         }
 
-        Point closestPoint = pointList.get(0);
-        double minDistance = this.head.distanceSquared(closestPoint);
+        Intersection closestIntersection = intersectionsList.get(0);
+        double minDistance = this.head.distanceSquared(closestIntersection.point);
 
-        for (Point point : pointList) {
-            double distance = this.head.distanceSquared(point);
+        for (Intersection intersection : intersectionsList) {
+            double distance = this.head.distanceSquared(intersection.point);
             if (distance < minDistance) {
                 minDistance = distance;
-                closestPoint = point;
+                closestIntersection = intersection;
             }
         }
-        return closestPoint;
+        return closestIntersection;
     }
+
 
     /**
      * Returns a string representation of this ray.

@@ -4,6 +4,7 @@ import primitives.Point;
 import scene.Scene;
 import primitives.Ray;
 import primitives.Color;
+import geometries.Intersectable. Intersection;
 
 import java.util.List;
 
@@ -24,33 +25,31 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
-     * Traces a ray through the scene and calculates the color at the intersection point.
-     * If no intersection is found, the background color of the scene is returned.
-     * else it returns the color at the intersection point using the method calcColor.
+     * Traces a ray through the scene and returns the color at the intersection point.
+     * If there are no intersections, it returns the background color of the scene.
      *
-     *
-     * @param ray the ray to trace
-     * @return the color at the intersection point or the background color if no intersection is found
+     * @param ray the ray to be traced
+     * @return the color at the intersection point or the background color if no intersection
      */
     @Override
     public Color traceRay(Ray ray) {
-        List<Point> intersections = this.scene.geometries.findIntersections(ray);
+        List<Intersection> intersections = this.scene.geometries.calculateIntersections(ray);
         if (intersections == null) {
             return this.scene.background;
         } else {
-            Point closestPoint = ray.findClosestPoint(intersections);
-            return calcColor(closestPoint);
+            Intersection closestIntersection = ray.findClosestIntersection(intersections);
+            return calcColor(closestIntersection);
         }
     }
 
     /**
-     * Calculates the color at a specific point in the scene.
-     * Currently, this method only returns the ambient light intensity.
+     * Calculates the color at the intersection point.
+     * The color is determined by adding the ambient light intensity to the emission color of the geometry.
      *
-     * @param point the point at which to calculate the color
-     * @return the color at the specified point
+     * @param intersection the intersection point
+     * @return the calculated color at the intersection point
      */
-    public Color calcColor(Point point) {
-        return this.scene.ambientLight.getIntensity();
+    public Color calcColor(Intersection intersection) {
+        return this.scene.ambientLight.getIntensity().add(intersection.geometry.getEmission());
     }
 }
