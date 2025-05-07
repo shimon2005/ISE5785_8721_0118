@@ -114,7 +114,7 @@ public class RenderTests {
 
    @Test
    public void basicRenderJson() throws IOException, ParseException {
-      Scene scene = JsonScene.importScene("C:\\Users\\baruc\\mini_project_software_engineering\\ISE5785_8721_0118\\unittests\\scene\\testScene.json");
+      Scene scene = JsonScene.importScene("unittests/scene/testScene.json");
       // enter XML file name and parse from JSON file into scene object instead of the
       // new Scene above,
       // Use the code you added in appropriate packages
