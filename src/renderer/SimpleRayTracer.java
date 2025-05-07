@@ -1,6 +1,5 @@
 package renderer;
 
-import primitives.Point;
 import scene.Scene;
 import primitives.Ray;
 import primitives.Color;
@@ -44,12 +43,15 @@ public class SimpleRayTracer extends RayTracerBase {
 
     /**
      * Calculates the color at the intersection point.
-     * The color is determined by adding the ambient light intensity to the emission color of the geometry.
+     * The color is determined by combining the ambient light intensity and the emission color of the geometry.
+     * The ambient light intensity is scaled by the ambient reflection coefficient (ka) of the geometry's material.
      *
-     * @param intersection the intersection point
-     * @return the calculated color at the intersection point
+     * @param intersection the intersection point containing the geometry and its material properties
+     * @return the calculated color at the intersection point, including ambient light and emission
      */
     public Color calcColor(Intersection intersection) {
-        return this.scene.ambientLight.getIntensity().add(intersection.geometry.getEmission());
+        return this.scene.ambientLight.getIntensity()
+                .scale(intersection.geometry.getMaterial().ka)
+                .add(intersection.geometry.getEmission());
     }
 }
