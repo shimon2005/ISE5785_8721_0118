@@ -5,7 +5,7 @@ import primitives.Color;
 /**
  * Represents a light source with a specific intensity.
  */
-class Light {
+abstract class Light {
     /**
      * The intensity of the light.
      */
