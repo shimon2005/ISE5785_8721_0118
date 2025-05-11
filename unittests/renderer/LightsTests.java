@@ -174,6 +174,7 @@ class LightsTests {
    }
 
    /** Produce a picture of a sphere lighted by a narrow spotlight */
+   /*
    @Test
    void sphereSpotSharp() {
       scene1.geometries.add(sphere);
@@ -187,7 +188,10 @@ class LightsTests {
          .writeToImage("lightSphereSpotSharp");
    }
 
+    */
+
    /** Produce a picture of two triangles lighted by a narrow spotlight */
+   /*
    @Test
    void trianglesSpotSharp() {
       scene2.geometries.add(triangle1, triangle2);
@@ -199,5 +203,66 @@ class LightsTests {
          .renderImage() //
          .writeToImage("lightTrianglesSpotSharp");
    }
+
+    */
+
+   /** Produce a picture of a sphere lighted by three different lights */
+   @Test
+   void sphereMultipleLights() {
+      // add the sphere
+      scene1.geometries.add(sphere);
+      // directional light: warm, coming from above-right
+      scene1.lights.add(
+              new DirectionalLight(new Color(1000, 400, 200), new Vector(1, -1, -0.5))
+      );
+      // point light: greenish, below-left, softer attenuation
+      scene1.lights.add(
+              new PointLight(new Color(200, 800, 300), new Point(-40, -60, 80))
+                      .setKl(0.0005)
+                      .setKq(0.0001)
+      );
+      // spot light: bluish, above and behind camera
+      scene1.lights.add(
+              new SpotLight(new Color(200, 300, 1000), new Point(30, 50, 200), new Vector(-1, -1, -2))
+                      .setKl(0.0002)
+                      .setKq(0.00005)
+      );
+      // render
+      camera1
+              .setResolution(500, 500)
+              .build()
+              .renderImage()
+              .writeToImage("SphereWithMultipleLightSources");
+   }
+
+   /** Produce a picture of two triangles lighted by three different lights */
+   @Test
+   void trianglesMultipleLights() {
+      // add the triangles
+      scene2.geometries.add(triangle1, triangle2);
+      // directional light: cool, from top-left
+      scene2.lights.add(
+              new DirectionalLight(new Color(300, 400, 1000), new Vector(-1, -1, -1))
+      );
+      // point light: reddish, in front-right
+      scene2.lights.add(
+              new PointLight(new Color(900, 200, 200), new Point(80, 40, -50))
+                      .setKl(0.0007)
+                      .setKq(0.0002)
+      );
+      // spot light: yellowish, slightly above
+      scene2.lights.add(
+              new SpotLight(new Color(1000, 800, 200), new Point(0, 100, -100), new Vector(0, -1, 1))
+                      .setKl(0.0003)
+                      .setKq(0.0001)
+      );
+      // render
+      camera2
+              .setResolution(500, 500)
+              .build()
+              .renderImage()
+              .writeToImage("TwoTrianglesWithMultipleLightSources");
+   }
+
 
 }

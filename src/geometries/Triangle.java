@@ -95,6 +95,6 @@ public class Triangle extends Polygon {
         if (u <= EPSILON || v <= EPSILON || w <= EPSILON)
             return null;
 
-        return List.of(new Intersection(this, P, this.getMaterial()));
+        return List.of(new Intersection(this, P));
     }
 }

@@ -127,7 +127,7 @@ public class Plane extends Geometry {
         Point intersectionPoint = ray.getPoint(t);
 
         return Stream.of(intersectionPoint)
-                .map(p -> new Intersection(this, p, this.getMaterial()))
+                .map(p -> new Intersection(this, p))
                 .toList();
 
     }

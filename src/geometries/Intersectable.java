@@ -53,10 +53,10 @@ public abstract class Intersectable {
          * @param geometry the geometry that the ray intersects with
          * @param point the intersection point on the geometry
          */
-        public Intersection(Geometry geometry, Point point, Material material) {
+        public Intersection(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
-            this.material = material;
+            this.material = geometry == null ? null : geometry.getMaterial();
         }
 
         /**

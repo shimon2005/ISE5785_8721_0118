@@ -106,7 +106,13 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcLocalEffects(Intersection intersection, Vector n, Vector v, double nv)
     {
         Material material = intersection.geometry.getMaterial();
-        Color color = intersection.geometry.getEmission();
+        Color iA = scene.ambientLight.getIntensity();
+        Double3 kA = intersection.material.kA;
+        Color iE = intersection.geometry.getEmission();
+
+        // Calculate the base color (only the contribution of the ambient light and the emission light)
+        Color color = (iA.scale(kA)).add(iE);
+
         for (LightSource lightSource : scene.lights) {
             // Set the light source and calculate the light direction
             if (!setLightSource(intersection, lightSource)) {
@@ -119,8 +125,6 @@ public class SimpleRayTracer extends RayTracerBase {
             if (nl * nv > 0) { // sign(nl) == sign(nv)
                 Color iL = lightSource.getIntensity(intersection.point);
                 color = color.add(iL.scale(calcDiffusive(intersection).add(calcSpecular(intersection))));
-
-
             }
         }
         return color;
@@ -137,7 +141,7 @@ public class SimpleRayTracer extends RayTracerBase {
     private Double3 calcDiffusive(Intersection intersection) {
         Vector n = intersection.normal.normalize();
         Vector l = intersection.lightDirection.normalize();
-        double nl = Math.max(0, n.dotProduct(l));
+        double nl = Math.abs( n.dotProduct(l));
         return intersection.material.kD.scale(nl);
     }
 
