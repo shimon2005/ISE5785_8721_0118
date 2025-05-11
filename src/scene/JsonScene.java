@@ -100,17 +100,32 @@ public class JsonScene {
         );
     }
 
-    private static LightSource parseSpotLight(JSONObject o) {
-        SpotLight sl = new SpotLight(
-                parseColor((String) o.get("color")),
-                parsePoint((String) o.get("position")),
-                parseVector((String) o.get("direction"))
-        );
-        if (o.containsKey("kc")) sl.setKc(((Number) o.get("kc")).doubleValue());
-        if (o.containsKey("kl")) sl.setKl(((Number) o.get("kl")).doubleValue());
-        if (o.containsKey("kq")) sl.setKq(((Number) o.get("kq")).doubleValue());
-        return sl;
+    /**
+     * Parses the spotlight from the JSON object.
+     *
+     * @param lightObj the JSON object of the spotlight
+     * @return the spotlight source
+     */
+    private static LightSource parseSpotLight(JSONObject lightObj) {
+        Color color = parseColor((String) lightObj.get("color"));
+        Point position = parsePoint((String) lightObj.get("position"));
+        Vector direction = parseVector((String) lightObj.get("direction"));
+        SpotLight spotLight = new SpotLight(color, position, direction);
+        if (lightObj.containsKey("kc")) {
+            spotLight.setKc(((Number) lightObj.get("kc")).doubleValue());
+        }
+        if (lightObj.containsKey("kl")) {
+            spotLight.setKl(((Number) lightObj.get("kl")).doubleValue());
+        }
+        if (lightObj.containsKey("kq")) {
+            spotLight.setKq(((Number) lightObj.get("kq")).doubleValue());
+        }
+        if (lightObj.containsKey("narrow-beam")) {
+            spotLight.setNarrowBeam(((Number) lightObj.get("narrow-beam")).doubleValue());
+        }
+        return spotLight;
     }
+
 
     /**
      * Parses a JSON array of geometry definitions.
