@@ -69,7 +69,7 @@ public class SimpleRayTracer extends RayTracerBase {
         }
 
         // Return only local lighting effects (diffuse + specular)
-        return calcLocalEffects(intersection, n, v, nv);
+        return calcLocalEffects(intersection);
     }
 
 
@@ -98,14 +98,14 @@ public class SimpleRayTracer extends RayTracerBase {
      * reflection are met.
      *
      * @param intersection the intersection point containing details about the geometry and its material
-     * @param n the normal vector at the intersection point
-     * @param v the direction vector from the intersection point back to the viewer
-     * @param nv the dot product of the normal vector and the viewer direction vector
      * @return the calculated color at the intersection point after including the local lighting effects
      */
-    private Color calcLocalEffects(Intersection intersection, Vector n, Vector v, double nv)
+    private Color calcLocalEffects(Intersection intersection)
     {
-        Material material = intersection.geometry.getMaterial();
+        Vector n = intersection.normal.normalize();
+        Vector v = intersection.rayDirection.normalize();
+        double nv = intersection.rayDirectionDotProductNormal;
+
         Color iA = scene.ambientLight.getIntensity();
         Double3 kA = intersection.material.kA;
         Color iE = intersection.geometry.getEmission();
