@@ -8,6 +8,8 @@ public class SpotLight extends PointLight {
 
     private final Vector direction;
 
+    private double narrowBeam = 1;
+
     /**
      * Constructs a spot light source with the given intensity, position, and direction.
      *
@@ -43,6 +45,16 @@ public class SpotLight extends PointLight {
     }
 
     /**
+     * Sets the narrow beam angle for the light source.
+     * @param narrowBeam
+     * @return
+     */
+    public SpotLight setNarrowBeam(double narrowBeam) {
+        this.narrowBeam = narrowBeam;
+        return this;
+    }
+
+    /**
      * Sets the quadratic attenuation factor for the light source.
      * @param kq
      * @return
@@ -62,7 +74,7 @@ public class SpotLight extends PointLight {
     @Override
     public Color getIntensity(Point p) {
         Vector l = getL(p); // direction from light to point
-        double dirFactor = Math.max(0, direction.dotProduct(l));
+        double dirFactor = Math.max(0, Math.pow(direction.dotProduct(l), narrowBeam));
 
         if (dirFactor <= 0) {
             // the angle between the light direction and the vector from the light source to the point
