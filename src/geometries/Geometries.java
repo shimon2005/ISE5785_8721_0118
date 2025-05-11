@@ -75,7 +75,7 @@ public class Geometries extends Intersectable {
                 }
                 intersectionList.addAll(
                         points.stream()
-                                .map(p -> new Intersection((Geometry) geometry, p))
+                                .map(p -> new Intersection((Geometry) geometry, p, ((Geometry) geometry).getMaterial()))
                                 .toList()
                 );
             }

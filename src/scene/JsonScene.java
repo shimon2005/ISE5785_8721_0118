@@ -1,221 +1,282 @@
 package scene;
 
-import geometries.Geometries;
+import geometries.*;
 import lighting.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import primitives.*;
-import geometries.*;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * JsonScene class represents a scene in the 3D space and provides methods to import a scene from a JSON file.
+ * Utility class for importing a {@link Scene} from a JSON file.
+ * Parses scene metadata, geometries, lights, and materials.
  */
 public class JsonScene {
-    /**
-     * Constructs a new JsonScene object.
-     */
+
     private JsonScene() {
+        // prevent instantiation
     }
 
     /**
-     * Imports a scene from a JSON file.
+     * Imports a {@link Scene} from a JSON file at the given path.
      *
-     * @param path the path to the JSON file
-     * @return the scene imported from the JSON file
-     * @throws IOException    if there is an error reading the file
-     * @throws ParseException if there is an error parsing the JSON
+     * @param path The path to the JSON file.
+     * @return A fully constructed Scene.
+     * @throws IOException    If the file cannot be read.
+     * @throws ParseException If the JSON is malformed.
      */
     public static Scene importScene(String path) throws IOException, ParseException {
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(new FileReader(path));
+        JSONObject jsonObject = (JSONObject) new JSONParser()
+                .parse(new FileReader(path));
         JSONObject sceneObj = (JSONObject) jsonObject.get("scene");
 
-        String name = (String) sceneObj.get("name");
-        Scene scene = new Scene(name);
-        if (sceneObj.containsKey("background-color"))
+        Scene scene = new Scene((String) sceneObj.get("name"));
+
+        if (sceneObj.containsKey("background-color")) {
             scene.setBackground(parseColor((String) sceneObj.get("background-color")));
-        if (sceneObj.containsKey("ambient-light")) {
-            JSONObject ambientLightObj = (JSONObject) sceneObj.get("ambient-light");
-            Color ambientLight = parseColor((String) ambientLightObj.get("color"));
-            scene.setAmbientLight(new AmbientLight(ambientLight));
         }
-        if (sceneObj.containsKey("geometries"))
+
+        if (sceneObj.containsKey("ambient-light")) {
+            JSONObject amb = (JSONObject) sceneObj.get("ambient-light");
+            scene.setAmbientLight(new AmbientLight(parseColor((String) amb.get("color"))));
+        }
+
+        if (sceneObj.containsKey("geometries")) {
             scene.setGeometries(parseGeometries((JSONArray) sceneObj.get("geometries")));
+        }
+
+        if (sceneObj.containsKey("lights")) {
+            scene.setLights(parseLights((JSONArray) sceneObj.get("lights")));
+        }
 
         return scene;
     }
 
-
-    private static Geometries parseGeometries(JSONArray geometriesArray) {
-        Geometries geometries = new Geometries();
-        for (Object obj : geometriesArray) {
-            JSONObject geometryObj = (JSONObject) obj;
-            Geometry geometry;
-            if (geometryObj.containsKey("sphere")) {
-                geometry = parseSphere((JSONObject) geometryObj.get("sphere"));
-            } else if (geometryObj.containsKey("triangle")) {
-                geometry = parseTriangle((JSONArray) geometryObj.get("triangle"));
-            } else if (geometryObj.containsKey("plane")) {
-                geometry = parsePlane((JSONObject) geometryObj.get("plane"));
-            } else if (geometryObj.containsKey("polygon")) {
-                geometry = parsePolygon((JSONArray) geometryObj.get("polygon"));
-            } else if (geometryObj.containsKey("cylinder")) {
-                geometry = parseCylinder((JSONObject) geometryObj.get("cylinder"));
-            } else if (geometryObj.containsKey("tube")) {
-                geometry = parseTube((JSONObject) geometryObj.get("tube"));
+    /**
+     * Parses an array of light definitions.
+     *
+     * @param lightsArray JSON array of light objects.
+     * @return List of {@link LightSource}.
+     */
+    private static List<LightSource> parseLights(JSONArray lightsArray) {
+        List<LightSource> list = new LinkedList<>();
+        for (Object o : lightsArray) {
+            JSONObject obj = (JSONObject) o;
+            if (obj.containsKey("point")) {
+                list.add(parsePointLight((JSONObject) obj.get("point")));
+            } else if (obj.containsKey("directional")) {
+                list.add(parseDirectionalLight((JSONObject) obj.get("directional")));
+            } else if (obj.containsKey("spot")) {
+                list.add(parseSpotLight((JSONObject) obj.get("spot")));
             } else {
-                throw new IllegalArgumentException("Unknown geometry type");
+                throw new IllegalArgumentException("Unknown light type in JSON");
             }
+        }
+        return list;
+    }
 
-            geometries.add(geometry);
+    private static LightSource parsePointLight(JSONObject o) {
+        PointLight pl = new PointLight(
+                parseColor((String) o.get("color")),
+                parsePoint((String) o.get("position"))
+        );
+        if (o.containsKey("kc")) pl.setKc(((Number) o.get("kc")).doubleValue());
+        if (o.containsKey("kl")) pl.setKl(((Number) o.get("kl")).doubleValue());
+        if (o.containsKey("kq")) pl.setKq(((Number) o.get("kq")).doubleValue());
+        return pl;
+    }
+
+    private static LightSource parseDirectionalLight(JSONObject o) {
+        return new DirectionalLight(
+                parseColor((String) o.get("color")),
+                parseVector((String) o.get("direction"))
+        );
+    }
+
+    private static LightSource parseSpotLight(JSONObject o) {
+        SpotLight sl = new SpotLight(
+                parseColor((String) o.get("color")),
+                parsePoint((String) o.get("position")),
+                parseVector((String) o.get("direction"))
+        );
+        if (o.containsKey("kc")) sl.setKc(((Number) o.get("kc")).doubleValue());
+        if (o.containsKey("kl")) sl.setKl(((Number) o.get("kl")).doubleValue());
+        if (o.containsKey("kq")) sl.setKq(((Number) o.get("kq")).doubleValue());
+        return sl;
+    }
+
+    /**
+     * Parses a JSON array of geometry definitions.
+     * Each element must be a single-key object, e.g.:
+     *   { "triangle": { ... } }
+     *
+     * @param arr JSON array
+     * @return {@link Geometries}
+     */
+    private static Geometries parseGeometries(JSONArray arr) {
+        Geometries geometries = new Geometries();
+        for (Object o : arr) {
+            JSONObject geoWrapper = (JSONObject) o;
+            Geometry g;
+            String type = (String) geoWrapper.keySet().iterator().next();
+            JSONObject data = (JSONObject) geoWrapper.get(type);
+            switch (type) {
+                case "sphere" ->
+                        g = parseSphere(data);
+                case "triangle" ->
+                        g = parseTriangle(data);
+                case "plane" ->
+                        g = parsePlane(data);
+                case "polygon" ->
+                        g = parsePolygon(data);
+                case "cylinder" ->
+                        g = parseCylinder(data);
+                case "tube" ->
+                        g = parseTube(data);
+                default -> throw new IllegalArgumentException("Unknown geometry: " + type);
+            }
+            geometries.add(g);
         }
         return geometries;
     }
 
     /**
-     * Parses the tube from the JSON object.
-     *
-     * @param tube the JSON object of the tube
-     * @return the tube geometry
+     * Parses a Sphere plus its optional material & emission.
      */
-    private static Geometry parseTube(JSONObject tube) {
-        double radius = ((Number) tube.get("radius")).doubleValue();
-        Ray axis = parseRay((JSONObject) tube.get("axis"));
-        return new Tube(axis, radius);
+    private static Geometry parseSphere(JSONObject o) {
+        Sphere s = new Sphere(
+                parsePoint((String) o.get("center")),
+                ((Number) o.get("radius")).doubleValue()
+        );
+        applyMaterialAndEmission(o, s);
+        return s;
     }
 
     /**
-     * Parses the cylinder from the JSON object.
-     *
-     * @param cylinder the JSON object of the cylinder
-     * @return the cylinder geometry
+     * Parses a Triangle plus its optional material & emission.
+     * Expects a "points" array of exactly three strings.
      */
-    private static Geometry parseCylinder(JSONObject cylinder) {
-        double radius = ((Number) cylinder.get("radius")).doubleValue();
-        double height = ((Number) cylinder.get("height")).doubleValue();
-        Ray axis = parseRay((JSONObject) cylinder.get("axis"));
-        return new Cylinder(radius, axis, height);
+    private static Geometry parseTriangle(JSONObject o) {
+        JSONArray pts = (JSONArray) o.get("points");
+        if (pts.size() != 3)
+            throw new IllegalArgumentException("Triangle must have exactly 3 points");
+        Point[] p = parseVertices(pts);
+        Triangle t = new Triangle(p[0], p[1], p[2]);
+        applyMaterialAndEmission(o, t);
+        return t;
     }
 
     /**
-     * Parses the ray from the JSON object.
-     *
-     * @param axis the JSON object of the ray
-     * @return the ray
+     * Parses a Plane plus its optional material & emission.
+     * Expects "point" and "normal" strings.
      */
-    private static Ray parseRay(JSONObject axis) {
-        Point point = parsePoint((String) axis.get("origin"));
-        Vector direction = parseVector((String) axis.get("direction"));
-        return new Ray(point, direction);
+    private static Geometry parsePlane(JSONObject o) {
+        Plane p = new Plane(
+                parsePoint((String) o.get("point")),
+                parseVector((String) o.get("normal"))
+        );
+        applyMaterialAndEmission(o, p);
+        return p;
     }
 
     /**
-     * Parses the polygon from the JSON array.
-     *
-     * @param polygon the JSON array of the polygon
-     * @return the polygon geometry
+     * Parses a Polygon plus its optional material & emission.
+     * Expects "points" array of 3+ vertices.
      */
-    private static Geometry parsePolygon(JSONArray polygon) {
-        return new Polygon(parseVertices(polygon));
+    private static Geometry parsePolygon(JSONObject o) {
+        Polygon poly = new Polygon(parseVertices((JSONArray) o.get("points")));
+        applyMaterialAndEmission(o, poly);
+        return poly;
     }
 
     /**
-     * Parses the sphere from the JSON object.
-     *
-     * @param sphereObj the JSON object of the sphere
-     * @return the sphere geometry
+     * Parses a Cylinder plus its optional material & emission.
+     * Expects "axis" object with "origin" & "direction", plus "radius" & "height".
      */
-    private static Geometry parseSphere(JSONObject sphereObj) {
-        Point center = parsePoint((String) sphereObj.get("center"));
-        double radius = ((Number) sphereObj.get("radius")).doubleValue();
-        return new Sphere(center, radius);
+    private static Geometry parseCylinder(JSONObject o) {
+        Cylinder c = new Cylinder(
+                ((Number) o.get("height")).doubleValue(),
+                parseRay((JSONObject) o.get("axis")),
+                ((Number) o.get("radius")).doubleValue()
+        );
+        applyMaterialAndEmission(o, c);
+        return c;
     }
 
     /**
-     * Parses the triangle from the JSON array.
-     *
-     * @param triangleObj the JSON array of the triangle
-     * @return the triangle geometry
+     * Parses a Tube plus its optional material & emission.
+     * Expects "axis" object with "origin" & "direction", plus "radius".
      */
-    private static Geometry parseTriangle(JSONArray triangleObj) {
-        Point[] points = parseVertices(triangleObj);
-        return new Triangle(points[0], points[1], points[2]);
+    private static Geometry parseTube(JSONObject o) {
+        Tube t = new Tube(
+                parseRay((JSONObject) o.get("axis")),
+                ((Number) o.get("radius")).doubleValue()
+        );
+        applyMaterialAndEmission(o, t);
+        return t;
     }
 
     /**
-     * Parses the plane from the JSON object.
-     *
-     * @param planeObj the JSON object of the plane
-     * @return the plane geometry
+     * Shared helper to read optional "material" and "emission" from the geometry object.
      */
-    private static Geometry parsePlane(JSONObject planeObj) {
-        Point point = parsePoint((String) planeObj.get("point"));
-        Vector normal = parseVector((String) planeObj.get("normal"));
-        return new Plane(point, normal);
-    }
-
-    /**
-     * Parses the vertices from the JSON array.
-     *
-     * @param vertices the JSON array of vertices
-     * @return the array of vertices
-     */
-    private static Point[] parseVertices(JSONArray vertices) {
-        Point[] points = new Point[vertices.size()];
-        for (int i = 0; i < vertices.size(); i++) {
-            points[i] = parsePoint((String) vertices.get(i));
+    private static void applyMaterialAndEmission(JSONObject o, Geometry g) {
+        if (o.containsKey("material")) {
+            JSONObject m = (JSONObject) o.get("material");
+            Material mat = new Material();
+            if (m.containsKey("kd")) mat.setKD(((Number) m.get("kd")).doubleValue());
+            if (m.containsKey("ks")) mat.setKS(((Number) m.get("ks")).doubleValue());
+            if (m.containsKey("ns")) mat.setShininess(((Number) m.get("ns")).intValue());
+            if (m.containsKey("ka")) mat.setKa(((Number) m.get("ka")).doubleValue());  // הוספת התמיכה ל-ka
+            g.setMaterial(mat);
         }
-        return points;
+        if (o.containsKey("emission")) {
+            g.setEmission(parseColor((String) o.get("emission")));
+        }
     }
 
-    /**
-     * Parses the coordinates from the string.
-     *
-     * @param coordStr the string of coordinates
-     * @return the array of coordinates
-     */
-    private static double[] parseCoordinates(String coordStr) {
-        return Arrays.stream(coordStr.split(" "))
+
+    // --- primitives parsing helpers ---
+
+    private static Ray parseRay(JSONObject o) {
+        return new Ray(
+                parsePoint((String) o.get("origin")),
+                parseVector((String) o.get("direction"))
+        );
+    }
+
+    private static Point[] parseVertices(JSONArray arr) {
+        Point[] pts = new Point[arr.size()];
+        for (int i = 0; i < arr.size(); i++) {
+            pts[i] = parsePoint((String) arr.get(i));
+        }
+        return pts;
+    }
+
+    private static Point parsePoint(String s) {
+        double[] c = parseCoordinates(s);
+        return new Point(c[0], c[1], c[2]);
+    }
+
+    private static Vector parseVector(String s) {
+        double[] c = parseCoordinates(s);
+        return new Vector(c[0], c[1], c[2]);
+    }
+
+    private static Color parseColor(String s) {
+        double[] c = parseCoordinates(s);
+        return new Color(c[0], c[1], c[2]);
+    }
+
+    private static double[] parseCoordinates(String str) {
+        return Arrays.stream(str.split(" "))
                 .mapToDouble(Double::parseDouble)
                 .toArray();
-    }
-
-    /**
-     * Parses the color from the string.
-     *
-     * @param rgb the string of the color
-     * @return the color
-     */
-    private static Color parseColor(String rgb) {
-        double[] colors = parseCoordinates(rgb);
-        return new Color(colors[0], colors[1], colors[2]);
-    }
-
-    /**
-     * Parses the vector from the string.
-     *
-     * @param vector the string of the vector
-     * @return the vector
-     */
-    private static Vector parseVector(String vector) {
-        double[] coords = parseCoordinates(vector);
-        return new Vector(coords[0], coords[1], coords[2]);
-    }
-
-    /**
-     * Parses the point from the string.
-     *
-     * @param pointStr the string of the point
-     * @return the point
-     */
-    private static Point parsePoint(String pointStr) {
-        double[] coords = parseCoordinates(pointStr);
-        return new Point(coords[0], coords[1], coords[2]);
     }
 }

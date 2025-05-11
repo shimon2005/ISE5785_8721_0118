@@ -137,7 +137,7 @@ public class Polygon extends Geometry {
       }
 
       return Stream.of(intersectionPoint)
-              .map(p -> new Intersection(this, p))
+              .map(p -> new Intersection(this, p, this.getMaterial()))
               .toList();
    }
 

@@ -27,9 +27,7 @@ public class DirectionalLight extends Light implements LightSource {
      * @return the intensity of the light at the given point
      */
     @Override
-    public Color getIntensity(Point p) {
-        return intensity;
-    }
+    public Color getIntensity(Point p) {return intensity; }
 
     /**
      * Gets the direction of the light from a given point.

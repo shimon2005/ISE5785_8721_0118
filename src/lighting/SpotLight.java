@@ -61,30 +61,24 @@ public class SpotLight extends PointLight {
      */
     @Override
     public Color getIntensity(Point p) {
-        Vector l = getL(p); // וקטור מהמקור לנקודה
-        double dirFactor = Math.max(0, direction.dotProduct(l)); // cos(θ)
+        Vector l = getL(p); // direction from light to point
+        double dirFactor = Math.max(0, direction.dotProduct(l));
 
-        if (dirFactor == 0) {
-            return Color.BLACK; // זווית ישרה או הפוכה => אין אור
+        if (dirFactor <= 0) {
+            // the angle between the light direction and the vector from the light source to the point
+            // is over 90 degrees
+            return Color.BLACK;
         }
 
-        double d = Position.distance(p);
-        double attenuation = kC + kL * d + kQ * d * d;
-        if (attenuation == 0) {
-            return Color.BLACK; // הגנה מחלוקה באפס
+        // reach here only if dirFactor > 0
+
+        // get the intensity from the parent class to be used as part of the calculation for the final intensity
+        Color pointIntensity = super.getIntensity(p);
+
+        if (pointIntensity.equals(Color.BLACK)) {
+            return Color.BLACK;
         }
 
-        return intensity.scale(dirFactor / attenuation);
-    }
-
-    /**
-     * Gets the direction of the light from a given point.
-     *
-     * @param p the point from which to get the direction
-     * @return the direction of the light from the given point
-     */
-    @Override
-    public Vector getL(Point p) {
-        return p.subtract(Position).normalize();
+        return pointIntensity.scale(dirFactor);
     }
 }

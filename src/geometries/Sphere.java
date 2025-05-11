@@ -67,7 +67,7 @@ public class Sphere extends RadialGeometry {
         // Special case: if the ray originates at the center, it intersects the sphere at exactly one point.
         if (center.equals(p0)) {
             Point intersection = p0.add(v.scale(radius));
-            return List.of(new Intersection(this, intersection));
+            return List.of(new Intersection(this, intersection, null));
         }
 
         // Compute vector from ray's origin to the sphere's center.
@@ -101,14 +101,14 @@ public class Sphere extends RadialGeometry {
             Point p1 = ray.getPoint(t1);
             Point p2 = ray.getPoint(t2);
             return p0.distance(p1) <= p0.distance(p2) ?
-                    List.of(new Intersection(this, p1), new Intersection(this, p2)) :
-                    List.of(new Intersection(this, p2), new Intersection(this, p1));
+                    List.of(new Intersection(this, p1, this.getMaterial()), new Intersection(this, p2, this.getMaterial())) :
+                    List.of(new Intersection(this, p2, this.getMaterial()), new Intersection(this, p1, this.getMaterial()));
         }
         if (t1 > 0) {
-            return List.of(new Intersection(this, ray.getPoint(t1)));
+            return List.of(new Intersection(this, ray.getPoint(t1), this.getMaterial()));
         }
         if (t2 > 0) {
-            return List.of(new Intersection(this, ray.getPoint(t2)));
+            return List.of(new Intersection(this, ray.getPoint(t2), this.getMaterial()));
         }
         return null;
     }
