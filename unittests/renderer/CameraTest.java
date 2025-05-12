@@ -62,6 +62,10 @@ class CameraTest {
 
    }
 
+    /**
+     * Test method for
+     * {@link renderer.Camera.Builder#build()}.
+     */
    @Test
    void testBuilder() {
       cameraBuilder.setVpSize(4, 4).setResolution(2, 2);

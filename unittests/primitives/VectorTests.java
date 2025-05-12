@@ -15,6 +15,9 @@ class VectorTests {
      */
     private static final double DELTA = 0.000001;
 
+    /**
+     * Vectors for testing
+     */
     private static final Vector V1 = new Vector(1, 2, 3);
     private static final Vector V2 = new Vector(-4, -5, -6);
     private static final Vector V3 = new Vector(3, -6, 3);

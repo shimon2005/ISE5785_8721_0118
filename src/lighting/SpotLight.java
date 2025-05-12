@@ -4,14 +4,21 @@ import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
+/**
+ * Represents a spotlight light source in a 3D scene.
+ * A spotlight emits light in a specific direction and has a narrow beam angle.
+ * The intensity of the light decreases with distance and is affected by the angle of the beam.
+ */
 public class SpotLight extends PointLight {
 
+    /** The direction of the light beam. */
     private final Vector direction;
 
+    /** the narrow beam angle (0 to 1) */
     private double narrowBeam = 1;
 
     /**
-     * Constructs a spot light source with the given intensity, position, and direction.
+     * Constructs a spotlight source with the given intensity, position, and direction.
      *
      * @param intensity the intensity of the light
      * @param position  the position of the light source
@@ -24,8 +31,8 @@ public class SpotLight extends PointLight {
 
     /**
      * Sets the distance attenuation factors for the light source.
-     * @param kc
-     * @return
+     * @param kc the constant attenuation factor
+     * @return the spotlight object itself
      */
     @Override
     public SpotLight setKc(double kc) {
@@ -35,8 +42,8 @@ public class SpotLight extends PointLight {
 
     /**
      * Sets the linear attenuation factor for the light source.
-     * @param kl
-     * @return
+     * @param kl the linear attenuation factor
+     * @return the spotlight object itself
      */
     @Override
     public SpotLight setKl(double kl) {
@@ -46,8 +53,8 @@ public class SpotLight extends PointLight {
 
     /**
      * Sets the narrow beam angle for the light source.
-     * @param narrowBeam
-     * @return
+     * @param narrowBeam the narrow beam angle (0 to 1)
+     * @return the spotlight object itself
      */
     public SpotLight setNarrowBeam(double narrowBeam) {
         this.narrowBeam = narrowBeam;
@@ -56,8 +63,8 @@ public class SpotLight extends PointLight {
 
     /**
      * Sets the quadratic attenuation factor for the light source.
-     * @param kq
-     * @return
+     * @param kq the quadratic attenuation factor
+     * @return the spotlight object itself
      */
     @Override
     public SpotLight setKq(double kq) {

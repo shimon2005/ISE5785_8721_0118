@@ -4,7 +4,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.List;
 
-
+/*
+ * Unit tests for {@link primitives.Ray} class.
+ * This class contains tests for the Ray class methods.
+ */
 class RayTests {
 
     /**

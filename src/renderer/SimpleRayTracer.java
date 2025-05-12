@@ -43,7 +43,6 @@ public class SimpleRayTracer extends RayTracerBase {
 
     /**
      * Calculates the color at the given intersection point, including local lighting effects.
-     *
      * The method first initializes the intersection data using the ray.
      * If the intersection is not valid (e.g., the surface is perpendicular to the ray), it returns black.
      * Otherwise, it calculates and returns the local lighting effects including diffuse and specular reflections.
@@ -64,6 +63,12 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
 
+    /**
+     * Preprocesses the intersection data by calculating the ray direction, normal vector,
+     * @param intersection the intersection point containing the geometry and its material properties
+     * @param rayDirection the direction of the ray that intersects with the geometry
+     * @return true if the intersection is valid (not perpendicular), false otherwise
+     */
     public boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
         intersection.rayDirection = rayDirection.normalize();
         intersection.normal = intersection.geometry.getNormal(intersection.point);
@@ -73,6 +78,14 @@ public class SimpleRayTracer extends RayTracerBase {
         return !Util.isZero(intersection.rayDirectionDotProductNormal);
     }
 
+    /**
+     * Sets the light source for the intersection and calculates the light direction and its dot product with the normal.
+     * If the light direction is perpendicular to the normal, it returns false.
+     *
+     * @param intersection the intersection point containing the geometry and its material properties
+     * @param lightSource the light source to be set
+     * @return true if the light direction is not perpendicular to the normal, false otherwise
+     */
     public boolean setLightSource (Intersection intersection, LightSource lightSource) {
         intersection.lightSource = lightSource;
         intersection.lightDirection = lightSource.getL(intersection.point); // no need to normalize since getL() returns a normalized vector

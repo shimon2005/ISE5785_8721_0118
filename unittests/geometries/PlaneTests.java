@@ -127,6 +127,11 @@ class PlaneTests {
         assertTrue(normal.equals(expectedNormal) || normal.equals(expectedNormal.scale(-1)),
                 "Plane normal returned by getNormal is incorrect");
     }
+
+    /**
+     * Test method for {@link geometries.Plane#findIntersections(Ray)}.
+     * This test checks the intersection points of a ray with the plane.
+     */
     @Test
     void findIntersections() {
         Plane plane = new Plane(new Point(0, 0, 1), new Point(1, 0, 0), new Point(0, 1, 0));

@@ -15,9 +15,16 @@ class PointTests {
      */
     private static final double DELTA = 0.000001;
 
+    /**
+     * points for testing
+     */
     private static final Point P1 = new Point(1, 2, 3);
     private static final Point P2 = new Point(2, 3, 4);
     private static final Point P3 = new Point(1, 2, 6);
+
+    /**
+     * vectors for testing
+     */
     private static final Vector V1 = new Vector(1, 1, 1);
     private static final Vector oppositeOfP1 = new Vector(-1, -2, -3);
 

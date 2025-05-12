@@ -22,10 +22,10 @@ package renderer;
                 private Vector vTo = null;
 
                 /** The upward direction vector of the camera. */
-                private Vector vUp= null;
+                private Vector vUp = null;
 
                 /** The rightward direction vector of the camera. */
-                private Vector vRight= null;
+                private Vector vRight = null;
 
                 /** The image writer for rendering images. */
                 private ImageWriter imageWriter = null;
@@ -79,24 +79,28 @@ package renderer;
                         }
                         this.camera.vTo = vTo.normalize();
                         this.camera.vUp = vUp.normalize();
-                     //   this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
                         return this;
                     }
 
                     /**
                      * Sets the camera's direction using a target point and vUp vector.
                      * @param target the target point the camera looks at
-                     * @param vUp the upward direction vector
+                     * @param vUp an indicator of the camera's up direction, it is not guaranteed to be orthogonal to vTo
                      * @return the builder instance
                      * @throws IllegalArgumentException if the target point is the same as the camera location
                      */
                     public Builder setDirection(Point target, Vector vUp) {
+                        if (this.camera.location == null) {
+                            throw new IllegalStateException("Camera location must be set before setting direction with target point.");
+                        }
                         if (target.equals(this.camera.location)) {
                             throw new IllegalArgumentException("the target point cannot be the camera position");
                         }
                         this.camera.vTo = target.subtract(this.camera.location).normalize();
                         Vector vRight = (this.camera.vTo).crossProduct(vUp);
-                        //we need to recalculate vUp to ensure orthogonality
+
+                        // we need to recalculate vUp to ensure orthogonality, because the vUp vector in the parameter
+                        // is not guaranteed to be orthogonal to vTo and is only used to calculate vRight
                         this.camera.vUp = vRight.crossProduct(this.camera.vTo).normalize();
                         return this;
                     }
@@ -109,6 +113,9 @@ package renderer;
                      */
                     //to fix
                     public Builder setDirection(Point target) {
+                        if (this.camera.location == null) {
+                            throw new IllegalStateException("Camera location must be set before setting direction with target point.");
+                        }
                         if (target.equals(this.camera.location)) {
                             throw new IllegalArgumentException("the target point cannot be the camera position");
                         }

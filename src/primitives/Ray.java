@@ -56,7 +56,7 @@ public class Ray {
 
     /**
      * Finds the closest point to the head of the ray from a list of points.
-     * @param points
+     * @param points the list of points
      * @return the closest point to the head of the ray from the list of points
      */
     public Point findClosestPoint(List<Point> points) {

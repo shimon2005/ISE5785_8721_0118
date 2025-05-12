@@ -3,10 +3,12 @@ package lighting;
 import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
-import lighting.Light;
 
 public class DirectionalLight extends Light implements LightSource {
 
+    /**
+     * The direction of the light source.
+     */
     private final Vector direction;
 
     /**

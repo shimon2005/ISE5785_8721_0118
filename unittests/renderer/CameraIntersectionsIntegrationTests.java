@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class CameraIntersectionsIntegrationTests {
 
+    /**
+     * the cameras to be used in the tests
+     */
     private static Camera cam0;
     private static Camera camHalf;
 

@@ -82,6 +82,12 @@ public class JsonScene {
         return list;
     }
 
+    /**
+     * Parses a point light from the JSON object.
+     *
+     * @param o the JSON object of the point light
+     * @return the point light source
+     */
     private static LightSource parsePointLight(JSONObject o) {
         PointLight pl = new PointLight(
                 parseColor((String) o.get("color")),
@@ -93,6 +99,12 @@ public class JsonScene {
         return pl;
     }
 
+    /**
+     * Parses a directional light from the JSON object.
+     *
+     * @param o the JSON object of the directional light
+     * @return the directional light source
+     */
     private static LightSource parseDirectionalLight(JSONObject o) {
         return new DirectionalLight(
                 parseColor((String) o.get("color")),
@@ -163,7 +175,7 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Sphere plus its optional material & emission.
+     * Parses a Sphere plus its optional material and emission.
      */
     private static Geometry parseSphere(JSONObject o) {
         Sphere s = new Sphere(
@@ -175,7 +187,7 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Triangle plus its optional material & emission.
+     * Parses a Triangle plus its optional material and emission.
      * Expects a "points" array of exactly three strings.
      */
     private static Geometry parseTriangle(JSONObject o) {
@@ -189,7 +201,7 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Plane plus its optional material & emission.
+     * Parses a Plane plus its optional material and emission.
      * Expects "point" and "normal" strings.
      */
     private static Geometry parsePlane(JSONObject o) {
@@ -202,7 +214,7 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Polygon plus its optional material & emission.
+     * Parses a Polygon plus its optional material and emission.
      * Expects "points" array of 3+ vertices.
      */
     private static Geometry parsePolygon(JSONObject o) {
@@ -212,8 +224,8 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Cylinder plus its optional material & emission.
-     * Expects "axis" object with "origin" & "direction", plus "radius" & "height".
+     * Parses a Cylinder plus its optional material and emission.
+     * Expects "axis" object with "origin" and "direction", plus "radius" and "height".
      */
     private static Geometry parseCylinder(JSONObject o) {
         Cylinder c = new Cylinder(
@@ -226,8 +238,9 @@ public class JsonScene {
     }
 
     /**
-     * Parses a Tube plus its optional material & emission.
-     * Expects "axis" object with "origin" & "direction", plus "radius".
+     * Parses a Tube plus its optional material and emission.
+     * Parses a Tube plus its optional material and emission.
+     * Expects "axis" object with "origin" and "direction", plus "radius".
      */
     private static Geometry parseTube(JSONObject o) {
         Tube t = new Tube(
@@ -259,6 +272,10 @@ public class JsonScene {
 
     // --- primitives parsing helpers ---
 
+    /**
+     * Parses a Ray from a JSON object.
+     * Expects "origin" and "direction" strings.
+     */
     private static Ray parseRay(JSONObject o) {
         return new Ray(
                 parsePoint((String) o.get("origin")),
@@ -266,6 +283,10 @@ public class JsonScene {
         );
     }
 
+    /**
+     * Parses an array of vertices from a JSON array.
+     * Expects each element to be a string with 3 coordinates.
+     */
     private static Point[] parseVertices(JSONArray arr) {
         Point[] pts = new Point[arr.size()];
         for (int i = 0; i < arr.size(); i++) {
@@ -274,21 +295,37 @@ public class JsonScene {
         return pts;
     }
 
+    /**
+     * Parses a Point from a string with 3 coordinates.
+     * Expects format: "x y z".
+     */
     private static Point parsePoint(String s) {
         double[] c = parseCoordinates(s);
         return new Point(c[0], c[1], c[2]);
     }
 
+    /**
+     * Parses a Vector from a string with 3 coordinates.
+     * Expects format: "x y z".
+     */
     private static Vector parseVector(String s) {
         double[] c = parseCoordinates(s);
         return new Vector(c[0], c[1], c[2]);
     }
 
+    /**
+     * Parses a Color from a string with 3 coordinates.
+     * Expects format: "r g b".
+     */
     private static Color parseColor(String s) {
         double[] c = parseCoordinates(s);
         return new Color(c[0], c[1], c[2]);
     }
 
+    /**
+     * Parses a string with 3 coordinates into a double array.
+     * Expects format: "x y z".
+     */
     private static double[] parseCoordinates(String str) {
         return Arrays.stream(str.split(" "))
                 .mapToDouble(Double::parseDouble)
