@@ -58,23 +58,12 @@ public class SimpleRayTracer extends RayTracerBase {
             return Color.BLACK;
         }
 
-        // Calculate viewer vector and dot product
-        Vector v = intersection.rayDirection.normalize();
-        Vector n = intersection.normal.normalize();
-        double nv = intersection.rayDirectionDotProductNormal;
-
-        // If the angle is zero (viewer perpendicular to surface), return black
-        if (Util.isZero(nv)) {
-            return Color.BLACK;
-        }
-
-        // Return only local lighting effects (diffuse + specular)
-        return calcLocalEffects(intersection);
+        return  scene.ambientLight.getIntensity().add(calcLocalEffects(intersection));
     }
 
 
     public boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
-        intersection.rayDirection = rayDirection;
+        intersection.rayDirection = rayDirection.normalize();
         intersection.normal = intersection.geometry.getNormal(intersection.point);
         intersection.rayDirectionDotProductNormal = intersection.rayDirection.dotProduct(intersection.normal);
 
@@ -84,7 +73,7 @@ public class SimpleRayTracer extends RayTracerBase {
 
     public boolean setLightSource (Intersection intersection, LightSource lightSource) {
         intersection.lightSource = lightSource;
-        intersection.lightDirection = lightSource.getL(intersection.point);
+        intersection.lightDirection = lightSource.getL(intersection.point); // no need to normalize since getL() returns a normalized vector
         intersection.lightDirectionDotProductNormal = intersection.lightDirection.dotProduct(intersection.normal);
 
         // if lightDirectionDotProductNormal is 0 return false, else return true
@@ -102,16 +91,8 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private Color calcLocalEffects(Intersection intersection)
     {
-        Vector n = intersection.normal.normalize();
-        Vector v = intersection.rayDirection.normalize();
-        double nv = intersection.rayDirectionDotProductNormal;
-
-        Color iA = scene.ambientLight.getIntensity();
-        Double3 kA = intersection.material.kA;
-        Color iE = intersection.geometry.getEmission();
-
-        // Calculate the base color (only the contribution of the ambient light and the emission light)
-        Color color = (iA.scale(kA)).add(iE);
+        // Calculate the base color (only the contribution of the emission light)
+        Color color = intersection.geometry.getEmission();
 
         for (LightSource lightSource : scene.lights) {
             // Set the light source and calculate the light direction
@@ -120,9 +101,7 @@ public class SimpleRayTracer extends RayTracerBase {
                 // in the current repetition of the loop does not reach the intersection point
                 continue;
             }
-            Vector l = lightSource.getL(intersection.point);
-            double nl = Util.alignZero(n.dotProduct(l));
-            if (nl * nv > 0) { // sign(nl) == sign(nv)
+            if (intersection.lightDirectionDotProductNormal * intersection.rayDirectionDotProductNormal > 0) { // sign(nl) == sign(nv)
                 Color iL = lightSource.getIntensity(intersection.point);
                 color = color.add(iL.scale(calcDiffusive(intersection).add(calcSpecular(intersection))));
             }
@@ -139,10 +118,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the diffuse intensity factor as RGB Double3
      */
     private Double3 calcDiffusive(Intersection intersection) {
-        Vector n = intersection.normal.normalize();
-        Vector l = intersection.lightDirection.normalize();
-        double nl = Math.abs( n.dotProduct(l));
-        return intersection.material.kD.scale(nl);
+        return intersection.material.kD.scale(intersection.lightDirectionDotProductNormal);
     }
 
 
