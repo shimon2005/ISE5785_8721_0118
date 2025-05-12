@@ -1,0 +1,102 @@
+{
+  "scene": {
+    "name": "Realistic Highlight Scene with Combined Spheres",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "0 0 0",
+      "intensity": 0.0
+    },
+    "geometries": [
+      {
+        "sphere": {
+          "center": "-20 0 -100",
+          "radius": 50,
+          "emission": "40 10 10",
+          "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 }
+        }
+      },
+      {
+        "sphere": {
+          "center": "30 0 -80",
+          "radius": 30,
+          "emission": "10 40 10",
+          "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 }
+        }
+      },
+      {
+        "sphere": {
+          "center": "-5 -20 -70",
+          "radius": 20,
+          "emission": "10 10 40",
+          "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 }
+        }
+      },
+      {
+        "triangle": {
+          "points": [
+            "-100 0 -100",
+            "0 100 -100",
+            "-100 100 -100"
+          ],
+          "emission": "10 10 30",
+          "material": { "kd": 0.7, "ks": 0.3, "ns": 100, "ka": 0.05 }
+        }
+      },
+      {
+        "triangle": {
+          "points": [
+            "-100 0 -100",
+            "0 -100 -100",
+            "-100 -100 -100"
+          ],
+          "emission": "30 10 10",
+          "material": { "kd": 0.7, "ks": 0.3, "ns": 100, "ka": 0.05 }
+        }
+      },
+      {
+        "triangle": {
+          "points": [
+            "100 0 -100",
+            "0 -100 -100",
+            "100 -100 -100"
+          ],
+          "emission": "10 30 10",
+          "material": { "kd": 0.7, "ks": 0.3, "ns": 100, "ka": 0.05 }
+        }
+      }
+    ],
+    "lights": [
+      {
+        "point": {
+          "color": "255 240 240",
+          "position": "-30 30 0",
+          "kc": 1.0,
+          "kl": 0.0001,
+          "kq": 0.00001
+        }
+      },
+      {
+        "spot": {
+          "color": "255 255 255",
+          "position": "40 60 30",
+          "direction": "-0.6 -1 -0.5",
+          "kc": 1.0,
+          "kl": 0.0001,
+          "kq": 0.00002,
+          "narrow-beam": 15
+        }
+      },
+      {
+        "spot": {
+          "color": "100 200 255",
+          "position": "50 100 0",
+          "direction": "-1 -1 -1",
+          "kc": 1.0,
+          "kl": 0.00005,
+          "kq": 0.000005,
+          "narrow-beam": 10
+        }
+      }
+    ]
+  }
+}

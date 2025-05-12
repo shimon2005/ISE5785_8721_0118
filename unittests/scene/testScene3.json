@@ -1,0 +1,29 @@
+{
+  "scene": {
+    "name": "Colorful Combined Spheres Enhanced Lighting",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "0 0 0",
+      "intensity": 0.0
+    },
+    "geometries": [
+      { "sphere": { "center": "0 0 -100",   "radius": 50, "emission": "40 10 10",   "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 } } },
+      { "sphere": { "center": "30 20 -90",  "radius": 30, "emission": "10 40 10",  "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 } } },
+      { "sphere": { "center": "-25 15 -85", "radius": 25, "emission": "10 10 40",  "material": { "kd": 0.6, "ks": 0.6, "ns": 300, "ka": 0.1 } } },
+      { "sphere": { "center": "15 -30 -80", "radius": 20, "emission": "60 30 100", "material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 } } },
+      { "sphere": { "center": "-20 -25 -75","radius": 18, "emission": "100 60 20","material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 } } },
+      { "sphere": { "center": "40 -15 -110","radius": 22, "emission": "10 100 100","material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 } } },
+      { "sphere": { "center": "-35 30 -110","radius": 15, "emission": "100 10 80","material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 } } },
+      { "sphere": { "center": "0 40 -120",  "radius": 12, "emission": "200 200 50","material": { "kd": 0.4, "ks": 0.8, "ns": 500, "ka": 0.1 } } }
+    ],
+    "lights": [
+      { "point": { "color": "255 240 240", "position": "-30 30 0",  "kc": 1.0, "kl": 0.0001, "kq": 0.00001 } },
+      { "spot":  { "color": "255 255 255", "position": "40 60 30",    "direction": "-0.6 -1 -0.5",    "kc": 1.0, "kl": 0.0001, "kq": 0.00002, "narrow-beam": 15 } },
+      { "spot":  { "color": "100 200 255", "position": "50 100 0",    "direction": "-1 -1 -1",      "kc": 1.0, "kl": 0.00005, "kq": 0.000005, "narrow-beam": 10 } },
+      { "spot":  { "color": "255 180 200", "position": "30 10 -50",    "direction": "-0.3 -0.2 -1",  "kc": 1.0, "kl": 0.00005, "kq": 0.000008, "narrow-beam": 12 } },
+      { "spot":  { "color": "200 255 180", "position": "-20 20 -40",   "direction": "0.2 -0.3 -1",   "kc": 1.0, "kl": 0.00005, "kq": 0.000008, "narrow-beam": 12 } },
+      { "spot":  { "color": "180 200 255", "position": "10 -30 -30",   "direction": "0.1 0.4 -1",    "kc": 1.0, "kl": 0.00005, "kq": 0.000008, "narrow-beam": 12 } },
+      { "point": { "color": "255 100 100", "position": "25 -20 -60",   "kc": 1.0, "kl": 0.0001, "kq": 0.00002 } }
+    ]
+  }
+}
