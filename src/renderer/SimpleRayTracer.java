@@ -57,8 +57,10 @@ public class SimpleRayTracer extends RayTracerBase {
         if (!preprocessIntersection(intersection, ray.getDirection())) {
             return Color.BLACK;
         }
+        Color iA = scene.ambientLight.getIntensity();
+        Double3 kA = intersection.material.kA;
 
-        return  scene.ambientLight.getIntensity().add(calcLocalEffects(intersection));
+        return  iA.scale(kA).add(calcLocalEffects(intersection));
     }
 
 
@@ -118,7 +120,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the diffuse intensity factor as RGB Double3
      */
     private Double3 calcDiffusive(Intersection intersection) {
-        return intersection.material.kD.scale(intersection.lightDirectionDotProductNormal);
+        return intersection.material.kD.scale(Math.abs(intersection.lightDirectionDotProductNormal));
     }
 
 

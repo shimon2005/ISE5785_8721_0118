@@ -17,7 +17,8 @@ import java.util.List;
 public class Geometries extends Intersectable {
 
     /**
-     * A list of geometric objects, initialized as an empty LinkedList.
+     * A list of geometric objects, initialized as an empty LinkedList,
+     * using a composite design pattern.
      * This list cannot be reassigned to another list instance.
      */
     private final List<Intersectable> geometries = new LinkedList<>();
