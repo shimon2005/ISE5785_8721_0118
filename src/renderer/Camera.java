@@ -16,22 +16,22 @@ package renderer;
             public class Camera implements Cloneable {
                 // Camera fields
                 /** The position of the camera in 3D space. */
-                private Point location;
+                private Point location = null;
 
                 /** The forward direction vector of the camera. */
-                private Vector vTo;
+                private Vector vTo = null;
 
                 /** The upward direction vector of the camera. */
-                private Vector vUp;
+                private Vector vUp= null;
 
                 /** The rightward direction vector of the camera. */
-                private Vector vRight;
+                private Vector vRight= null;
 
                 /** The image writer for rendering images. */
-                private ImageWriter imageWriter;
+                private ImageWriter imageWriter = null;
 
                 /** The ray tracer for rendering the scene. */
-                private RayTracerBase rayTracer;
+                private RayTracerBase rayTracer = null;
 
                 /** Number of pixels in the width of the view plane. */
                 private int nX = 1;
@@ -79,6 +79,7 @@ package renderer;
                         }
                         this.camera.vTo = vTo.normalize();
                         this.camera.vUp = vUp.normalize();
+                     //   this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
                         return this;
                     }
 
@@ -90,11 +91,12 @@ package renderer;
                      * @throws IllegalArgumentException if the target point is the same as the camera location
                      */
                     public Builder setDirection(Point target, Vector vUp) {
-                        if (target == this.camera.location) {
+                        if (target.equals(this.camera.location)) {
                             throw new IllegalArgumentException("the target point cannot be the camera position");
                         }
                         this.camera.vTo = target.subtract(this.camera.location).normalize();
                         Vector vRight = (this.camera.vTo).crossProduct(vUp);
+                        //we need to recalculate vUp to ensure orthogonality
                         this.camera.vUp = vRight.crossProduct(this.camera.vTo).normalize();
                         return this;
                     }
@@ -105,11 +107,12 @@ package renderer;
                      * @return the builder instance
                      * @throws IllegalArgumentException if the target point is the same as the camera location
                      */
+                    //to fix
                     public Builder setDirection(Point target) {
-                        if (target == this.camera.location) {
+                        if (target.equals(this.camera.location)) {
                             throw new IllegalArgumentException("the target point cannot be the camera position");
                         }
-                        this.camera.vUp = new Vector(0, 1, 0);
+                        this.camera.vUp =Vector.AXIS_Y;
                         this.camera.vTo = target.subtract(this.camera.location).normalize();
                         Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
                         this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();

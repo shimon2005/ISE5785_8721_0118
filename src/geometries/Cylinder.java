@@ -80,9 +80,4 @@ public class Cylinder extends Tube {
         return super.toString() + ", Height: " + height;
     }
 
-
-    @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        return null;
-    }
-}
+ }
