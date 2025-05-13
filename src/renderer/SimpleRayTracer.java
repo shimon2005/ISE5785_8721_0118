@@ -69,7 +69,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * @param rayDirection the direction of the ray that intersects with the geometry
      * @return true if the intersection is valid (not perpendicular), false otherwise
      */
-    public boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
+    private boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
         intersection.rayDirection = rayDirection.normalize();
         intersection.normal = intersection.geometry.getNormal(intersection.point);
         intersection.rayDirectionDotProductNormal = intersection.rayDirection.dotProduct(intersection.normal);
@@ -86,7 +86,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * @param lightSource the light source to be set
      * @return true if the light direction is not perpendicular to the normal, false otherwise
      */
-    public boolean setLightSource (Intersection intersection, LightSource lightSource) {
+    private boolean setLightSource (Intersection intersection, LightSource lightSource) {
         intersection.lightSource = lightSource;
         intersection.lightDirection = lightSource.getL(intersection.point); // no need to normalize since getL() returns a normalized vector
         intersection.lightDirectionDotProductNormal = intersection.lightDirection.dotProduct(intersection.normal);

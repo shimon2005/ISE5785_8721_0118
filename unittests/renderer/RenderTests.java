@@ -141,7 +141,7 @@ class RenderTests {
    /** Test for JSON based scene - for bonus */
    @Test
    void basicRenderJson() throws IOException, ParseException {
-      Scene scene = JsonScene.importScene("unittests/scene/testScene5.json");
+      Scene scene = JsonScene.importScene("unittests/scene/testScene.json");
       // enter XML file name and parse from JSON file into scene object instead of the
       // new Scene above,
       // Use the code you added in appropriate packages
@@ -153,6 +153,7 @@ class RenderTests {
          .setResolution(1000, 1000) //
          .build() //
          .renderImage() //
-         .writeToImage("jsonRenderTest5");
+         .printGrid(100, new Color(YELLOW)) //
+         .writeToImage("jsonRenderTest");
    }
 }
