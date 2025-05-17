@@ -220,7 +220,7 @@ public class SimpleRayTracer extends RayTracerBase {
         PointLight pointLight = (PointLight) intersection.lightSource;
 
         // distance from the light source to the intersection point
-        double distanceToLightSource = pointLight.getPosition().distance(intersection.point);
+        double distanceToLightSource = pointLight.getDistance(intersection.point);
 
         // Check if any point is closer to the intersection point (shadowOrigin) than the light source
         for (Point p : intersections) {
