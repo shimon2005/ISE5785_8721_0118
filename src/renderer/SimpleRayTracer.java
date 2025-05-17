@@ -1,6 +1,8 @@
 package renderer;
 
+import lighting.DirectionalLight;
 import lighting.LightSource;
+import lighting.PointLight;
 import primitives.*;
 import scene.Scene;
 import geometries.Intersectable. Intersection;
@@ -22,6 +24,12 @@ public class SimpleRayTracer extends RayTracerBase {
     public SimpleRayTracer(Scene scene) {
         super(scene);
     }
+
+    /**
+     * A small value used to avoid floating-point precision issues.
+     * This value is used to determine if two floating-point numbers are close enough to be considered equal.
+     */
+    private static final double DELTA = 0.1;
 
     /**
      * Traces a ray through the scene and returns the color at the intersection point.
@@ -161,6 +169,55 @@ public class SimpleRayTracer extends RayTracerBase {
 
         return intersection.material.kS.scale(Math.pow(minusVR, intersection.material.nSh));
     }
+
+
+    /**
+     * Checks if the intersection point is unshaded (i.e., not in shadow).
+     *
+     * This method slightly offsets the intersection point along the normal (or opposite to it)
+     * to avoid self-shadowing due to floating-point precision issues ("shadow acne").
+     * It then creates a shadow ray pointing towards the light, and checks if any object
+     * obstructs the ray before reaching the light.
+     *
+     * @param intersection The intersection point with all relevant data.
+     * @return true if the point is not in shadow (i.e., light is visible), false if it is in shadow.
+     */
+    private boolean unshaded(Intersection intersection) {
+        // Direction from point to light
+        Vector pointToLight = intersection.lightDirection.scale(-1);
+
+        // Avoid shadow acne
+        double nl = intersection.lightDirectionDotProductNormal;
+        Vector epsVector = intersection.normal.scale(nl < 0 ? DELTA : -DELTA);
+        Point shadowRayOrigin = intersection.point.add(epsVector);
+
+        // Shadow ray
+        Ray shadowRay = new Ray(shadowRayOrigin, pointToLight);
+
+        // DirectionalLight: check any obstruction in direction of light
+        if (intersection.lightSource instanceof DirectionalLight) {
+            List<Point> intersections = scene.geometries.findIntersections(shadowRay);
+            return intersections == null || intersections.isEmpty();
+        }
+
+        // PointLight or SpotLight: limit by distance to light source
+        double lightDistance = intersection()
+        List<Point> intersections = scene.geometries.findIntersections(shadowRay);
+
+        if (intersections == null || intersections.isEmpty()) {
+            return true;
+        }
+
+        // Check if any point is closer than the light source
+        for (Point p : intersections) {
+            if (shadowRayOrigin.distance(p) < lightDistance) {
+                return false; // Point is in shadow
+            }
+        }
+
+        return true; // No blocking object
+    }
+
 
 
 }

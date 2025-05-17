@@ -16,7 +16,7 @@ public class PointLight extends Light implements LightSource {
     private double kL = 0;
     private double kQ = 0;
 
-    protected final Point Position;
+    public final Point Position;
 
     /**
      * Constructs a PointLight with color and position.
