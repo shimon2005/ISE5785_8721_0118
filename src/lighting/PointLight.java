@@ -16,7 +16,7 @@ public class PointLight extends Light implements LightSource {
     private double kL = 0;
     private double kQ = 0;
 
-    public final Point Position;
+    private final Point position;
 
     /**
      * Constructs a PointLight with color and position.
@@ -26,7 +26,16 @@ public class PointLight extends Light implements LightSource {
      */
     public PointLight(Color intensity, Point position) {
         super(intensity);
-        this.Position = position;
+        this.position = position;
+    }
+
+    /**
+     * Gets the position of the light source.
+     *
+     * @return the position of the light source
+     */
+    public Point getPosition() {
+        return position;
     }
 
     /**
@@ -69,7 +78,7 @@ public class PointLight extends Light implements LightSource {
      */
     @Override
     public Color getIntensity(Point p) {
-        double d = Position.distance(p);
+        double d = position.distance(p);
         double attenuation = kC + kL * d + kQ * d * d;
         if (attenuation == 0) {
             return Color.BLACK;
@@ -86,7 +95,7 @@ public class PointLight extends Light implements LightSource {
      */
     @Override
     public Vector getL(Point p) {
-        return p.subtract(Position).normalize();
+        return p.subtract(position).normalize();
     }
 
 }
