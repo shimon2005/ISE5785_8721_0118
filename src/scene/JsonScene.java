@@ -261,7 +261,7 @@ public class JsonScene {
             if (m.containsKey("kd")) mat.setKD(((Number) m.get("kd")).doubleValue());
             if (m.containsKey("ks")) mat.setKS(((Number) m.get("ks")).doubleValue());
             if (m.containsKey("ns")) mat.setShininess(((Number) m.get("ns")).intValue());
-            if (m.containsKey("ka")) mat.setKa(((Number) m.get("ka")).doubleValue());  // הוספת התמיכה ל-ka
+            if (m.containsKey("ka")) mat.setKa(((Number) m.get("ka")).doubleValue());
             g.setMaterial(mat);
         }
         if (o.containsKey("emission")) {

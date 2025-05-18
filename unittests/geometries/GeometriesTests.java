@@ -55,4 +55,38 @@ class GeometriesTests {
                 "findIntersections() wrong number of intersections when all geometries are intersected (tangencies not counted)");
 
     }
+
+
+    /**
+     * Tests {@link Geometries#calculateIntersectionsHelper(Ray, double)}
+     */
+    @Test
+    void testGeometriesIntersections_MaxDistance_CountOnly() {
+        Sphere sphere = new Sphere(new Point(0, 0, 5), 2); // Sphere center (0,0,5), radius=2
+        Plane plane = new Plane(new Point(0, 0, 10), new Vector(0, 0, 1)); // Plane at z=10
+
+        Geometries geometries = new Geometries(sphere, plane);
+
+        Ray ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
+
+        // maxDistance = 7: sphere intersects twice within distance 3..7, plane beyond maxDistance
+        var result1 = geometries.calculateIntersectionsHelper(ray, 7.0);
+        assertNotNull(result1, "Expected intersections within maxDistance 7");
+        assertEquals(2, result1.size(), "Expected exactly 2 intersections (sphere only)");
+
+        // maxDistance = 9: same as above, plane at 10 still excluded
+        var result2 = geometries.calculateIntersectionsHelper(ray, 9.0);
+        assertNotNull(result2, "Expected intersections within maxDistance 9");
+        assertEquals(2, result2.size(), "Expected exactly 2 intersections (sphere only)");
+
+        // maxDistance = 3: sphere intersection exactly at distance 3, should return intersection(s)
+        var result3 = geometries.calculateIntersectionsHelper(ray, 3.0);
+        assertNotNull(result3, "Expected intersections at maxDistance 3 (distance equal to max)");
+        assertTrue(result3.size() >= 1, "Expected at least 1 intersection at distance equal to maxDistance");
+
+        // Ray missing all geometries, arbitrary maxDistance
+        Ray missRay = new Ray(new Point(10, 10, 10), new Vector(1, 0, 0));
+        var result4 = geometries.calculateIntersectionsHelper(missRay, 20.0);
+        assertNull(result4, "No intersections expected for ray missing all geometries");
+    }
 }

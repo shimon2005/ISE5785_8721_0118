@@ -138,4 +138,49 @@ class PolygonTests {
               "Ray intersects on the continuation of an edge, which should not count as an intersection");
    }
 
+
+   /**
+    * Tests the {@link Polygon#calculateIntersectionsHelper(Ray, double)} method.
+    * This test checks intersection results of rays with a polygon, considering
+    * valid intersections, intersections outside the polygon, on boundaries, or beyond max distance.
+    */
+   @Test
+   void testPolygonIntersections_MaxDistance_SimpleCheck() {
+      // Create a simple square polygon on XY plane
+      Polygon polygon = new Polygon(
+              new Point(1, 1, 0),
+              new Point(-1, 1, 0),
+              new Point(-1, -1, 0),
+              new Point(1, -1, 0)
+      );
+      double maxDistance = 5.0;
+
+      // Ray 1: intersects inside the polygon within maxDistance → expect 1 intersection
+      Ray ray1 = new Ray(new Point(0, 0, -2), new Vector(0, 0, 1));
+      var intersections1 = polygon.calculateIntersectionsHelper(ray1, maxDistance);
+      assertNotNull(intersections1, "Ray1 should intersect inside the polygon");
+      assertEquals(1, intersections1.size(), "Ray1 should return 1 intersection");
+
+      // Ray 2: intersects the polygon plane but outside the polygon → expect null
+      Ray ray2 = new Ray(new Point(2, 2, -2), new Vector(0, 0, 1));
+      assertNull(polygon.calculateIntersectionsHelper(ray2, maxDistance), "Ray2 intersects plane but outside polygon, should return null");
+
+      // Ray 3: intersects beyond maxDistance → expect null
+      Ray ray3 = new Ray(new Point(0, 0, -10), new Vector(0, 0, 1));
+      assertNull(polygon.calculateIntersectionsHelper(ray3, maxDistance), "Ray3 intersects within polygon but beyond maxDistance, should return null");
+
+      // Ray 4: intersects exactly on a vertex → expect null
+      Ray ray4 = new Ray(new Point(1, 1, -1), new Vector(0, 0, 1));
+      assertNull(polygon.calculateIntersectionsHelper(ray4, maxDistance), "Ray4 intersects on polygon vertex, should return null");
+
+      // Ray 5: intersects exactly on an edge → expect null
+      Ray ray5 = new Ray(new Point(0, 1, -1), new Vector(0, 0, 1));
+      assertNull(polygon.calculateIntersectionsHelper(ray5, maxDistance), "Ray5 intersects on polygon edge, should return null");
+
+      // Ray 6: parallel to polygon plane → expect null
+      Ray ray6 = new Ray(new Point(0, 0, 1), new Vector(1, 0, 0));
+      assertNull(polygon.calculateIntersectionsHelper(ray6, maxDistance), "Ray6 parallel to polygon plane, should return null");
+   }
+
+
 }

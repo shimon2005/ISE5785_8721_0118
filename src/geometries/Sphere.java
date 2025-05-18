@@ -110,10 +110,10 @@ public class Sphere extends RadialGeometry {
                     List.of(new Intersection(this, p1), new Intersection(this, p2)) :
                     List.of(new Intersection(this, p2), new Intersection(this, p1));
         }
-        if (t1 > 0 && Util.alignZero(t1 - maxDistance) < 0) {
+        if (t1 > 0 && Util.alignZero(t1 - maxDistance) <= 0) {
             return List.of(new Intersection(this, ray.getPoint(t1)));
         }
-        if (t2 > 0 && Util.alignZero(t1 - maxDistance) < 0) {
+        if (t2 > 0 && Util.alignZero(t1 - maxDistance) <= 0) {
             return List.of(new Intersection(this, ray.getPoint(t2)));
         }
         return null;
