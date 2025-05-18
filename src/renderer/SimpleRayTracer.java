@@ -75,16 +75,16 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Preprocesses the intersection data by calculating the ray direction, normal vector,
      * @param intersection the intersection point containing the geometry and its material properties
-     * @param rayDirection the direction of the ray that intersects with the geometry
+     * @param rayDirection the direction of the ray from the camera that intersects with the geometry
      * @return true if the intersection is valid (not perpendicular), false otherwise
      */
     private boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
-        intersection.rayDirection = rayDirection.normalize();
-        intersection.normal = intersection.geometry.getNormal(intersection.point);
-        intersection.rayDirectionDotProductNormal = intersection.rayDirection.dotProduct(intersection.normal);
+        intersection.v = rayDirection.normalize();
+        intersection.n = intersection.geometry.getNormal(intersection.point);
+        intersection.nv = intersection.n.dotProduct(intersection.v);
 
         // if rayDirectionDotProductNormal is 0 return false, else return true
-        return !Util.isZero(intersection.rayDirectionDotProductNormal);
+        return !Util.isZero(intersection.nv);
     }
 
     /**
@@ -97,11 +97,11 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private boolean setLightSource (Intersection intersection, LightSource lightSource) {
         intersection.lightSource = lightSource;
-        intersection.lightDirection = lightSource.getL(intersection.point); // no need to normalize since getL() returns a normalized vector
-        intersection.lightDirectionDotProductNormal = intersection.lightDirection.dotProduct(intersection.normal);
+        intersection.l = lightSource.getL(intersection.point); // no need to normalize since getL() returns a normalized vector
+        intersection.nl = intersection.n.dotProduct(intersection.l);
 
-        // if lightDirectionDotProductNormal is 0 return false, else return true
-        return !Util.isZero(intersection.lightDirectionDotProductNormal);
+        // if nl is 0 return false, else return true
+        return !Util.isZero(intersection.nl);
     }
 
     /**
@@ -125,7 +125,8 @@ public class SimpleRayTracer extends RayTracerBase {
                 // in the current repetition of the loop does not reach the intersection point
                 continue;
             }
-            if (intersection.lightDirectionDotProductNormal * intersection.rayDirectionDotProductNormal > 0) { // sign(nl) == sign(nv)
+            if ((intersection.nl * intersection.nv > 0)   // camera and light are on the same "side" of the surface (relative to the normal)
+                    && unshaded(intersection)) {
                 Color iL = lightSource.getIntensity(intersection.point);
                 color = color.add(iL.scale(calcDiffusive(intersection).add(calcSpecular(intersection))));
             }
@@ -136,13 +137,13 @@ public class SimpleRayTracer extends RayTracerBase {
 
     /**
      * Calculates the diffuse reflection component using Lambert’s cosine law:
-     * I_diffuse = kD * max(0, n ⋅ l)
+     * I_diffuse = kD * math.abs(nl)
      *
      * @param intersection the intersection containing material, normal, and light direction
      * @return the diffuse intensity factor as RGB Double3
      */
     private Double3 calcDiffusive(Intersection intersection) {
-        return intersection.material.kD.scale(Math.abs(intersection.lightDirectionDotProductNormal));
+        return intersection.material.kD.scale(Math.abs(intersection.nl));
     }
 
 
@@ -156,18 +157,16 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the specular intensity factor as RGB Double3
      */
     private Double3 calcSpecular(Intersection intersection) {
-        Vector v = intersection.rayDirection.normalize();         // view direction (from point to viewer)
-        Vector l = intersection.lightDirection.normalize();       // light direction (from light to point)
-        Vector n = intersection.normal.normalize();               // normal at the point
 
-        // Compute reflection vector r = l - 2(n ⋅ l) * n
-        Vector r = l.subtract(n.scale(2 * n.dotProduct(l))).normalize();
+        // Compute reflection vector r = l - 2(n ⋅ l) * n (normalized)
+        Vector r = (intersection.l.subtract(intersection.n.scale(2 * intersection.nl))).normalize();
 
-        double minusVR = -v.dotProduct(r); // use -v·r because v points outward
+        double minusVR = -(intersection.v.dotProduct(r)); // use -v·r because v points outward
         if (Util.alignZero(minusVR) <= 0) {
             return Double3.ZERO;
         }
 
+        // Reach here if minusVR > 0
         return intersection.material.kS.scale(Math.pow(minusVR, intersection.material.nSh));
     }
 
@@ -188,15 +187,16 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return {@code true} if the point is not in shadow (light is visible), {@code false} otherwise.
      */
     private boolean unshaded(Intersection intersection) {
+
         // Direction from point to light
-        Vector pointToLight = intersection.lightDirection.scale(-1);
+        Vector pointToLight = intersection.l.scale(-1);
 
         // Avoid shadow acne
-        Vector epsVector = intersection.normal.scale(intersection.lightDirectionDotProductNormal < 0 ? DELTA : -DELTA);
-        Point shadowOrigin = intersection.point.add(epsVector);
+        Vector epsVector = intersection.n.scale(intersection.nl < 0 ? DELTA : -DELTA);
+        Point movedPoint = intersection.point.add(epsVector);
 
         // Shadow ray
-        Ray shadowRay = new Ray(shadowOrigin, pointToLight);
+        Ray shadowRay = new Ray(movedPoint, pointToLight);
 
         List<Point> intersections = scene.geometries.findIntersections(shadowRay);
 
@@ -224,14 +224,15 @@ public class SimpleRayTracer extends RayTracerBase {
 
         // Check if any point is closer to the intersection point (shadowOrigin) than the light source
         for (Point p : intersections) {
-            if (shadowOrigin.distance(p) < distanceToLightSource) {
+            if (intersection.point.distance(p) < distanceToLightSource) {
                 // Point is in shadow
                 return false;
             }
         }
 
-
-        return true; // No blocking object
+        // No points are closer to the intersection point than the light source,
+        // so the point is unshaded
+        return true;
     }
 
 

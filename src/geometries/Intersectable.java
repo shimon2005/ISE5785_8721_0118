@@ -29,22 +29,22 @@ public abstract class Intersectable {
         public final Material material;
 
         /** The direction of the ray that intersects with the geometry at the intersection point. */
-        public Vector rayDirection;
+        public Vector v;
 
         /** The normal vector at the intersection point. */
-        public Vector normal;
+        public Vector n;
 
         /** The dot product of the ray direction and the normal vector. */
-        public double rayDirectionDotProductNormal;
+        public double nv;
 
         /** The light source **/
         public LightSource lightSource;
 
-        /** The direction form the light source to the intersection point **/
-        public Vector lightDirection;
+        /** The direction from the light source to the intersection point **/
+        public Vector l;
 
         /** The dot product of the light direction and the normal vector. **/
-        public double lightDirectionDotProductNormal;
+        public double nl;
 
 
         /**
