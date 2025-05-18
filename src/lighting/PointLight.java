@@ -30,15 +30,6 @@ public class PointLight extends Light implements LightSource {
     }
 
     /**
-     * Gets the position of the light source.
-     *
-     * @return the position of the light source
-     */
-    public Point getPosition() {
-        return position;
-    }
-
-    /**
      * sets the Kc factor for the light source.
      * @param kC the Kc factor
      * @return the PointLight object itself
