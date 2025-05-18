@@ -179,4 +179,40 @@ class PlaneTests {
         assertNull(plane.findIntersections(new Ray(new Point(0, 0, 1), new Vector(0, 1, -1))),
                 "Ray starts at the reference point of the plane, should return null");
     }
+
+    /**
+     * Tests the {@link Plane#calculateIntersectionsHelper(Ray, double)} method.
+     * This test verifies correct intersection results of rays with a plane
+     * considering the maximum distance constraint, by checking only the size of the intersection list
+     * or null if there are no intersections.
+     */
+    @Test
+    void testPlaneIntersections_MaxDistance_SimpleCheck() {
+        // Create a plane with point at origin and normal along Z axis (XY plane)
+        Plane plane = new Plane(new Point(0, 0, 0), new Vector(0, 0, 1));
+        double maxDistance = 5.0;
+
+        // Ray 1: intersects plane within maxDistance, expect 1 intersection
+        Ray ray1 = new Ray(new Point(0, 0, -3), new Vector(0, 0, 1));
+        var intersections1 = plane.calculateIntersectionsHelper(ray1, maxDistance);
+        assertNotNull(intersections1, "Ray1 should intersect the plane");
+        assertEquals(1, intersections1.size(), "Ray1 should return 1 intersection");
+
+        // Ray 2: intersects plane beyond maxDistance, expect null (no intersection)
+        Ray ray2 = new Ray(new Point(0, 0, -10), new Vector(0, 0, 1));
+        assertNull(plane.calculateIntersectionsHelper(ray2, maxDistance), "Ray2 intersection beyond maxDistance should return null");
+
+        // Ray 3: parallel ray (direction orthogonal to plane normal), expect null
+        Ray ray3 = new Ray(new Point(0, 0, 1), new Vector(1, 0, 0));
+        assertNull(plane.calculateIntersectionsHelper(ray3, maxDistance), "Ray3 parallel to plane should return null");
+
+        // Ray 4: ray starts exactly on the plane, expect null
+        Ray ray4 = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
+        assertNull(plane.calculateIntersectionsHelper(ray4, maxDistance), "Ray4 starting on plane should return null");
+
+        // Ray 5: ray points away from plane (negative t), expect null
+        Ray ray5 = new Ray(new Point(0, 0, 3), new Vector(0, 0, 1));
+        assertNull(plane.calculateIntersectionsHelper(ray5, maxDistance), "Ray5 pointing away from plane should return null");
+    }
+
 }

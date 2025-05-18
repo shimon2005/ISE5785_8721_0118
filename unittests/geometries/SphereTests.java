@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+import geometries.Intersectable.Intersection;
 
 import java.util.List;
 
@@ -122,4 +123,39 @@ class SphereTests {
                 "Ray grazes the edge but does not intersect, should return null");
     }
 
+
+    /**
+     * Test method for {@link geometries.Sphere#calculateIntersections(Ray, double)}.
+     * This test checks that the intersections returned by findIntersections are correct.
+     */
+    @Test
+    void testSphereIntersections_MaxDistance_SimpleCountCheck() {
+        Sphere sphere = new Sphere(new Point(0, 0, 0), 3);
+        double maxDistance = 3.5;
+        Vector direction = new Vector(1, 0, 0);
+
+        // Ray 1: y = 3.5 → 0 intersections
+        Ray ray1 = new Ray(new Point(-6, 2.5, 0), direction);
+        assertNull(sphere.calculateIntersections(ray1, maxDistance), "Ray1 should return null");
+
+        // Ray 2: y = 2.0 → 1 intersection
+        Ray ray2 = new Ray(new Point(-4, 1.5, 0), direction);
+        assertEquals(1, sphere.calculateIntersections(ray2, maxDistance).size(), "Ray2 should return 1 intersection");
+
+        // Ray 3: y = 1.0 → 1 intersection
+        Ray ray3 = new Ray(new Point(-2, 0.5, 0), direction);
+        assertEquals(1, sphere.calculateIntersections(ray3, maxDistance).size(), "Ray3 should return 1 intersection");
+
+        // Ray 4: y = 0.5 → 1 intersection
+        Ray ray4 = new Ray(new Point(0, -0.5, 0), direction);
+        assertEquals(1, sphere.calculateIntersections(ray4, maxDistance).size(), "Ray4 should return 1 intersection");
+
+        // Ray 5: y = -0.5 → 1 intersection
+        Ray ray5 = new Ray(new Point(2, -1.5, 0), direction);
+        assertEquals(1, sphere.calculateIntersections(ray5, maxDistance).size(), "Ray5 should return 1 intersection");
+
+        // Ray 6: y = -1.5 → 0 intersections
+        Ray ray6 = new Ray(new Point(4, -2.5, 0), direction);
+        assertNull(sphere.calculateIntersections(ray6, maxDistance), "Ray6 should return null");
+    }
 }

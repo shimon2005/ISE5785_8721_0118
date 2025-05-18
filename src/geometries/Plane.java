@@ -96,10 +96,11 @@ public class Plane extends Geometry {
      * If the ray intersects the plane, returns a list containing the intersection.
      * If the ray is parallel to the plane or does not intersect, returns null.
      * @param ray The ray to check for intersection.
+     * @param maxDistance The maximum distance to check for intersections.
      * @return A list containing the intersections, or null if there is no intersections.
      */
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
 
         // Check if the ray's head is equal to the point field of the plane to avoid creating 0 vector during subtraction later on,
         if (point.equals(ray.getHead())) {
@@ -121,6 +122,10 @@ public class Plane extends Geometry {
         // If t is negative, there is no valid intersection
         if (t <= 0) {
             return null; // No intersection
+        }
+
+        if (Util.alignZero(t - maxDistance) > 0) {
+            return null; // Intersection is beyond the maximum distance
         }
 
         // Calculate the intersection point

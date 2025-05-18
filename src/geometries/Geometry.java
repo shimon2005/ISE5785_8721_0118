@@ -68,13 +68,13 @@ public abstract class Geometry extends Intersectable {
      */
     public abstract Vector getNormal(Point point);
 
+
     /**
-     * Calculates the intersections of a ray with the geometry.
-     * This method must be implemented by subclasses to provide specific intersection logic.
-     *
+     * This method calculates the intersections between a ray and the geometry.
      * @param ray the ray to check for intersections
+     * @param maxDistance the maximum distance to check for intersections
      * @return a list of intersections, or null if there are no intersections
      */
     @Override
-    public abstract List<Intersection> calculateIntersectionsHelper(Ray ray);
+    public abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
 }

@@ -93,16 +93,22 @@ public class Polygon extends Geometry {
     * If the ray intersects the polygon, returns a list containing the intersection.
     * Otherwise, returns null.
     * @param ray The ray to check for intersection.
+    * @param maxDistance The maximum distance to check for intersections.
     * @return A list containing the intersections, or null if there is no intersections.
     */
    @Override
-   public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+   public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
       // Find the intersection point with the plane
       List<Point> planeIntersections = plane.findIntersections(ray);
       if (planeIntersections == null) return null;
 
       // Get the intersection point
       Point intersectionPoint = planeIntersections.getFirst();
+
+      // If the intersection point is beyond the maximum distance, return null
+      if (intersectionPoint.distance(ray.getHead()) > maxDistance) {
+         return null;
+      }
 
       // Check if the intersection point is exactly one of the polygon's vertices.
       // If so, it is considered a boundary intersection.
@@ -136,9 +142,8 @@ public class Polygon extends Geometry {
          }
       }
 
-      return Stream.of(intersectionPoint)
-              .map(p -> new Intersection(this, p))
-              .toList();
+      // If we reach here, the intersection point is inside the polygon
+      return List.of(new Intersection(this, intersectionPoint));
    }
 
 

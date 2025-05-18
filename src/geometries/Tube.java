@@ -55,6 +55,19 @@ public class Tube extends RadialGeometry {
     }
 
 
+    /**
+     * Calculates the intersection points between a ray and the tube.
+     * This method is not implemented in this class.
+     *
+     * @param ray the ray to check for intersection
+     * @param maxDistance The maximum distance to check for intersections.
+     * @return null, as this method is not implemented
+     */
+    @Override
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        return null;
+    }
+
 
     /**
      * Returns a string representation of the tube.
@@ -66,8 +79,5 @@ public class Tube extends RadialGeometry {
         return super.toString() + ", Axis: " + axis;
     }
 
-    @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        return null;
-    }
+
 }

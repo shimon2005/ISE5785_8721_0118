@@ -42,10 +42,11 @@ public class Triangle extends Polygon {
      * using barycentric coordinates.
      *
      * @param ray The ray to check for intersection.
+     * @param maxDistance The maximum distance to check for intersections.
      * @return A list containing the intersection point wrapped in an {@link Intersection} object,
      *         or {@code null} if there is no intersection.
      */
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         final double EPSILON = 1e-10;
 
         // Triangle vertices: p1, p2, p3
@@ -67,6 +68,11 @@ public class Triangle extends Polygon {
         double t = Util.alignZero(normal.dotProduct(p1.subtract(ray.getHead())) / denom);
         if (t < EPSILON)
             return null; // Intersection is behind the ray's origin
+
+        // Check if the intersection point is within the maximum distance
+        if (Util.alignZero(t - maxDistance) > 0)
+            return null; // Intersection is beyond the maximum distance
+
 
         // Compute the intersection point P
         Point P = ray.getPoint(t);

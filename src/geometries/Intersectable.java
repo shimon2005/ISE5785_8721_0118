@@ -86,31 +86,46 @@ public abstract class Intersectable {
         }
     }
 
-    /**
-     * Calculates the intersections of a ray with the geometry.
-     * This method should be implemented by subclasses to provide specific intersection logic.
-     *
-     * @param ray the ray to check for intersections
-     * @return a list of intersections, or null if there are no intersections
-     */
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        return null;
-    }
 
     /**
      * Calculates the intersections of a ray with the geometry.
-     * Calls the {@code calculateIntersectionsHelper} method to perform the calculation.
+     * This method should be implemented by subclasses to provide specific intersection calculations.
+     *
+     * @param ray the ray to check for intersections
+     * @param maxDistance the maximum distance to check for intersections
+     * @return a list of intersections, or null if there are no intersections
+     */
+    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
+
+
+    /**
+     * Finds the intersection points of a ray with the geometry.
+     * Calls the {@code calculateIntersectionsHelper} method to perform the actual calculation.
+     *
+     * @param ray the ray to check for intersections
+     * @param maxDistance the maximum distance to check for intersections
+     * @return a list of intersections, or null if there are no intersections
+     */
+    public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
+        return calculateIntersectionsHelper(ray, maxDistance);
+    }
+
+
+    /**
+     * Finds the intersection points of a ray with the geometry.
+     * Calls the {@code calculateIntersections} method with a maximum distance of positive infinity.
      *
      * @param ray the ray to check for intersections
      * @return a list of intersections, or null if there are no intersections
      */
     public final List<Intersection> calculateIntersections(Ray ray) {
-        return calculateIntersectionsHelper(ray);
+        return calculateIntersections(ray, Double.POSITIVE_INFINITY);
     }
+
 
     /**
      * Finds the intersection points of a ray with the geometry.
-     * Calls the {@code calculateIntersections} method and extracts the points from the intersections.
+     * Calls the {@code calculateIntersections} method and returns only the intersection points.
      *
      * @param ray the ray to check for intersections
      * @return a list of intersection points, or null if there are no intersections

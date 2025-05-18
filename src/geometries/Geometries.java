@@ -65,7 +65,7 @@ public class Geometries extends Intersectable {
      *         their corresponding geometries; returns {@code null} if there are no intersections.
      */
     @Override
-    protected List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    protected List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> intersectionList = null;
 
         for (Intersectable geometry : geometries) {

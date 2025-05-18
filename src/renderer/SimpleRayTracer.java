@@ -198,41 +198,12 @@ public class SimpleRayTracer extends RayTracerBase {
         // Shadow ray
         Ray shadowRay = new Ray(movedPoint, pointToLight);
 
-        List<Point> intersections = scene.geometries.findIntersections(shadowRay);
-
-        if (intersections == null) {
-            // No intersections, the point is not in shadow
-            return true;
-        }
-
-        // If reach here, there are intersections with the shadow ray
-
-        // DirectionalLight:
-        if (intersection.lightSource instanceof DirectionalLight) {
-            // Directional light is considered to be infinitely far away,
-            // so when there are intersections, they are surely closer than the light source,
-            // therefore, the point is in shadow
-            return false;
-        }
-
-        // If reach here, lightSource is PointLight or SpotLight (which extends PointLight),
-        // so we can explicitly cast it to PointLight
-        PointLight pointLight = (PointLight) intersection.lightSource;
-
         // distance from the light source to the intersection point
-        double distanceToLightSource = pointLight.getDistance(intersection.point);
+        double distanceToLightSource = intersection.lightSource.getDistance(intersection.point);
 
-        // Check if any point is closer to the intersection point (shadowOrigin) than the light source
-        for (Point p : intersections) {
-            if (intersection.point.distance(p) < distanceToLightSource) {
-                // Point is in shadow
-                return false;
-            }
-        }
+        List<Intersection> intersections = scene.geometries.calculateIntersections(shadowRay, distanceToLightSource);
 
-        // No points are closer to the intersection point than the light source,
-        // so the point is unshaded
-        return true;
+        return intersections == null;
     }
 
 
