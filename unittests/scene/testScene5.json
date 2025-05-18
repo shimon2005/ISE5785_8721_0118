@@ -1,0 +1,46 @@
+{
+  "scene": {
+    "name": "simple-shadow-test",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "50 50 50"
+    },
+    "geometries": [
+      {
+        "sphere": {
+          "center": "0 0 -6",
+          "radius": 4,
+          "emission": "255 0 0",
+          "material": {
+            "kd": 0.5,
+            "ks": 0.5,
+            "ns": 100
+          }
+        }
+      },
+      {
+        "plane": {
+          "point": "0 0 -10",
+          "normal": "0 0 1",
+          "emission": "100 100 100",
+          "material": {
+            "kd": 0.8,
+            "ks": 0.2,
+            "ns": 30
+          }
+        }
+      }
+    ],
+    "lights": [
+      {
+        "point": {
+          "color": "255 255 255",
+          "position": "-3 -3 1",
+          "kc": 1,
+          "kl": 0.001,
+          "kq": 0.0001
+        }
+      }
+    ]
+  }
+}
