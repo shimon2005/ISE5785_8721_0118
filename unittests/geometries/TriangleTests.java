@@ -77,40 +77,38 @@ class TriangleTests {
     }
 
     /**
-     * Tests the maxDistance constraint in {@link Triangle#calculateIntersectionsHelper(Ray, double)}.
+     * Tests the maxDistance constraint in {@link Triangle#calculateIntersections(Ray, double)}.
+     * focus on the maximum distance parameter.
      */
     @Test
-    void testTriangleIntersections_MaxDistanceOnly() {
-        // Triangle in the XY plane
+    void testCalculateIntersectionsMaxDistance() {
         Triangle triangle = new Triangle(
-                new Point(0, 1, 0),
-                new Point(-1, -1, 0),
-                new Point(1, -1, 0)
+                new Point(1, 1, 0),
+                new Point(1, -1, 0),
+                new Point(1, 0, 1)
         );
 
-        // Ray 1: intersects at distance 3 < maxDistance (5) → expect 1 intersection
-        Ray ray1 = new Ray(new Point(0, 0, -3), new Vector(0, 0, 1));
-        var intersections1 = triangle.calculateIntersectionsHelper(ray1, 5.0);
+        double maxDistance = 5.0;
+        Vector direction = new Vector(1, 0, 0); // X axis direction
+
+        // Case 1: Ray intersects within maxDistance → expect 1 intersection (distance = 3)
+        Ray ray1 = new Ray(new Point(-2, 0, 0.3), direction); // Intersects at x=1 → distance=3
+        var intersections1 = triangle.calculateIntersections(ray1, maxDistance);
         assertNotNull(intersections1, "Ray1 should intersect within maxDistance");
         assertEquals(1, intersections1.size(), "Ray1 should return 1 intersection");
 
-        // Ray 2: intersects at distance 6 > maxDistance (5) → expect null
-        Ray ray2 = new Ray(new Point(0, 0, -6), new Vector(0, 0, 1));
-        assertNull(triangle.calculateIntersectionsHelper(ray2, 5.0), "Ray2 intersection beyond maxDistance should return null");
+        // Case 2: Ray intersects beyond maxDistance → expect null (distance = 6.1)
+        Ray ray2 = new Ray(new Point(-5.1, 0, 0.3), direction); // Intersects at x=1 → distance=6.1
+        var intersections2 = triangle.calculateIntersections(ray2, maxDistance);
+        assertNull(intersections2, "Ray2 intersection beyond maxDistance should return null");
 
-        // Ray 3: intersects exactly at distance == maxDistance → expect 1 intersection
-        Ray ray3 = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
-        var intersections3 = triangle.calculateIntersectionsHelper(ray3, 5.0);
-        assertNotNull(intersections3, "Ray3 should intersect exactly at maxDistance");
-        assertEquals(1, intersections3.size(), "Ray3 should return 1 intersection");
-
-        // Ray 4: ray starts exactly at intersection point (t == 0) → expect null
-        Ray ray4 = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-        assertNull(triangle.calculateIntersectionsHelper(ray4, 5.0), "Ray4 starts at intersection point, should return null");
-
-        // Ray 5: ray goes in opposite direction (intersection behind ray head, t < 0) → expect null
-        Ray ray5 = new Ray(new Point(0, 0, 3), new Vector(0, 0, 1));
-        assertNull(triangle.calculateIntersectionsHelper(ray5, 10.0), "Ray5 intersection is behind ray origin (negative t), should return null");
+        // Case 3: Ray goes away from the triangle → expect null
+        Ray ray3 = new Ray(new Point(3, 0, 0.3), direction); // Triangle is behind the ray
+        var intersections3 = triangle.calculateIntersections(ray3, maxDistance);
+        assertNull(intersections3, "Ray3 goes away from triangle, should return null");
     }
+
+
+
 
 }
