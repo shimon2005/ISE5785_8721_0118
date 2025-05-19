@@ -34,7 +34,7 @@ public class Plane extends Geometry {
      * @param point1 the first point on the plane
      * @param point2 the second point on the plane
      * @param point3 the third point on the plane
-     * @throws IllegalArgumentException if any two points are identical or if the points are collinear (on the same line)
+     * @throws IllegalArgumentException if any two points are identical, or if the points are collinear (on the same line)
      */
     public Plane(Point point1, Point point2, Point point3) {
         // Check if any two points are identical

@@ -1,7 +1,6 @@
 package geometries;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 import static primitives.Util.*;
 import primitives.Point;
@@ -98,17 +97,14 @@ public class Polygon extends Geometry {
     */
    @Override
    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
-      // Find the intersection point with the plane
-      List<Point> planeIntersections = plane.findIntersections(ray);
+      // Find the intersection point with the plane.
+      // The point we receive from plane.calculateIntersections is already within maxDistance,
+      // so we don't need to check it again.
+      List<Intersection> planeIntersections = plane.calculateIntersections(ray, maxDistance);
       if (planeIntersections == null) return null;
 
       // Get the intersection point
-      Point intersectionPoint = planeIntersections.getFirst();
-
-      // If the intersection point is beyond the maximum distance, return null
-      if (intersectionPoint.distance(ray.getHead()) > maxDistance) {
-         return null;
-      }
+      Point intersectionPoint = planeIntersections.getFirst().point;
 
       // Check if the intersection point is exactly one of the polygon's vertices.
       // If so, it is considered a boundary intersection.
