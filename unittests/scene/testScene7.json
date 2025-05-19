@@ -1,0 +1,83 @@
+{
+  "scene": {
+    "name": "crystal-over-fire",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "30 30 30"
+    },
+    "geometries": [
+      {
+        "plane": {
+          "point": "0 -2 -5",
+          "normal": "0 1 0",
+          "emission": "20 20 20",
+          "material": {
+            "kd": 0.6,
+            "ks": 0.5,
+            "ns": 100,
+            "kr": 0.6
+          }
+        }
+      },
+      {
+        "sphere": {
+          "center": "0 0 -6",
+          "radius": 2.5,
+          "emission": "0 0 255",
+          "material": {
+            "kd": 0.4,
+            "ks": 0.4,
+            "ns": 300,
+            "kt": 0.6
+          }
+        }
+      },
+      {
+        "sphere": {
+          "center": "0 0 -6",
+          "radius": 1.2,
+          "emission": "0 255 0",
+          "material": {
+            "kd": 0.3,
+            "ks": 0.5,
+            "ns": 150,
+            "kt": 0.5
+          }
+        }
+      },
+      {
+        "sphere": {
+          "center": "1.5 -1.5 -5",
+          "radius": 1,
+          "emission": "255 100 0",
+          "material": {
+            "kd": 0.6,
+            "ks": 0.3,
+            "ns": 50
+          }
+        }
+      }
+    ],
+    "lights": [
+      {
+        "spot": {
+          "color": "800 400 400",
+          "position": "-5 7 0",
+          "direction": "1 -1 -1",
+          "kc": 1,
+          "kl": 0.0005,
+          "kq": 0.00005
+        }
+      },
+      {
+        "point": {
+          "color": "200 300 600",
+          "position": "5 5 -3",
+          "kc": 1,
+          "kl": 0.001,
+          "kq": 0.0002
+        }
+      }
+    ]
+  }
+}

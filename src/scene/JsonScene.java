@@ -262,6 +262,8 @@ public class JsonScene {
             if (m.containsKey("ks")) mat.setKS(((Number) m.get("ks")).doubleValue());
             if (m.containsKey("ns")) mat.setShininess(((Number) m.get("ns")).intValue());
             if (m.containsKey("ka")) mat.setKa(((Number) m.get("ka")).doubleValue());
+            if (m.containsKey("kt")) mat.setKT(((Number) m.get("kt")).doubleValue());
+            if (m.containsKey("kr")) mat.setKR(((Number) m.get("kr")).doubleValue());
             g.setMaterial(mat);
         }
         if (o.containsKey("emission")) {

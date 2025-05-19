@@ -9,6 +9,9 @@ import geometries.Intersectable.Intersection;
  * It is defined by a starting point (head) and a direction vector.
  */
 public class Ray {
+
+    private static final double DELTA = 0.1;
+
     /** The starting point of the ray. */
     private final Point head;
 
@@ -25,6 +28,28 @@ public class Ray {
         this.head = head;
         this.direction = direction.normalize();   // the direction vector is not necessarily normalized, so we normalize it
     }
+
+    /**
+     * Constructs a Ray with the given starting point, direction vector, and normal vector.
+     * If the direction vector is in the same direction as the normal vector, it is inverted.
+     *
+     * @param head the starting point of the ray
+     * @param direction the direction vector of the ray
+     * @param normal the normal vector to check against
+     * @param nDotProductDirection the dot product of the normal and the direction
+     */
+    public Ray(Point head,Vector direction, Vector normal , double nDotProductDirection) {
+        if (Util.isZero(nDotProductDirection)) {
+            this.head = head;
+        }
+        else {
+            Vector epsVector = normal.scale(nDotProductDirection > 0 ? DELTA : -DELTA);
+            this.head = head.add(epsVector);
+        }
+        this.direction = direction.normalize();
+    }
+
+
 
     /**
      * Returns the starting point of the ray.

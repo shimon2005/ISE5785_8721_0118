@@ -84,7 +84,6 @@ public record Double3(double d1, double d2, double d3) {
     * @param  k the test number
     * @return   true if all the numbers are less than k, false otherwise
     */
-
    public boolean lowerThan(double k) { return d1 < k && d2 < k && d3 < k; }
 
    /**
@@ -95,4 +94,20 @@ public record Double3(double d1, double d2, double d3) {
     *               triad, false otherwise
     */
    public boolean lowerThan(Double3 other) { return d1 < other.d1 && d2 < other.d2 && d3 < other.d3; }
+
+   /**
+    * Checks whether all the numbers are higher than a test number
+    * @param  k the test number
+    * @return   true if all the numbers are more than k, false otherwise
+    */
+   public boolean greaterThan(double k) { return d1 > k && d2 > k && d3 > k; }
+
+   /**
+    * Checks whether all the numbers are higher than three numbers in another triad
+    * @param  other another triad
+    * @return       true if all the numbers are more than the appropriate numbers in other, false otherwise
+    */
+   public boolean greaterThan(Double3 other) { return d1 > other.d1 && d2 > other.d2 && d3 > other.d3; }
+
+
 }

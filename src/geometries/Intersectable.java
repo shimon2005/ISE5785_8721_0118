@@ -134,4 +134,6 @@ public abstract class Intersectable {
         var list = calculateIntersections(ray);
         return list == null ? null : list.stream().map(intersection -> intersection.point).toList();
     }
+
+
 }
