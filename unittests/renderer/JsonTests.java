@@ -18,7 +18,7 @@ public class JsonTests {
             .setVpDistance(100) //
             .setVpSize(500, 500);
 
-
+/**
     @Test
     void Json1() throws IOException, ParseException {
         Scene scene = JsonScene.importScene("unittests/scene/testScene1.json");
@@ -140,4 +140,42 @@ public class JsonTests {
                 .renderImage() //
                 .writeToImage("jsonRenderTest7");
     }
+
+
+
+    @Test
+    void Json8() throws IOException, ParseException {
+        Scene scene = JsonScene.importScene("unittests/scene/testScene8.json");
+        // enter XML file name and parse from JSON file into a scene object instead of the
+        // new Scene above,
+        // Use the code you added in appropriate packages
+        // ...
+        // NB: unit tests is not the correct place to put XML parsing code
+
+        camera //
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(1000, 1000) //
+                .build() //
+                .renderImage() //
+                .writeToImage("jsonRenderTest8");
+    }
+
+    **/
+
+@Test
+void Json8() throws IOException, ParseException {
+    Scene scene = JsonScene.importScene("unittests/scene/testScene9.json");
+    // enter XML file name and parse from JSON file into a scene object instead of the
+    // new Scene above,
+    // Use the code you added in appropriate packages
+    // ...
+    // NB: unit tests is not the correct place to put XML parsing code
+
+    camera //
+            .setRayTracer(scene, RayTracerType.SIMPLE) //
+            .setResolution(1000, 1000) //
+            .build() //
+            .renderImage() //
+            .writeToImage("jsonRenderTest9");
+}
 }

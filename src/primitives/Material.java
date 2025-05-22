@@ -10,11 +10,22 @@ public class Material {
     /**
      * Define and initialize the material fields
      */
+    // Ambient reflection coefficient (0-1, 0-1, 0-1)
     public Double3 kA = Double3.ONE;
+
+    // Specular reflection coefficient (0-1, 0-1, 0-1)
     public Double3 kS = Double3.ZERO;
+
+    // Diffuse reflection coefficient (0-1, 0-1, 0-1)
     public Double3 kD = Double3.ZERO;
+
+    // transparent coefficient (0-1, 0-1, 0-1)
     public Double3 kT = Double3.ZERO;
+
+    // reflection coefficient (0-1, 0-1, 0-1)
     public Double3 kR = Double3.ZERO;
+
+    // Shininess factor (0-infinity)
     public int nSh = 0;
 
     /**

@@ -1,0 +1,88 @@
+{
+  "scene": {
+    "name": "transparent-hollow-sphere-with-floating-objects",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "0 0 0"
+    },
+    "geometries": [
+      {
+        "plane": {
+          "point": "0 -20 -20",
+          "normal": "0 1 0.2",
+          "material": {
+            "kd": 0.1,
+            "ks": 0.1,
+            "ns": 0,
+            "kr": 1,
+            "kt": 0
+          }
+        }
+      },
+      {
+        "plane": {
+          "point": "0 20 -20",
+          "normal": "0 -1 0.2",
+          "material": {
+            "kd": 0.1,
+            "ks": 0.1,
+            "ns": 0,
+            "kr": 1,
+            "kt": 0
+          }
+        }
+      },
+      {
+        "plane": {
+          "point": "20 0 -20",
+          "normal": "-1 0 0.2",
+          "material": {
+            "kd": 0.1,
+            "ks": 0.1,
+            "ns": 0,
+            "kr": 1,
+            "kt": 0
+          }
+        }
+      },
+      {
+        "plane": {
+          "point": "-20 0 -20",
+          "normal": "1 0 0.2",
+          "material": {
+            "kd": 0.1,
+            "ks": 0.1,
+            "ns": 0,
+            "kr": 1,
+            "kt": 0
+          }
+        }
+      },
+      {
+        "sphere": {
+          "center": "0 0 -10",
+          "radius": 2,
+          "emission": "0 0 255",
+          "material": {
+            "kd": 0.5,
+            "ks": 0.5,
+            "kr": 0.5,
+            "kt": 0.5,
+            "ns": 100
+          }
+        }
+      }
+    ],
+    "lights": [
+      {
+        "point": {
+          "color": "255 0 0",
+          "position": "0 0 0",
+          "kc": 1,
+          "kl": 0.001,
+          "kq": 0.0001
+        }
+      }
+    ]
+  }
+}

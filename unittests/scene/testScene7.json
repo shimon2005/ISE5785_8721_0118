@@ -10,7 +10,7 @@
         "plane": {
           "point": "0 -2 -5",
           "normal": "0 1 0",
-          "emission": "20 20 20",
+          "emission": "255 255 255",
           "material": {
             "kd": 0.6,
             "ks": 0.5,
