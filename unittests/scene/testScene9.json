@@ -1,6 +1,6 @@
 {
   "scene": {
-    "name": "transparent-hollow-sphere-with-floating-objects",
+    "name": "reflective planes and sphere",
     "background-color": "0 0 0",
     "ambient-light": {
       "color": "0 0 0"

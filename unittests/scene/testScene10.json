@@ -1,0 +1,37 @@
+{
+  "scene": {
+    "name": "thing123",
+    "background-color": "0 0 0",
+    "ambient-light": {
+      "color": "0 0 0"
+    },
+    "geometries": [
+      {
+        "plane": {
+          "point": "0 0 -10",
+          "normal": "0 0 1",
+          "material": {
+            "kd": 0.5,
+            "ks": 0,
+            "ns": 0,
+            "kr": 0,
+            "kt": 0
+          }
+        }
+      }
+    ],
+    "lights": [
+      {
+        "spot": {
+          "color": "255 255 255",
+          "position": "0 0 0",
+          "direction": "0 0 -1",
+          "narrow-beam": 10,
+          "kc": 1,
+          "kl": 0.001,
+          "kq": 0.0001
+        }
+      }
+    ]
+  }
+}

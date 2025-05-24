@@ -16,7 +16,7 @@ public class JsonTests {
     private final Camera.Builder camera = Camera.getBuilder() //
             .setLocation(Point.ZERO).setDirection(new Point(0, 0, -1), Vector.AXIS_Y) //
             .setVpDistance(100) //
-            .setVpSize(360, 640);
+            .setVpSize(500, 500);
 
 /**
     @Test
@@ -160,22 +160,43 @@ public class JsonTests {
                 .writeToImage("jsonRenderTest8");
     }
 
-    **/
 
-@Test
-void Json9() throws IOException, ParseException {
-    Scene scene = JsonScene.importScene("unittests/scene/testScene9.json");
-    // enter XML file name and parse from JSON file into a scene object instead of the
-    // new Scene above,
-    // Use the code you added in appropriate packages
-    // ...
-    // NB: unit tests is not the correct place to put XML parsing code
 
-    camera //
-            .setRayTracer(scene, RayTracerType.SIMPLE) //
-            .setResolution(1333, 750) //
-            .build() //
-            .renderImage() //
-            .writeToImage("jsonRenderTest9");
-}
+    @Test
+    void Json9() throws IOException, ParseException {
+        Scene scene = JsonScene.importScene("unittests/scene/testScene9.json");
+        // enter XML file name and parse from JSON file into a scene object instead of the
+        // new Scene above,
+        // Use the code you added in appropriate packages
+        // ...
+        // NB: unit tests is not the correct place to put XML parsing code
+
+        camera //
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(1333, 750) //
+                .build() //
+                .renderImage() //
+                .writeToImage("jsonRenderTest9");
+    }
+
+    */
+
+    @Test
+    void Json10() throws IOException, ParseException {
+        Scene scene = JsonScene.importScene("unittests/scene/testScene10.json");
+        // enter XML file name and parse from JSON file into a scene object instead of the
+        // new Scene above,
+        // Use the code you added in appropriate packages
+        // ...
+        // NB: unit tests is not the correct place to put XML parsing code
+
+        camera //
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(1000, 1000) //
+                .build() //
+                .renderImage() //
+                .writeToImage("jsonRenderTest10");
+    }
+
+
 }
