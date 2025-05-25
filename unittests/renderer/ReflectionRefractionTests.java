@@ -12,6 +12,8 @@ import scene.JsonScene;
 import scene.Scene;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tests for reflection and transparency functionality, test for partial
@@ -192,5 +194,4 @@ class ReflectionRefractionTests {
               //.printGrid(100, new Color(java.awt.Color.YELLOW))
               .writeToImage("reflectionTransparencyCombinedTest");
    }
-
 }
