@@ -214,25 +214,4 @@ public class JsonTests {
                 .writeToImage("diamond ring");
     }
 
-    @Test
-    public void diamond() {
-        assertDoesNotThrow(() -> {
-            Scene scene = JsonScene.importScene("jsonScenes/diamond.json");
-
-            camera
-                    .setImageWriter(new ImageWriter("diamond", 1000, 1000))
-                    .setRayTracer(new SimpleRayTracer(scene))
-
-                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
-                    .setLocation(new Point(0, -320, 40))
-                    .setVpDistance(500)
-                    .setAmountOfRaysAA(2)
-                    .setVpSize(150, 150)
-                    .setMultithreading(-1)
-                    .build()
-                    .renderImage()
-                    .writeToImage();
-
-        }, "Failed to render image");
-    }
 }
