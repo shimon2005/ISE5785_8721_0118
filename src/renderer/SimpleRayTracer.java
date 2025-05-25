@@ -213,14 +213,10 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Determines whether a given intersection point is unshaded (i.e., not in shadow).
      *
-     * To avoid self-shadowing artifacts ("shadow acne"), the method slightly offsets
-     * the intersection point along the surface normal before casting a shadow ray
-     * toward the light source.
-     *
-     * - If the light source is a {@link DirectionalLight}, the method checks whether any geometry
-     *   blocks the shadow ray in the light's direction.
-     * - If the light source is a {@link PointLight} or a subclass (e.g., {@link SpotLight}),
-     *   the method checks whether any object blocks the ray before it reaches the light source.
+     * It does so by checking if there is a blocking object that is opaque "enough" to cause shadowing
+     * (that his kt is lower than MIN_CALC_COLOR_K).
+     * This is a very limited and somewhat unrealistic shadow calculation method,
+     * primarily useful to ensure that highly transparent objects do not cast shadows.
      *
      * @param intersection the intersection details including the point, normal, light, etc.
      * @return {@code true} if the point is not in shadow (light is visible), {@code false} otherwise.
@@ -241,8 +237,6 @@ public class SimpleRayTracer extends RayTracerBase {
 
         // Check if there is a blocking object that is opaque "enough" to cause shadowing
         // (that his kt is lower than MIN_CALC_COLOR_K).
-        // This is a very limited and somewhat unrealistic shadow calculation method,
-        // primarily useful to ensure that highly transparent objects do not cast shadows.
         for (Intersection i : intersectionsInDistance) {
             if (i.material.kT.lowerThan(MIN_CALC_COLOR_K)) {
                 return false;
