@@ -367,10 +367,10 @@ public class SimpleRayTracer extends RayTracerBase {
 
         Intersection closestIntersection = findClosestIntersection(ray);
         if (closestIntersection == null)
-            return scene.background.scale(kkx);
+            return scene.background.scale(kx);
 
         return preprocessIntersection(closestIntersection, ray.getDirection())
-                ? calcColor(closestIntersection, level - 1, kkx).scale(kkx) : Color.BLACK;
+                ? calcColor(closestIntersection, level - 1, kkx).scale(kx) : Color.BLACK;
     }
 
 

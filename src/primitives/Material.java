@@ -10,7 +10,7 @@ public class Material {
     /**
      * Define and initialize the material fields
      */
-    // Ambient reflection coefficient (0-1, 0-1, 0-1)
+    // Absorbed light coefficient (0-1, 0-1, 0-1)
     public Double3 kA = Double3.ONE;
 
     // Specular reflection coefficient (0-1, 0-1, 0-1)
