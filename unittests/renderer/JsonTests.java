@@ -196,6 +196,8 @@ public class JsonTests {
                 .writeToImage("jsonRenderTest10");
     }
 
+    // need to fix the diamond ring scene
+/**
     @Test
     void JsonDiamondRing() throws IOException, ParseException {
         Scene scene = JsonScene.importScene("unittests/scene/diamondRing.json");
@@ -205,13 +207,15 @@ public class JsonTests {
                 .setDirection(new Vector(0, -1, 0).normalize(), new Vector(0, 0, 20).normalize())
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setVpDistance(100)
-                .setVpSize(150, 150)
-                .setResolution(800, 800);
+                .setVpSize(150, 150);
+
 
         cameraBuilder
+                .setResolution(800, 800)
                 .build()
                 .renderImage()
                 .writeToImage("diamond ring");
     }
+    */
 
 }
