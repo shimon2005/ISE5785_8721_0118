@@ -18,7 +18,7 @@ public class JsonTests {
             .setVpDistance(100) //
             .setVpSize(500, 500);
 
-/**
+
     @Test
     void Json1() throws IOException, ParseException {
         Scene scene = JsonScene.importScene("unittests/scene/testScene1.json");
@@ -173,13 +173,11 @@ public class JsonTests {
 
         camera //
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(1333, 750) //
+                .setResolution(1000, 1000) //
                 .build() //
                 .renderImage() //
                 .writeToImage("jsonRenderTest9");
     }
-
-    */
 
     @Test
     void Json10() throws IOException, ParseException {
