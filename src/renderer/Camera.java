@@ -7,9 +7,11 @@ package renderer;
             import primitives.Color;
             import scene.Scene;
 
+            import java.util.LinkedList;
             import java.util.MissingResourceException;
+            import java.util.stream.IntStream;
 
-            /**
+/**
              * Represents a camera in 3D space, capable of generating rays through a view plane.
              * Provides a builder for flexible configuration.
              */
@@ -48,6 +50,25 @@ package renderer;
 
                 /** Distance from the camera to the view plane. */
                 private double vpDistance = 0.0;
+
+
+                /** Amount of threads to use for rendering image by the camera */
+                private int threadsCount = 0;
+
+                /**
+                 * Amount of threads to spare for Java VM threads.
+                 * Spare threads if trying to use all the cores.
+                 */
+                private static final int SPARE_THREADS = 2;
+
+                /**
+                 * Debug print interval in seconds (for progress percentage).
+                 * If it is zero - there is no progress output.
+                 */
+                private double printInterval = 0;
+
+                /** Pixel manager for supporting multithreading */
+                private PixelManager pixelManager;
 
                 /**
                  * Builder class for constructing a Camera instance with a fluent API.
@@ -193,6 +214,42 @@ package renderer;
                     }
 
                     /**
+                     * Sets the number of threads to use for rendering.
+                     * If threads is -2, it uses all available cores minus a few spare threads.
+                     * If threads is -1, it uses a single thread.
+                     * @param threads the number of threads to use
+                     * @return the builder instance
+                     * @throws IllegalArgumentException if threads is less than -2
+                     */
+                    public Builder setMultithreading(int threads) {
+                        if (threads < -2)
+                            throw new IllegalArgumentException("Multithreading parameter must be -2 or higher");
+
+                        if (threads == -2) {
+                            int cores = Runtime.getRuntime().availableProcessors() - SPARE_THREADS;
+                            camera.threadsCount = cores <= 2 ? 1 : cores;
+                        } else {
+                            camera.threadsCount = threads;
+                        }
+                        return this;
+                    }
+
+
+                    /**
+                     * Sets the debug print interval for progress output.
+                     * @param interval the interval in seconds for printing progress
+                     * @return the builder instance
+                     * @throws IllegalArgumentException if interval is negative
+                     */
+                    public Builder setDebugPrint(double interval) {
+                        if (interval < 0)
+                            throw new IllegalArgumentException("interval must be non-negative");
+                        camera.printInterval = interval;
+                        return this;
+                    }
+
+
+                    /**
                      * Builds and returns the configured Camera instance.
                      * @return the constructed Camera
                      * @throws MissingResourceException if any required field is missing
@@ -272,12 +329,12 @@ package renderer;
                  * @return the camera instance
                  */
                 public Camera renderImage() {
-                    for (int x = 0; x < nX; ++x) {
-                        for (int y = 0; y < nY; ++y) {
-                            castRay(x, y);
-                        }
-                    }
-                    return this;
+                    pixelManager = new PixelManager(nY, nX, printInterval);
+                    return switch (threadsCount) {
+                        case 0 -> renderImageNoThreads();
+                        case -1 -> renderImageStream();
+                        default -> renderImageRawThreads();
+                    };
                 }
 
                 /**
@@ -328,5 +385,52 @@ package renderer;
                     Ray ray = constructRay(nX, nY, x, y);
                     Color color = rayTracer.traceRay(ray);
                     imageWriter.writePixel(x, y, color);
+                    pixelManager.pixelDone();
+                }
+
+                /**
+                 * Renders the image using the specified rendering method.
+                 * @return the camera instance
+                 */
+                private Camera renderImageNoThreads() {
+                    for (int i = 0; i < nY; ++i)
+                        for (int j = 0; j < nX; ++j)
+                            castRay(j, i);
+                    return this;
+                }
+
+                /**
+                 * Renders the image using multiple threads.
+                 * The rendering is done in parallel for each pixel.
+                 * @return the camera instance
+                 */
+                private Camera renderImageStream() {
+                    IntStream.range(0, nY).parallel()
+                            .forEach(i -> IntStream.range(0, nX).parallel()
+                                    .forEach(j -> castRay(j, i)));
+                    return this;
+                }
+
+
+                /**
+                 * Renders the image using multiple threads with a pixel manager.
+                 * Each thread processes pixels in parallel, improving performance.
+                 * @return the camera instance
+                 */
+                private Camera renderImageRawThreads() {
+                    var threads = new LinkedList<Thread>();
+                    for (int i = 0; i < threadsCount; ++i) {
+                        threads.add(new Thread(() -> {
+                            PixelManager.Pixel pixel;
+                            while ((pixel = pixelManager.nextPixel()) != null)
+                                castRay(pixel.col(), pixel.row());
+                        }));
+                    }
+
+                    for (var thread : threads) thread.start();
+                    try {
+                        for (var thread : threads) thread.join();
+                    } catch (InterruptedException ignored) {}
+                    return this;
                 }
             }

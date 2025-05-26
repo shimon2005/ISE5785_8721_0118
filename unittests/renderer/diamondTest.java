@@ -276,10 +276,11 @@ public class diamondTest{
                 .setDirection(new Vector(0, -1, 0).normalize(), new Vector(0, 0, 20).normalize())
                 .setRayTracer(scene, RayTracerType.SIMPLE)
                 .setVpDistance(100)
-                .setVpSize(150, 150);
-
+                .setVpSize(150, 150)
+                .setMultithreading(-2)
+                .setDebugPrint(1.0);
         cameraBuilder
-                .setResolution(800, 800)
+                .setResolution(2000, 2000)
                 .build()
                 .renderImage()
                 .writeToImage("Diamond");
