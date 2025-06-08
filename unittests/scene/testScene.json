@@ -10,14 +10,14 @@
       {
         "sphere": {
           "center": "0 0 -100",
-          "radius": 50,
+          "radius": 50
+        },
           "emission": "40 10 10",
           "material": {
             "kd": 0.6,
             "ks": 0.6,
             "ns": 300,
             "ka": 0.1
-          }
         }
       },
       {

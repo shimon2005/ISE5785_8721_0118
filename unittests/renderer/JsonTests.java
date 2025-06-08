@@ -207,7 +207,7 @@ public class JsonTests {
                             .setVpDistance(500)
                             .setMultithreading(-1)
                             .setVpSize(150, 150)
-                            .setResolution(5000,5000)
+                            .setResolution(200,200)
                             .setDebugPrint(1)
                             .setRayTracer(scene,RayTracerType.SIMPLE);
 
