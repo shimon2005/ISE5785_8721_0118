@@ -10,6 +10,7 @@ import scene.Scene;
 import java.io.IOException;
 
 import static java.awt.Color.YELLOW;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class JsonTests {
     /** Camera builder of the tests */
@@ -196,26 +197,25 @@ public class JsonTests {
                 .writeToImage("jsonRenderTest10");
     }
 
-    // need to fix the diamond ring scene
-/**
     @Test
-    void JsonDiamondRing() throws IOException, ParseException {
-        Scene scene = JsonScene.importScene("unittests/scene/diamondRing.json");
+    public void diamondRing() {
+        assertDoesNotThrow(() -> {
+                    Scene scene = JsonScene.importScene("unittests/scene/diamondRing.json");
+                    final Camera.Builder camera = Camera.getBuilder()
+                            .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 0.1, 1).normalize())
+                            .setLocation(new Point(0, -350, 60))//Point(0, 130, 30)
+                            .setVpDistance(500)
+                            .setMultithreading(-1)
+                            .setVpSize(150, 150)
+                            .setResolution(5000,5000)
+                            .setDebugPrint(1)
+                            .setRayTracer(scene,RayTracerType.SIMPLE);
 
-        final Camera.Builder cameraBuilder = Camera.getBuilder()
-                .setLocation(new Point(0, 50, -3))
-                .setDirection(new Vector(0, -1, 0).normalize(), new Vector(0, 0, 20).normalize())
-                .setRayTracer(scene, RayTracerType.SIMPLE)
-                .setVpDistance(100)
-                .setVpSize(150, 150);
-
-
-        cameraBuilder
-                .setResolution(800, 800)
-                .build()
-                .renderImage()
-                .writeToImage("diamond ring");
+                    camera
+                            .build()
+                            .renderImage()
+                            .writeToImage("Diamond Ring");
+                }, "Failed to render image"
+        );
     }
-    */
-
 }
