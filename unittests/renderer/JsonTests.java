@@ -9,7 +9,6 @@ import scene.Scene;
 
 import java.io.IOException;
 
-import static java.awt.Color.YELLOW;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class JsonTests {
@@ -197,6 +196,7 @@ public class JsonTests {
                 .writeToImage("jsonRenderTest10");
     }
 
+
     @Test
     public void diamondRing() {
         assertDoesNotThrow(() -> {
@@ -218,4 +218,5 @@ public class JsonTests {
                 }, "Failed to render image"
         );
     }
+
 }

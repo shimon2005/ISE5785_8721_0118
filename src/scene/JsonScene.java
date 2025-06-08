@@ -210,11 +210,11 @@ public class JsonScene {
         }
         if (materialObj.containsKey("ks")) {
             if(materialObj.get("ks") instanceof Number)
-                material.setKD(((Number) materialObj.get("ks")).doubleValue());
+                material.setKS(((Number) materialObj.get("ks")).doubleValue());
             else{
                 String[] ks = ((String) materialObj.get("ks")).split(" ");
                 Double3 ksColor = new Double3(Double.parseDouble(ks[0]), Double.parseDouble(ks[1]), Double.parseDouble(ks[2]));
-                material.setKD(ksColor);
+                material.setKS(ksColor);
             }
         }
         if (materialObj.containsKey("ns")) {

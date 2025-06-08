@@ -14,16 +14,15 @@ import primitives.Material;
 import primitives.Point;
 import primitives.Vector;
 import scene.Scene;
-import renderer.RayTracerType;
 
 /**
  * Integration tests for the Camera class.
  */
-public class diamondTest{
+public class DiamondTest{
     /**
      * The view plane is defined by the camera location and the direction vectors.
      */
-    public diamondTest() {
+    public DiamondTest() {
     }
     /**
      * The scene for the tests.
@@ -280,7 +279,7 @@ public class diamondTest{
                 .setMultithreading(-2)
                 .setDebugPrint(1.0);
         cameraBuilder
-                .setResolution(1000, 1000)
+                .setResolution(200, 200)
                 .build()
                 .renderImage()
                 .writeToImage("Diamond");

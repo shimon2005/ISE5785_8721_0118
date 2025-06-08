@@ -9,37 +9,37 @@
       {
         "sphere": {
           "center": "-1 0 -5",
-          "radius": 2,
-          "emission": "255 0 0",
-          "material": {
-            "kd": 0.7,
-            "ks": 0.5,
-            "ns": 100
-          }
+          "radius": 2
+        },
+        "emission": "255 0 0",
+        "material": {
+          "kd": 0.7,
+          "ks": 0.5,
+          "ns": 100
         }
       },
       {
         "sphere": {
           "center": "2 0 -5",
-          "radius": 2,
-          "emission": "0 0 255",
-          "material": {
-            "kd": 0.7,
-            "ks": 0.5,
-            "ns": 100
-          }
+          "radius": 2
+        },
+        "emission": "0 0 255",
+        "material": {
+          "kd": 0.7,
+          "ks": 0.5,
+          "ns": 100
         }
       },
       {
         "plane": {
           "point": "0 -2 -5",
-          "normal": "0 1 0",
-          "emission": "50 50 50",
-          "material": {
-            "kd": 0.8,
-            "ks": 0.3,
-            "ns": 50
-          }
+          "normal": "0 1 0"
+        },
+        "emission": "50 50 50",
+        "material": {
+          "kd": 0.8,
+          "ks": 0.3,
+          "ns": 50
         }
       }
     ],
