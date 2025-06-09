@@ -207,7 +207,7 @@ public class JsonTests {
                             .setVpDistance(500)
                             .setMultithreading(-1)
                             .setVpSize(150, 150)
-                            .setResolution(200,200)
+                            .setResolution(4000, 4000)
                             .setDebugPrint(1)
                             .setRayTracer(scene,RayTracerType.SIMPLE);
 
@@ -217,6 +217,52 @@ public class JsonTests {
                             .writeToImage("Diamond Ring");
                 }, "Failed to render image"
         );
+    }
+
+    @Test
+    public void house() {
+        assertDoesNotThrow(() -> {
+            Scene scene = JsonScene.importScene("unittests/scene/house.json");
+
+
+            camera
+                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
+                    .setLocation(new Point(0, -320, 40))
+                    .setVpDistance(500)
+                    .setMultithreading(-1)
+                    .setVpSize(150, 150)
+                    .setResolution(4000, 4000)
+                    .setDebugPrint(1)
+                    .setRayTracer(scene,RayTracerType.SIMPLE);
+
+            camera
+                    .build()
+                    .renderImage()
+                    .writeToImage("House");
+
+        }, "Failed to render image");
+    }
+
+    @Test
+    public void crown() {
+        assertDoesNotThrow(() -> {
+            Scene scene = JsonScene.importScene("unittests/scene/crown.json");
+
+            camera
+                    .setDirection(new Vector(0, 1, -0.1).normalize(), new Vector(0, 1, 10).normalize())
+                    .setLocation(new Point(0, -320, 40))
+                    .setVpDistance(500)
+                    .setVpSize(150, 150)
+                    .setResolution(4000, 4000)
+                    .setDebugPrint(1)
+                    .setRayTracer(scene,RayTracerType.SIMPLE)
+                    .setMultithreading(-1);
+            camera
+                    .build()
+                    .renderImage()
+                    .writeToImage("Crown");
+
+        }, "Failed to render image");
     }
 
 }

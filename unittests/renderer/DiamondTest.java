@@ -279,7 +279,7 @@ public class DiamondTest{
                 .setMultithreading(-2)
                 .setDebugPrint(1.0);
         cameraBuilder
-                .setResolution(200, 200)
+                .setResolution(4000, 4000)
                 .build()
                 .renderImage()
                 .writeToImage("Diamond");

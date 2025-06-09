@@ -12,7 +12,10 @@ import java.util.List;
  * A triangle is defined by exactly three vertices.
  */
 public class Triangle extends Polygon {
-
+    // Compute two edges and the plane normal
+    private final Vector edge1;
+    private final Vector edge2;
+    private final Vector normal;
     /**
      * Constructor for Triangle, receives three points.
      *
@@ -22,6 +25,9 @@ public class Triangle extends Polygon {
      */
     public Triangle(Point p1, Point p2, Point p3) {
         super(p1, p2, p3); // Calls the Polygon constructor with three points
+        edge1 = p2.subtract(p1);
+        edge2 = p3.subtract(p1);
+        normal = edge1.crossProduct(edge2).normalize();
     }
 
     /**
@@ -54,10 +60,7 @@ public class Triangle extends Polygon {
         Point p2 = vertices.get(1);
         Point p3 = vertices.get(2);
 
-        // Compute two edges and the plane normal
-        Vector edge1 = p2.subtract(p1);
-        Vector edge2 = p3.subtract(p1);
-        Vector normal = edge1.crossProduct(edge2).normalize();
+
 
         // Calculate the denominator (dot product of ray direction and plane normal)
         double denom = Util.alignZero(ray.getDirection().dotProduct(normal));
@@ -103,4 +106,8 @@ public class Triangle extends Polygon {
 
         return List.of(new Intersection(this, P));
     }
+
+    @Override
+    public Vector getNormal(Point point) { return normal; }
+
 }

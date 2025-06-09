@@ -140,9 +140,9 @@ package renderer;
                         if (target.equals(this.camera.location)) {
                             throw new IllegalArgumentException("the target point cannot be the camera position");
                         }
-                        this.camera.vUp =Vector.AXIS_Y;
+                        Vector up =Vector.AXIS_Y;
                         this.camera.vTo = target.subtract(this.camera.location).normalize();
-                        Vector vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
+                        Vector vRight = (this.camera.vTo).crossProduct(up);
                         this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();
                         return this;
                     }
@@ -281,10 +281,14 @@ package renderer;
                         }
 
                         this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
+
+                        if (this.camera.rayTracer == null) {
+                            setRayTracer(null, RayTracerType.SIMPLE);
+                        }
                         try {
                             return (Camera) this.camera.clone();
                         } catch (CloneNotSupportedException e) {
-                            throw new RuntimeException("Cloning is not supported for Camera", e);
+                           return null; // This should never happen since Camera implements Cloneable
                         }
                     }
                 }
