@@ -162,7 +162,10 @@ public class SimpleRayTracer extends RayTracerBase {
             // 0 - no light, 1 - full light
             Double3 ktr = transparency(intersection);
 
-            // if ktr * k is lower than MIN_CALC_COLOR_K, the intersection point is considered to be in shadow
+            // If the result of ktr * k is lower than the minimum threshold (MIN_CALC_COLOR_K),
+            // it means that the light contribution from this source is effectively zero.
+            // Therefore, we can skip to the next light source,
+            // without calculating and adding the color contribution from this light source.
             if (ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
                 continue;
             }
