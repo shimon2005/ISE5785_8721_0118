@@ -70,6 +70,17 @@ package renderer;
                 /** Pixel manager for supporting multithreading */
                 private PixelManager pixelManager;
 
+                /**  variable for DOF */
+
+                /** Amount of rays for Depth of Field (DOF) effect. */
+                private int amountOfRays_DOF = 1;
+
+                /** the radius of the aperture for Depth of Field (DOF) effect. */
+                private double aperture = 0;
+
+                /** the distance from the camera to the focal plane for Depth of Field (DOF) effect. */
+                private double depthOfField = 100;
+
                 /**
                  * Builder class for constructing a Camera instance with a fluent API.
                  */
@@ -247,6 +258,49 @@ package renderer;
                         camera.printInterval = interval;
                         return this;
                     }
+
+                    /**
+                     * Sets the amount of rays for Depth of Field (DOF) effect.
+                     * @param amountOfRays the number of rays to use for DOF
+                     * @return the builder instance
+                     * @throws IllegalArgumentException if amountOfRays is less than or equal to zero
+                     */
+                    public Builder setAmountOfRays_DOF(int amountOfRays) {
+                        if (amountOfRays <= 0) {
+                            throw new IllegalArgumentException("amountOfRays must be greater than zero");
+                        }
+                        this.camera.amountOfRays_DOF = amountOfRays;
+                        return this;
+                    }
+
+                    /**
+                     * Sets the aperture radius for Depth of Field (DOF) effect.
+                     * @param aperture the radius of the aperture
+                     * @return the builder instance
+                     * @throws IllegalArgumentException if aperture is less than or equal to zero
+                     */
+                    public Builder setAperture(double aperture) {
+                        if (aperture <= 0) {
+                            throw new IllegalArgumentException("aperture must be greater than zero");
+                        }
+                        this.camera.aperture = aperture;
+                        return this;
+                    }
+
+                    /**
+                     * Sets the distance from the camera to the focal plane for Depth of Field (DOF) effect.
+                     * @param depthOfField the distance to the focal plane
+                     * @return the builder instance
+                     * @throws IllegalArgumentException if depthOfField is less than or equal to zero
+                     */
+                    public Builder setDepthOfField(double depthOfField) {
+                        if (depthOfField <= 0) {
+                            throw new IllegalArgumentException("depthOfField must be greater than zero");
+                        }
+                        this.camera.depthOfField = depthOfField;
+                        return this;
+                    }
+
 
 
                     /**
