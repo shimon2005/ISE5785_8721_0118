@@ -442,17 +442,21 @@ package renderer;
                  * @param y the vertical pixel index
                  */
                 public void castRay(int x, int y) {
-                    Color color;
+                    Color color = Color.BLACK;
                     if (amountOfRays_DOF <= 1 || aperture == 0) {
                         Ray ray = constructRay(nX, nY, x, y);
                         color = rayTracer.traceRay(ray);
                     } else {
                         List<Ray> rays = constructDOFRays(nX, nY, x, y);
-                        Color total = Color.BLACK;
-                        for (Ray ray : rays) {
-                            total = total.add(rayTracer.traceRay(ray));
+                        // If there are rays, we perform the tracing in a loop
+                        // otherwise we skip the loop, and color remains black
+                        if (!rays.isEmpty()) {
+                            Color total = Color.BLACK;
+                            for (Ray ray : rays) {
+                                total = total.add(rayTracer.traceRay(ray));
+                            }
+                            color = total.reduce(rays.size());
                         }
-                        color = total.reduce(rays.size());
                     }
 
                     imageWriter.writePixel(x, y, color);
@@ -514,7 +518,10 @@ package renderer;
                     double rY = viewPlaneHeight / nY;
                     double xJ = (j - (nX - 1) / 2.0) * rX;
                     double yI = -(i - (nY - 1) / 2.0) * rY;
-                    Point pij = pc.add(vRight.scale(xJ)).add(vUp.scale(yI));
+
+                    Point pij = pc;
+                    if (!Util.isZero(xJ)) pij = pij.add(vRight.scale(xJ));
+                    if (!Util.isZero(yI)) pij = pij.add(vUp.scale(yI));
 
                     Vector directionToPixel = pij.subtract(location).normalize();
                     Point focalPoint = location.add(directionToPixel.scale(depthOfField));

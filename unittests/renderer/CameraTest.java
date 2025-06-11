@@ -119,16 +119,18 @@ class CameraTest {
       cameraBuilder
               .setVpDistance(150) // Adjusted for a closer view of the scene
               .setVpSize(40, 40)  // Maintain size for consistency
-              .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
               .setLocation(new Point(-5, 0, 200)) // Moved closer to the scene for more pronounced depth of field
+              .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
               .setDepthOfField(160)  // Set the focal plane distance to where one sphere should be in focus
               .setAperture(2)  // Decreased aperture to reduce overall blurriness while still showing depth of field
-              .setAmountOfRays_DOF(3)  // Increased number of rays for a smoother depth of field effect
+              .setAmountOfRays_DOF(4)  // Increased number of rays for a smoother depth of field effect
               .setMultithreading(-1);
 
       cameraBuilder
+              .setRayTracer(scene, RayTracerType.SIMPLE) //
+              .setResolution(1000, 1000) //
               .build()
               .renderImage()
-              .writeToImage("Crown");
+              .writeToImage("dof_advanced_test.png");
    }
 }
