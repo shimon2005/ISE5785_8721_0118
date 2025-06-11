@@ -207,7 +207,7 @@ public class JsonTests {
                             .setVpDistance(500)
                             .setMultithreading(-1)
                             .setVpSize(150, 150)
-                            .setResolution(4000, 4000)
+                            .setResolution(1000, 1000)
                             .setDebugPrint(1)
                             .setRayTracer(scene,RayTracerType.SIMPLE);
 
@@ -231,7 +231,7 @@ public class JsonTests {
                     .setVpDistance(500)
                     .setMultithreading(-1)
                     .setVpSize(150, 150)
-                    .setResolution(4000, 4000)
+                    .setResolution(1000, 1000)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE);
 
@@ -253,7 +253,7 @@ public class JsonTests {
                     .setLocation(new Point(0, -320, 40))
                     .setVpDistance(500)
                     .setVpSize(150, 150)
-                    .setResolution(4000, 4000)
+                    .setResolution(1000, 1000)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE)
                     .setMultithreading(-1);

@@ -1,51 +1,90 @@
 package renderer;
-// import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import primitives.*;
+import primitives.Point;
+import primitives.Vector;
 
-public class BlackBoard {
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Unit tests for {@link BlackBoard} class.
+ */
+class BlackBoardTests {
+
+    /**
+     * Test method for {@link BlackBoard#generateJitteredDiskSamples(Point, Vector, Vector, double, int)}.
+     * Validates that all generated points lie within the unit disk.
+     */
     @Test
-    public void generateJitteredDiskSamplesImage() {
-        int imageSize = 500;
-        ImageWriter imageWriter = new ImageWriter("jittered_disk_samples", imageSize, imageSize);
+    void testPointsAreWithinDisk() {
         Point center = new Point(0, 0, 0);
         Vector vRight = new Vector(1, 0, 0); // X axis
         Vector vUp = new Vector(0, 1, 0);    // Y axis
         double radius = 1.0;
-        int numPoints = 81;
+        int numPoints = 100; // 10x10
+
+        List<Point> samples = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
+
+        for (Point p : samples) {
+            Vector fromCenter = p.subtract(center);
+            double x = fromCenter.dotProduct(vRight.normalize());
+            double y = fromCenter.dotProduct(vUp.normalize());
+            double distanceSquared = x * x + y * y;
+
+            assertTrue(distanceSquared <= radius * radius + 1e-10,
+                    "Point outside disk: " + p);
+        }
+    }
+
+    /**
+     * Test method for {@link BlackBoard#generateJitteredDiskSamples} - size of output list.
+     */
+    @Test
+    void testPointCountWithinReasonableRange() {
+        Point center = new Point(0, 0, 0);
+        Vector vRight = new Vector(1, 0, 0);
+        Vector vUp = new Vector(0, 1, 0);
+        double radius = 1.0;
+        int numPoints = 100;
 
         List<Point> points = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
 
-        // Draw all points
-        for (Point p : points) {
-            // Convert 3D point to 2D pixel space [-1,1] → [0,imageSize)
-            double x = p.subtract(center).dotProduct(vRight) / radius; // normalized x in [-1,1]
-            double y = p.subtract(center).dotProduct(vUp) / radius;    // normalized y in [-1,1]
+        assertNotNull(points, "Returned list should not be null");
+        assertTrue(points.size() <= numPoints,
+                "Too many points returned");
+        assertTrue(points.size() >= 70,
+                "Too many points were filtered out (expected at least 70)");
+    }
 
-            int px = (int) ((x + 1) / 2 * imageSize);
-            int py = (int) ((1 - (y + 1) / 2) * imageSize); // flip y axis for image coords
+    /**
+     * Test method for invalid number of points (not a perfect square).
+     */
+    @Test
+    void testInvalidNumPoints() {
+        Point center = new Point(0, 0, 0);
+        Vector vRight = new Vector(1, 0, 0);
+        Vector vUp = new Vector(0, 1, 0);
+        double radius = 1.0;
 
-            if (px >= 0 && px < imageSize && py >= 0 && py < imageSize) {
-                imageWriter.writePixel(px, py, Color.RED);
-            }
-        }
+        assertThrows(IllegalArgumentException.class, () ->
+                        BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, 50),
+                "Expected exception for non-square number of points");
+    }
 
-        // Optionally draw a circle outline
-        int centerX = imageSize / 2;
-        int centerY = imageSize / 2;
-        int radiusPixels = imageSize / 2;
-        Color circleColor = new Color(100, 100, 100);
+    /**
+     * Test method for return type is not null.
+     */
+    @Test
+    void testNotNullReturn() {
+        Point center = new Point(0, 0, 0);
+        Vector vRight = new Vector(1, 0, 0);
+        Vector vUp = new Vector(0, 1, 0);
+        double radius = 2.0;
+        int numPoints = 81;
 
-        for (int x = -radiusPixels; x <= radiusPixels; x++) {
-            int y = (int) Math.sqrt(radiusPixels * radiusPixels - x * x);
-            imageWriter.writePixel(centerX + x, centerY + y, circleColor);
-            imageWriter.writePixel(centerX + x, centerY - y, circleColor);
-        }
-
-        imageWriter.writeToImage();
+        List<Point> result = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
+        assertNotNull(result, "Method should return non-null list");
     }
 }

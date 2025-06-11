@@ -7,7 +7,9 @@ package renderer;
             import primitives.Color;
             import scene.Scene;
 
+            import java.util.ArrayList;
             import java.util.LinkedList;
+            import java.util.List;
             import java.util.MissingResourceException;
             import java.util.stream.IntStream;
 
@@ -440,8 +442,19 @@ package renderer;
                  * @param y the vertical pixel index
                  */
                 public void castRay(int x, int y) {
-                    Ray ray = constructRay(nX, nY, x, y);
-                    Color color = rayTracer.traceRay(ray);
+                    Color color;
+                    if (amountOfRays_DOF <= 1 || aperture == 0) {
+                        Ray ray = constructRay(nX, nY, x, y);
+                        color = rayTracer.traceRay(ray);
+                    } else {
+                        List<Ray> rays = constructDOFRays(nX, nY, x, y);
+                        Color total = Color.BLACK;
+                        for (Ray ray : rays) {
+                            total = total.add(rayTracer.traceRay(ray));
+                        }
+                        color = total.reduce(rays.size());
+                    }
+
                     imageWriter.writePixel(x, y, color);
                     pixelManager.pixelDone();
                 }
@@ -491,4 +504,30 @@ package renderer;
                     } catch (InterruptedException ignored) {}
                     return this;
                 }
+
+
+                private List<Ray> constructDOFRays(int nX, int nY, int j, int i) {
+                    List<Ray> rays = new ArrayList<>();
+
+                    Point pc = location.add(vTo.scale(vpDistance));
+                    double rX = viewPlaneWidth / nX;
+                    double rY = viewPlaneHeight / nY;
+                    double xJ = (j - (nX - 1) / 2.0) * rX;
+                    double yI = -(i - (nY - 1) / 2.0) * rY;
+                    Point pij = pc.add(vRight.scale(xJ)).add(vUp.scale(yI));
+
+                    Vector directionToPixel = pij.subtract(location).normalize();
+                    Point focalPoint = location.add(directionToPixel.scale(depthOfField));
+
+                    List<Point> aperturePoints = BlackBoard.generateJitteredDiskSamples(
+                            location, vRight, vUp, aperture, amountOfRays_DOF);
+
+                    for (Point aperturePoint : aperturePoints) {
+                        Vector dir = focalPoint.subtract(aperturePoint).normalize();
+                        rays.add(new Ray(aperturePoint, dir));
+                    }
+
+                    return rays;
+                }
             }
+
