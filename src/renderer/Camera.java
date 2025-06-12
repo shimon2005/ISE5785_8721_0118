@@ -386,7 +386,7 @@ public class Camera implements Cloneable {
      * @return the ray through the center of that pixel
      */
     public Ray constructRay(int nX, int nY, int j, int i) {
-        Point pij = calculatePixelCenter(nX, nY, j, i);
+        Point pij = calculatePixelCenter(j, i);
         Vector dir = pij.subtract(location).normalize();
         return new Ray(location, dir);
     }
@@ -442,6 +442,7 @@ public class Camera implements Cloneable {
         return this;
     }
 
+
     /**
      * Casts a ray through a specific pixel and writes the resulting color to the image.
      * @param x the horizontal pixel index
@@ -454,15 +455,13 @@ public class Camera implements Cloneable {
         boolean useDOF = amountOfRays_DOF > 1 && aperture != 0;
 
         if (useAA && useDOF) {
-            List<Ray> rays = new ArrayList<>();
-            rays.addAll(constructAARays(nX, nY, x, y));
-            rays.addAll(constructDOFRays(nX, nY, x, y));
-            color = averageRays(rays);
+            color = AAandDOFCombinedColor(x, y);
+
         } else if (useAA) {
-            List<Ray> rays = constructAARays(nX, nY, x, y);
+            List<Ray> rays = constructAARays(x, y);
             color = averageRays(rays);
         } else if (useDOF) {
-            List<Ray> rays = constructDOFRays(nX, nY, x, y);
+            List<Ray> rays = constructDOFRays(x, y);
             color = averageRays(rays);
         } else {
             Ray ray = constructRay(nX, nY, x, y);
@@ -532,30 +531,49 @@ public class Camera implements Cloneable {
     }
 
 
-    private List<Ray> constructDOFRays(int nX, int nY, int j, int i) {
-        ArrayList<Ray> rays = new ArrayList<>();
+    private ArrayList<Ray> constructDOFRays(int j, int i) {
+        return constructDOFRaysWithDirection(j, i, null);
+    }
 
-        Point pij = calculatePixelCenter(nX, nY, j, i);
 
-        Vector directionToPixel = pij.subtract(location).normalize();
-        Point focalPoint = location.add(directionToPixel.scale(depthOfField));
+    private ArrayList<Ray> constructDOFRaysWithDirection(int j, int i, Vector direction) {
+        ArrayList<Ray> DOFRays = new ArrayList<>();
+
+        if (direction == null) {
+            Point pij = calculatePixelCenter(j, i);
+            direction = pij.subtract(location).normalize();
+        }
+
+        Point focalPoint = location.add(direction.scale(depthOfField));
 
         List<Point> aperturePoints = BlackBoard.generateJitteredDiskSamples(
                 location, vRight, vUp, aperture, amountOfRays_DOF);
 
         for (Point aperturePoint : aperturePoints) {
             Vector dir = focalPoint.subtract(aperturePoint).normalize();
-            rays.add(new Ray(aperturePoint, dir));
+            DOFRays.add(new Ray(aperturePoint, dir));
         }
 
-        return rays;
+        return DOFRays;
     }
 
 
-    private List<Ray> constructAARays(int nX, int nY, int j, int i) {
-        ArrayList<Ray> rays = new ArrayList<>();
+    private ArrayList<Ray> constructAARays(int j, int i) {
+        ArrayList<Ray> AARays = new ArrayList<>();
+        ArrayList<Vector> AAVectors = getAAVectors(j, i);
 
-        Point pij = calculatePixelCenter(nX, nY, j, i);
+        for (Vector AAVector : AAVectors) {
+            AARays.add(new Ray(location, AAVector));
+        }
+
+        return AARays;
+    }
+
+
+    private ArrayList<Vector> getAAVectors(int j, int i) {
+        ArrayList<Vector> AAVectors = new ArrayList<>();
+
+        Point pij = calculatePixelCenter(j, i);
 
         double pixelRadius = (viewPlaneWidth / nX) / 2.0;
 
@@ -564,13 +582,14 @@ public class Camera implements Cloneable {
 
         for (Point pixelPoint : pixelPoints) {
             Vector dir = pixelPoint.subtract(location).normalize();
-            rays.add(new Ray(location, dir));
+            AAVectors.add(dir);
         }
 
-        return rays;
+        return AAVectors;
     }
 
-    private Point calculatePixelCenter(int nX, int nY, int j, int i) {
+
+    private Point calculatePixelCenter(int j, int i) {
         Point pc = location.add(vTo.scale(vpDistance));
         double rX = viewPlaneWidth / nX;
         double rY = viewPlaneHeight / nY;
@@ -582,6 +601,19 @@ public class Camera implements Cloneable {
         if (!Util.isZero(yI)) pij = pij.add(vUp.scale(yI));
 
         return pij;
+    }
+
+    private Color AAandDOFCombinedColor(int x, int y) {
+        List<Vector> AAVectors = getAAVectors(x, y);
+        Color totalColor = Color.BLACK;
+
+        for (Vector AAVector : AAVectors) {
+            ArrayList<Ray> DOFrays = constructDOFRaysWithDirection(x, y, AAVector);
+
+            totalColor = totalColor.add(averageRays(DOFrays));
+        }
+
+        return totalColor.reduce(AAVectors.size());
     }
 
 
