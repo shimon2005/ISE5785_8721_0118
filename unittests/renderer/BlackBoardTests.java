@@ -3,6 +3,7 @@ package renderer;
 import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Vector;
+import renderer.BlackBoard.BoardShape;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BlackBoardTests {
 
     /**
-     * Test method for {@link BlackBoard#generateJitteredDiskSamples(Point, Vector, Vector, double, int)}.
+     * Test method for {@link BlackBoard#generateJitteredSamples} - checks that points are generated correctly.
      * Validates that all generated points lie within the unit disk.
      */
     @Test
@@ -25,7 +26,7 @@ class BlackBoardTests {
         double radius = 1.0;
         int numPoints = 100; // 10x10
 
-        List<Point> samples = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
+        List<Point> samples = BlackBoard.generateJitteredSamples(center, vRight, vUp, radius, numPoints, BoardShape.CIRCLE);
 
         for (Point p : samples) {
             Vector fromCenter = p.subtract(center);
@@ -39,7 +40,7 @@ class BlackBoardTests {
     }
 
     /**
-     * Test method for {@link BlackBoard#generateJitteredDiskSamples} - size of output list.
+     * Test method for {@link BlackBoard#generateJitteredSamples} - size of output list.
      */
     @Test
     void testPointCountWithinReasonableRange() {
@@ -49,7 +50,7 @@ class BlackBoardTests {
         double radius = 1.0;
         int numPoints = 100;
 
-        List<Point> points = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
+        List<Point> points = BlackBoard.generateJitteredSamples(center, vRight, vUp, radius, numPoints, BoardShape.CIRCLE);
 
         assertNotNull(points, "Returned list should not be null");
         assertTrue(points.size() <= numPoints,
@@ -69,7 +70,7 @@ class BlackBoardTests {
         double radius = 1.0;
 
         assertThrows(IllegalArgumentException.class, () ->
-                        BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, 50),
+                        BlackBoard.generateJitteredSamples(center, vRight, vUp, radius, 50, BoardShape.CIRCLE),
                 "Expected exception for non-square number of points");
     }
 
@@ -84,7 +85,7 @@ class BlackBoardTests {
         double radius = 2.0;
         int numPoints = 81;
 
-        List<Point> result = BlackBoard.generateJitteredDiskSamples(center, vRight, vUp, radius, numPoints);
+        List<Point> result = BlackBoard.generateJitteredSamples(center, vRight, vUp, radius, numPoints, BoardShape.CIRCLE);
         assertNotNull(result, "Method should return non-null list");
     }
 }

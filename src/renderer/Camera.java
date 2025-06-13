@@ -6,6 +6,7 @@ import primitives.Point;
         import primitives.Util;
         import primitives.Color;
         import scene.Scene;
+        import renderer.BlackBoard.BoardShape;
 
         import java.util.ArrayList;
         import java.util.LinkedList;
@@ -72,6 +73,9 @@ public class Camera implements Cloneable {
     /** Pixel manager for supporting multithreading */
     private PixelManager pixelManager;
 
+    /** The shape of the board for jittered sampling (SQUARE or CIRCLE). */
+    private BoardShape boardShape = BoardShape.SQUARE;
+
     /** Number of rays for Depth of Field (DOF) effect. */
     private int amountOfRays_DOF = 1;
 
@@ -81,8 +85,9 @@ public class Camera implements Cloneable {
     /** the distance from the camera to the focal plane for Depth of Field (DOF) effect. */
     private double depthOfField = 100;
 
-    /** Amount of rays for Anti-Aliasing (AA) effect. */
+    /** Number of rays for Anti-Aliasing (AA) effect. */
     private int amountOfRays_AA = 1;
+
 
     /**
      * Builder class for constructing a Camera instance with a fluent API.
@@ -263,7 +268,20 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the amount of rays for Depth of Field (DOF) effect.
+         * Sets the shape of the sample area for jittered sampling.
+         * @param boardShape the shape of the sample area (SQUARE or CIRCLE)
+         * @return the builder instance
+         */
+        public Builder setBoardShape(BoardShape boardShape) {
+            if (boardShape == null) {
+                throw new IllegalArgumentException("sampleShape cannot be null");
+            }
+            this.camera.boardShape = boardShape;
+            return this;
+        }
+
+        /**
+         * Sets the number of rays for Depth of Field (DOF) effect.
          * @param amountOfRays the number of rays to use for DOF
          * @return the builder instance
          * @throws IllegalArgumentException if amountOfRays is less than or equal to zero
@@ -305,7 +323,7 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the amount of rays for Anti-Aliasing (AA) effect.
+         * Sets the number of rays for Anti-Aliasing (AA) effect.
          * @param amountOfRays the number of rays to use for AA
          * @return the builder instance
          * @throws IllegalArgumentException if amountOfRays is less than or equal to zero
@@ -317,7 +335,6 @@ public class Camera implements Cloneable {
             this.camera.amountOfRays_AA = amountOfRays;
             return this;
         }
-
 
         /**
          * Builds and returns the configured Camera instance.
@@ -379,13 +396,11 @@ public class Camera implements Cloneable {
     /**
      * Constructs a ray from the camera through pixel (j,i) on an nX×nY view plane.
      *
-     * @param nX number of pixels in width
-     * @param nY number of pixels in height
      * @param j  pixel column (0..nX-1)
      * @param i  pixel row    (0..nY-1)
      * @return the ray through the center of that pixel
      */
-    public Ray constructRay(int nX, int nY, int j, int i) {
+    public Ray constructRay(int j, int i) {
         Point pij = calculatePixelCenter(j, i);
         Vector dir = pij.subtract(location).normalize();
         return new Ray(location, dir);
@@ -464,7 +479,7 @@ public class Camera implements Cloneable {
             List<Ray> rays = constructDOFRays(x, y);
             color = averageRays(rays);
         } else {
-            Ray ray = constructRay(nX, nY, x, y);
+            Ray ray = constructRay(x, y);
             color = rayTracer.traceRay(ray);
         }
 
@@ -546,8 +561,8 @@ public class Camera implements Cloneable {
 
         Point focalPoint = location.add(direction.scale(depthOfField));
 
-        List<Point> aperturePoints = BlackBoard.generateJitteredDiskSamples(
-                location, vRight, vUp, aperture, amountOfRays_DOF);
+        List<Point> aperturePoints = BlackBoard.generateJitteredSamples(
+                location, vRight, vUp, aperture, amountOfRays_DOF, boardShape);
 
         for (Point aperturePoint : aperturePoints) {
             Vector dir = focalPoint.subtract(aperturePoint).normalize();
@@ -577,8 +592,8 @@ public class Camera implements Cloneable {
 
         double pixelRadius = (viewPlaneWidth / nX) / 2.0;
 
-        List<Point> pixelPoints = BlackBoard.generateJitteredDiskSamples(
-                pij, vRight, vUp, pixelRadius, amountOfRays_AA);
+        List<Point> pixelPoints = BlackBoard.generateJitteredSamples(
+                pij, vRight, vUp, pixelRadius, amountOfRays_AA, boardShape);
 
         for (Point pixelPoint : pixelPoints) {
             Vector dir = pixelPoint.subtract(location).normalize();

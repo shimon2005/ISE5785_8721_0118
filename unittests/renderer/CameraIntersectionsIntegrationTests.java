@@ -34,6 +34,7 @@ class CameraIntersectionsIntegrationTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
+                .setResolution(3, 3)
                 .build();
 
         // Camera at (0,0,0.5) looking at (0,0,-1) with up vector (0,-1,0)
@@ -42,6 +43,7 @@ class CameraIntersectionsIntegrationTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, -1, 0))
                 .setVpSize(3, 3)
                 .setVpDistance(1)
+                .setResolution(3, 3)
                 .build();
     }
 
@@ -53,7 +55,7 @@ class CameraIntersectionsIntegrationTests {
         int count = 0;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Ray ray = cam.constructRay(3, 3, j, i);
+                Ray ray = cam.constructRay(j, i);
                 List<Point> pts = shape.findIntersections(ray);
                 if (pts != null) count += pts.size();
             }

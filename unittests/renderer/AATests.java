@@ -6,6 +6,7 @@ import primitives.Point;
 import primitives.Vector;
 import scene.JsonScene;
 import scene.Scene;
+import renderer.BlackBoard.BoardShape;
 
 import java.io.IOException;
 
@@ -17,6 +18,7 @@ public class AATests {
             .setDirection(new Point(0, 0, -1), Vector.AXIS_Y) //
             .setVpDistance(100) //
             .setVpSize(500, 500)
+            .setBoardShape(BoardShape.SQUARE)
             .setAmountOfRays_AA(121)
             .setMultithreading(-1);
 

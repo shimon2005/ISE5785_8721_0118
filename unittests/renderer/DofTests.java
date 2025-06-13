@@ -8,6 +8,7 @@ import primitives.Material;
 import primitives.Point;
 import primitives.Vector;
 import scene.Scene;
+import renderer.BlackBoard.BoardShape;
 
 public class DofTests {
 
@@ -37,6 +38,7 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
                 .setVpDistance(150)
                 .setVpSize(40, 40)
+                .setBoardShape(BoardShape.SQUARE)
                 .setDepthOfField(160)
                 .setAperture(2)
                 .setAmountOfRays_DOF(16)
@@ -75,6 +77,7 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
                 .setVpDistance(150)
                 .setVpSize(40, 40)
+                .setBoardShape(BoardShape.SQUARE)
                 .setDepthOfField(160)
                 .setAperture(2)
                 .setAmountOfRays_DOF(16)
