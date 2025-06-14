@@ -460,30 +460,30 @@ public class Camera implements Cloneable {
 
     /**
      * Casts a ray through a specific pixel and writes the resulting color to the image.
-     * @param x the horizontal pixel index
-     * @param y the vertical pixel index
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
      */
-    public void castRay(int x, int y) {
+    public void castRay(int j, int i) {
         Color color;
 
         boolean useAA = amountOfRays_AA > 1;
         boolean useDOF = amountOfRays_DOF > 1 && apertureRadius != 0;
 
         if (useAA && useDOF) {
-            color = AAandDOFCombinedColor(x, y);
+            color = AAandDOFCombinedColor(j, i);
 
         } else if (useAA) {
-            List<Ray> rays = constructAARays(x, y);
+            List<Ray> rays = constructAARays(j, i);
             color = averageRays(rays);
         } else if (useDOF) {
-            List<Ray> rays = constructDOFRays(x, y);
+            List<Ray> rays = constructDOFRays(j, i);
             color = averageRays(rays);
         } else {
-            Ray ray = constructRay(x, y);
+            Ray ray = constructRay(j, i);
             color = rayTracer.traceRay(ray);
         }
 
-        imageWriter.writePixel(x, y, color);
+        imageWriter.writePixel(j, i, color);
         pixelManager.pixelDone();
     }
 
@@ -561,8 +561,8 @@ public class Camera implements Cloneable {
      * Constructs Depth of Field (DOF) rays for a specific pixel with a given direction.
      * If the direction is null, it calculates the direction based on the pixel center.
      *
-     * @param j         the horizontal pixel index
-     * @param i         the vertical pixel index
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
      * @param direction the direction vector for the DOF rays, or null to calculate it
      * @return a list of DOF rays
      */
@@ -590,6 +590,7 @@ public class Camera implements Cloneable {
 
     /**
      * Constructs Anti-Aliasing (AA) rays for a specific pixel.
+     *
      * @param j the horizontal pixel index
      * @param i the vertical pixel index
      * @return a list of AA rays
@@ -664,16 +665,16 @@ public class Camera implements Cloneable {
      * Then it calculates the average color of all those average colors,
      * and returns it as the final color for the pixel.
      *
-     * @param x the horizontal pixel index
-     * @param y the vertical pixel index
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
      * @return the combined color from AA and DOF effects
      */
-    private Color AAandDOFCombinedColor(int x, int y) {
-        List<Vector> AAVectors = getAAVectors(x, y);
+    private Color AAandDOFCombinedColor(int j, int i) {
+        List<Vector> AAVectors = getAAVectors(j, i);
         Color totalColor = Color.BLACK;
 
         for (Vector AAVector : AAVectors) {
-            ArrayList<Ray> DOFrays = constructDOFRaysWithDirection(x, y, AAVector);
+            ArrayList<Ray> DOFrays = constructDOFRaysWithDirection(j, i, AAVector);
 
             totalColor = totalColor.add(averageRays(DOFrays));
         }
