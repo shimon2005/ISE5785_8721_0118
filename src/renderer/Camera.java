@@ -546,11 +546,26 @@ public class Camera implements Cloneable {
     }
 
 
+    /**
+     * Constructs Depth of Field (DOF) rays for a specific pixel.
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return a list of DOF rays
+     */
     private ArrayList<Ray> constructDOFRays(int j, int i) {
         return constructDOFRaysWithDirection(j, i, null);
     }
 
 
+    /**
+     * Constructs Depth of Field (DOF) rays for a specific pixel with a given direction.
+     * If the direction is null, it calculates the direction based on the pixel center.
+     *
+     * @param j         the horizontal pixel index
+     * @param i         the vertical pixel index
+     * @param direction the direction vector for the DOF rays, or null to calculate it
+     * @return a list of DOF rays
+     */
     private ArrayList<Ray> constructDOFRaysWithDirection(int j, int i, Vector direction) {
         ArrayList<Ray> DOFRays = new ArrayList<>();
 
@@ -573,6 +588,12 @@ public class Camera implements Cloneable {
     }
 
 
+    /**
+     * Constructs Anti-Aliasing (AA) rays for a specific pixel.
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return a list of AA rays
+     */
     private ArrayList<Ray> constructAARays(int j, int i) {
         ArrayList<Ray> AARays = new ArrayList<>();
         ArrayList<Vector> AAVectors = getAAVectors(j, i);
@@ -585,6 +606,14 @@ public class Camera implements Cloneable {
     }
 
 
+    /**
+     * Generates Anti-Aliasing (AA) vectors for a specific pixel.
+     * These vectors are used to create rays for anti-aliasing effects.
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return a list of AA vectors
+     */
     private ArrayList<Vector> getAAVectors(int j, int i) {
         ArrayList<Vector> AAVectors = new ArrayList<>();
 
@@ -604,6 +633,13 @@ public class Camera implements Cloneable {
     }
 
 
+    /**
+     * Calculates the center point of a pixel in the view plane.
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the center point of the pixel
+     */
     private Point calculatePixelCenter(int j, int i) {
         Point pc = location.add(vTo.scale(vpDistance));
         double rX = viewPlaneWidth / nX;
@@ -618,6 +654,15 @@ public class Camera implements Cloneable {
         return pij;
     }
 
+
+    /**
+     * Combines Anti-Aliasing (AA) and Depth of Field (DOF) effects for a specific pixel.
+     * It generates rays for both effects and averages their colors.
+     *
+     * @param x the horizontal pixel index
+     * @param y the vertical pixel index
+     * @return the combined color from AA and DOF effects
+     */
     private Color AAandDOFCombinedColor(int x, int y) {
         List<Vector> AAVectors = getAAVectors(x, y);
         Color totalColor = Color.BLACK;
@@ -630,7 +675,6 @@ public class Camera implements Cloneable {
 
         return totalColor.reduce(AAVectors.size());
     }
-
 
 
 }
