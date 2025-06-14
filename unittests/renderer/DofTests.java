@@ -38,10 +38,11 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
                 .setVpDistance(150)
                 .setVpSize(40, 40)
-                .setBoardShape(BoardShape.SQUARE)
+
+                .setBoardShape(BoardShape.CIRCLE)
                 .setDepthOfField(160)
-                .setAperture(2)
-                .setAmountOfRays_DOF(16)
+                .setApertureRadius(2)
+                .setAmountOfRays_DOF(36)
                 .setMultithreading(-1);
 
         cameraBuilder
@@ -77,9 +78,9 @@ public class DofTests {
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
                 .setVpDistance(150)
                 .setVpSize(40, 40)
-                .setBoardShape(BoardShape.SQUARE)
+                .setBoardShape(BoardShape.CIRCLE)
                 .setDepthOfField(160)
-                .setAperture(2)
+                .setApertureRadius(2)
                 .setAmountOfRays_DOF(16)
                 .setAmountOfRays_AA(16)
                 .setMultithreading(-1);

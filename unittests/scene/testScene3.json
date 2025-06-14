@@ -36,16 +36,6 @@
         "sphere": { "center": "40 -15 -110", "radius": 22 },
         "emission": "10 100 100",
         "material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 }
-      },
-      {
-        "sphere": { "center": "-35 30 -110", "radius": 15 },
-        "emission": "100 10 80",
-        "material": { "kd": 0.5, "ks": 0.7, "ns": 400, "ka": 0.1 }
-      },
-      {
-        "sphere": { "center": "0 40 -120", "radius": 12 },
-        "emission": "200 200 50",
-        "material": { "kd": 0.4, "ks": 0.8, "ns": 500, "ka": 0.1 }
       }
     ],
     "lights": [

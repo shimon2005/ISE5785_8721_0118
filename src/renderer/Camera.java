@@ -80,7 +80,7 @@ public class Camera implements Cloneable {
     private int amountOfRays_DOF = 1;
 
     /** the radius of the aperture for Depth of Field (DOF) effect. */
-    private double aperture = 0;
+    private double apertureRadius = 0;
 
     /** the distance from the camera to the focal plane for Depth of Field (DOF) effect. */
     private double depthOfField = 100;
@@ -296,15 +296,15 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the aperture radius for Depth of Field (DOF) effect.
-         * @param aperture the radius of the aperture
+         * @param apertureRadius the radius of the aperture
          * @return the builder instance
          * @throws IllegalArgumentException if aperture is less than or equal to zero
          */
-        public Builder setAperture(double aperture) {
-            if (aperture <= 0) {
+        public Builder setApertureRadius(double apertureRadius) {
+            if (apertureRadius <= 0) {
                 throw new IllegalArgumentException("aperture must be greater than zero");
             }
-            this.camera.aperture = aperture;
+            this.camera.apertureRadius = apertureRadius;
             return this;
         }
 
@@ -467,7 +467,7 @@ public class Camera implements Cloneable {
         Color color;
 
         boolean useAA = amountOfRays_AA > 1;
-        boolean useDOF = amountOfRays_DOF > 1 && aperture != 0;
+        boolean useDOF = amountOfRays_DOF > 1 && apertureRadius != 0;
 
         if (useAA && useDOF) {
             color = AAandDOFCombinedColor(x, y);
@@ -562,7 +562,7 @@ public class Camera implements Cloneable {
         Point focalPoint = location.add(direction.scale(depthOfField));
 
         List<Point> aperturePoints = BlackBoard.generateJitteredSamples(
-                location, vRight, vUp, aperture, amountOfRays_DOF, boardShape);
+                location, vRight, vUp, apertureRadius, amountOfRays_DOF, boardShape);
 
         for (Point aperturePoint : aperturePoints) {
             Vector dir = focalPoint.subtract(aperturePoint).normalize();

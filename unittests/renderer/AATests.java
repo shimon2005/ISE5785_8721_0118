@@ -18,8 +18,8 @@ public class AATests {
             .setDirection(new Point(0, 0, -1), Vector.AXIS_Y) //
             .setVpDistance(100) //
             .setVpSize(500, 500)
-            .setBoardShape(BoardShape.SQUARE)
-            .setAmountOfRays_AA(121)
+            .setBoardShape(BoardShape.CIRCLE)
+            .setAmountOfRays_AA(81)
             .setMultithreading(-1);
 
 
