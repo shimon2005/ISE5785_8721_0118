@@ -657,7 +657,12 @@ public class Camera implements Cloneable {
 
     /**
      * Combines Anti-Aliasing (AA) and Depth of Field (DOF) effects for a specific pixel.
-     * It generates rays for both effects and averages their colors.
+     * For a given pixel, the algorithm uses getAAVectors to get a list
+     * of the Anti-Aliasing vectors (the directions of the AA rays).
+     * For each of those vectors, it constructs a beam of DOF rays in the vector direction using constructDOFRaysWithDirection,
+     * and calculates the average color of the rays in that beam using averageRays.
+     * Then it calculates the average color of all those average colors,
+     * and returns it as the final color for the pixel.
      *
      * @param x the horizontal pixel index
      * @param y the vertical pixel index
