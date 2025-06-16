@@ -98,7 +98,7 @@ public class DofTests {
 
 
     /**
-     * Test method for depth of field effects with JSON scene
+     * Test method for depth of field effects with a JSON scene
      */
     @Test
     public void DepthOfFieldJsonTest() throws IOException, ParseException {
