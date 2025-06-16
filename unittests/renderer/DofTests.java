@@ -112,9 +112,9 @@ public class DofTests {
                 .setVpSize(40, 40)
                 .setBoardShape(BoardShape.SQUARE)
                 .setDepthOfField(160)
-                .setApertureRadius(2)
-                .setAmountOfRays_DOF(81)
-                .setAmountOfRays_AA(16)
+                .setApertureRadius(1)
+                .setAmountOfRays_DOF(16)
+                //.setAmountOfRays_AA(16)
                 .setMultithreading(-1);
 
         cameraBuilder
