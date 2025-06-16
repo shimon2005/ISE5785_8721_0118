@@ -114,12 +114,12 @@ public class DofTests {
                 .setDepthOfField(160)
                 .setApertureRadius(1)
                 .setAmountOfRays_DOF(16)
-                //.setAmountOfRays_AA(16)
+                .setAmountOfRays_AA(16)
                 .setMultithreading(-1);
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(1000, 1000) //
+                .setResolution(2000, 2000) //
                 .build()
                 .renderImage()
                 .writeToImage("dof_json_test");

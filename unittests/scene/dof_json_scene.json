@@ -11,6 +11,19 @@
     ],
     "geometries": [
       {
+        "plane": {
+          "point": "0 0 0",
+          "normal": "0 8 1"
+        },
+        "emission": "50 50 50",
+        "material": {
+          "kd": 0.8,
+          "ks": 0.3,
+          "ns": 50
+        }
+      },
+
+      {
         "sphere": {
           "center": "10 15 -80",
           "radius": 5.0
