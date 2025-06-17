@@ -113,9 +113,10 @@ public class DofTests {
                 .setBoardShape(BoardShape.SQUARE)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(16)
-                .setAmountOfRays_AA(16)
-                .setMultithreading(-1);
+                .setAmountOfRays_DOF(49)
+                .setAmountOfRays_AA(49)
+                .setMultithreading(-1)
+                .setDebugPrint(1);
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
