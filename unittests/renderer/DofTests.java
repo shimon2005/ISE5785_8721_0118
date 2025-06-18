@@ -43,6 +43,7 @@ public class DofTests {
                 .setVpDistance(150)
                 .setVpSize(40, 40)
                 .setBoardShape(BoardShape.CIRCLE)
+                .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(2)
                 .setAmountOfRays_DOF(36)
@@ -82,9 +83,11 @@ public class DofTests {
                 .setVpDistance(150)
                 .setVpSize(40, 40)
                 .setBoardShape(BoardShape.CIRCLE)
+                .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(2)
                 .setAmountOfRays_DOF(16)
+                .setUseAA(true)
                 .setAmountOfRays_AA(16)
                 .setMultithreading(-1);
 
@@ -111,9 +114,11 @@ public class DofTests {
                 .setVpDistance(150)
                 .setVpSize(40, 40)
                 .setBoardShape(BoardShape.SQUARE)
+                .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
                 .setAmountOfRays_DOF(49)
+                .setUseAA(true)
                 .setAmountOfRays_AA(49)
                 .setMultithreading(-1)
                 .setDebugPrint(1);

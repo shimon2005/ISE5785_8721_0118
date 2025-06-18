@@ -1,21 +1,29 @@
 package renderer;
 
 import primitives.Point;
-        import primitives.Vector;
-        import primitives.Ray;
-        import primitives.Util;
-        import primitives.Color;
-        import scene.Scene;
-        import renderer.BlackBoard.BoardShape;
+import primitives.Vector;
+import primitives.Ray;
+import primitives.Util;
+import primitives.Color;
+import scene.Scene;
+import renderer.BlackBoard.BoardShape;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.MissingResourceException;
 import java.util.stream.IntStream;
 
 /**
-* Represents a camera in 3D space, capable of generating rays through a view plane.
-* Provides a builder for flexible configuration.
-*/
+ * Represents a camera in 3D space, capable of generating rays through a view plane.
+ * Provides a builder for flexible configuration.
+ */
 public class Camera implements Cloneable {
+
+    /** The minimum number of samples for Anti-Aliasing (AA) effect with adaptive super sampling. */
+    private static final int NUM_OF_BASE_SAMPLES_ADAPTIVE_AA  = 4;
+
+
     // Camera fields
     /** The position of the camera in 3D space. */
     private Point location = null;
@@ -73,20 +81,36 @@ public class Camera implements Cloneable {
     /** The shape of the board for jittered sampling (SQUARE or CIRCLE). */
     private BoardShape boardShape = BoardShape.SQUARE;
 
+    /** Field that detects whether to use Depth of Field (DOF) effect or not. */
+    private boolean useDOF = false;
+
     /** Number of rays for Depth of Field (DOF) effect. */
     private int amountOfRays_DOF = 1;
 
     /** the radius of the aperture for Depth of Field (DOF) effect. */
-    private double apertureRadius = 0;
+    private double apertureRadius = 2;
 
     /** the distance from the camera to the focal plane for Depth of Field (DOF) effect. */
     private double depthOfField = 100;
 
+    /** Field that detects whether to use Anti-Aliasing (AA) effect or not. */
+    private boolean useAA = false;
+
     /** Number of rays for Anti-Aliasing (AA) effect. */
     private int amountOfRays_AA = 1;
 
-    /** Maximum level for adaptive supersampling (SS) */
-    private int adaptiveSSMaxLevel = 0;
+    /** Field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not. */
+    private boolean useAdaptiveSuperSamplingForAA = true;
+
+    /** Maximum number of samples for Anti-Aliasing (AA) effect. */
+    private int maxSamplesAdaptiveAA = 36;
+
+    /** Threshold for color difference in Anti-Aliasing (AA) effect. */
+    private double colorThresholdAadaptiveAA = 0.02;
+
+
+
+
 
     /**
      * Builder class for constructing a Camera instance with a fluent API.
@@ -280,6 +304,16 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets whether to use Depth of Field (DOF) effect or not.
+         * @param useDOF true to enable DOF, false to disable
+         * @return the builder instance
+         */
+        public Builder setUseDOF(boolean useDOF) {
+            this.camera.useDOF = useDOF;
+            return this;
+        }
+
+        /**
          * Sets the number of rays for Depth of Field (DOF) effect.
          * @param amountOfRays the number of rays to use for DOF
          * @return the builder instance
@@ -322,6 +356,16 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets whether to use Anti-Aliasing (AA) effect or not.
+         * @param useAA true to enable AA, false to disable
+         * @return the builder instance
+         */
+        public Builder setUseAA(boolean useAA) {
+            this.camera.useAA = useAA;
+            return this;
+        }
+
+        /**
          * Sets the number of rays for Anti-Aliasing (AA) effect.
          * @param amountOfRays the number of rays to use for AA
          * @return the builder instance
@@ -336,15 +380,46 @@ public class Camera implements Cloneable {
         }
 
         /**
-         * Sets the maximum level for adaptive supersampling (SS).
-         * @param adaptiveSSMaxLevel the maximum level for adaptive SS
+         * Sets a field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not.
+         * @param useAdaptiveSuperSamplingForAA true to enable adaptive super sampling, false to disable
          * @return the builder instance
-         * @throws IllegalArgumentException if adaptiveSSMaxLevel is less than zero
          */
-        public Builder setAdaptiveSuperSampling(int adaptiveSSMaxLevel) {
-            this.camera.adaptiveSSMaxLevel = adaptiveSSMaxLevel;
+        public Builder setUseAdaptiveSuperSamplingForAA(boolean useAdaptiveSuperSamplingForAA) {
+            this.camera.useAdaptiveSuperSamplingForAA = useAdaptiveSuperSamplingForAA;
             return this;
         }
+
+
+        /**
+         * Sets the maximum number of samples for Anti-Aliasing (AA) effect with adaptive super sampling.
+         * @param maxSamplesAdaptiveAA the maximum number of samples
+         * @return the builder instance
+         * @throws IllegalArgumentException if maxSamples is less than or equal to zero
+         */
+        public Builder setMaxSamplesAdaptiveAA(int maxSamplesAdaptiveAA) {
+            if (maxSamplesAdaptiveAA < 1) {
+                throw new IllegalArgumentException("maxSamples must be greater than zero");
+            }
+            this.camera.maxSamplesAdaptiveAA = maxSamplesAdaptiveAA;
+            return this;
+        }
+
+
+        /**
+         * Sets the color threshold for Anti-Aliasing (AA) effect for adaptive super sampling.
+         * @param colorThresholdAadaptiveAA the color difference threshold
+         * @return the builder instance
+         * @throws IllegalArgumentException if colorThreshold is less than or equal to zero
+         */
+        public Builder setColorThresholdAadaptiveAA(double colorThresholdAadaptiveAA) {
+            if (colorThresholdAadaptiveAA <= 0) {
+                throw new IllegalArgumentException("colorThreshold must be greater than zero");
+            }
+            this.camera.colorThresholdAadaptiveAA = colorThresholdAadaptiveAA;
+            return this;
+        }
+
+
 
         /**
          * Builds and returns the configured Camera instance.
@@ -377,6 +452,16 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("vTo and vUp vectors must be orthogonal");
             }
 
+            if (!this.camera.useAA && this.camera.amountOfRays_AA > 1) {
+                throw new IllegalStateException("AmountOfRays_AA > 1 even though AA is disabled." +
+                        " Set useAA to true to enable AA.");
+            }
+
+            if (!this.camera.useDOF && this.camera.amountOfRays_DOF > 1) {
+                throw new IllegalStateException("AmountOfRays_DOF > 1 even though DOF is disabled." +
+                        " Set useDOF to true to enable DOF.");
+            }
+
             this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
 
             if (this.camera.rayTracer == null) {
@@ -385,7 +470,7 @@ public class Camera implements Cloneable {
             try {
                 return (Camera) this.camera.clone();
             } catch (CloneNotSupportedException e) {
-               return null; // This should never happen since Camera implements Cloneable
+                return null; // This should never happen since Camera implements Cloneable
             }
         }
     }
@@ -417,52 +502,16 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Constructs a ray from the camera through subpixel location (x,y).
-     * x and y are pixel coordinates where 0 <= x < nX, 0 <= y < nY
-     *
-     * @param x subpixel column coordinate (can be fractional)
-     * @param y subpixel row coordinate (can be fractional)
-     * @return the ray through the exact (x,y) point on the view plane
-     */
-    public Ray constructRay(double x, double y) {
-        double pixelWidth = viewPlaneWidth / nX;
-        double pixelHeight = viewPlaneHeight / nY;
-
-        double xOffset = (x - (nX - 1) / 2.0) * pixelWidth;
-        double yOffset = (y - (nY - 1) / 2.0) * pixelHeight;
-
-        Point pij = location.add(vTo.scale(vpDistance));
-
-        if (xOffset != 0)
-            pij = pij.add(vRight.scale(xOffset));
-        if (yOffset != 0)
-            pij = pij.add(vUp.scale(-yOffset)); // y חיובי הוא למטה
-
-        Vector dir = pij.subtract(location);
-        return new Ray(location, dir.normalize());
-    }
-
-
-    /**
      * Renders the image by casting rays through each pixel.
      * @return the camera instance
      */
     public Camera renderImage() {
         pixelManager = new PixelManager(nY, nX, printInterval);
-
-        if (adaptiveSSMaxLevel > 0) {
-            return switch (threadsCount) {
-                case 0 -> renderImageAdaptiveNoThreads();
-                case -1 -> renderImageAdaptiveStream();
-                default -> renderImageAdaptiveRawThreads();
-            };
-        } else {
-            return switch (threadsCount) {
-                case 0 -> renderImageNoThreads();
-                case -1 -> renderImageStream();
-                default -> renderImageRawThreads();
-            };
-        }
+        return switch (threadsCount) {
+            case 0 -> renderImageNoThreads();
+            case -1 -> renderImageStream();
+            default -> renderImageRawThreads();
+        };
     }
 
     /**
@@ -512,18 +561,15 @@ public class Camera implements Cloneable {
     public void castRay(int j, int i) {
         Color color;
 
-        boolean useAA = amountOfRays_AA > 1;
-        boolean useDOF = amountOfRays_DOF > 1 && apertureRadius != 0;
-
-        if (adaptiveSSMaxLevel > 0) {
-            color = castBeamAdaptiveSuperSampling(j, i);
-        }
-        else if (useAA && useDOF) {
+        if (useAA && useDOF) {
             color = AAandDOFCombinedColor(j, i);
-
         } else if (useAA) {
-            List<Ray> rays = constructAARays(j, i);
-            color = averageRays(rays);
+            if (useAdaptiveSuperSamplingForAA) {
+                color = adaptiveSuperSampling(j, i, 0);
+            } else {
+                List<Ray> rays = constructAARays(j, i);
+                color = averageRays(rays);
+            }
         } else if (useDOF) {
             List<Ray> rays = constructDOFRays(j, i);
             color = averageRays(rays);
@@ -706,56 +752,6 @@ public class Camera implements Cloneable {
 
 
     /**
-     * Renders the image using adaptive supersampling without threads.
-     * This method processes each pixel sequentially, which may be slower.
-     * @return the camera instance
-     */
-    private Camera renderImageAdaptiveNoThreads() {
-        for (int i = 0; i < nY ; i++) {
-            for (int j = 0; j < nX; j++) {
-                imageWriter.writePixel(j, i, castBeamAdaptiveSuperSampling(j, i));
-            }
-        }
-        return this;
-    }
-
-    /**
-     * Renders the image using adaptive supersampling with a single stream.
-     * This method processes each pixel in parallel, improving performance.
-     * @return the camera instance
-     */
-    private Camera renderImageAdaptiveStream() {
-        IntStream.range(0, nY).parallel()
-                .forEach(i -> IntStream.range(0, nX).parallel()
-                        .forEach(j -> imageWriter.writePixel(j, i, castBeamAdaptiveSuperSampling(j, i))));
-        return this;
-    }
-
-    /**
-     * Renders the image using adaptive supersampling with multiple threads.
-     * Each thread processes pixels in parallel, improving performance.
-     * @return the camera instance
-     */
-    private Camera renderImageAdaptiveRawThreads() {
-        var threads = new LinkedList<Thread>();
-        for (int i = 0; i < threadsCount; ++i) {
-            threads.add(new Thread(() -> {
-                PixelManager.Pixel pixel;
-                while ((pixel = pixelManager.nextPixel()) != null) {
-                    imageWriter.writePixel(pixel.col(), pixel.row(),
-                            castBeamAdaptiveSuperSampling(pixel.col(), pixel.row()));
-                }
-            }));
-        }
-
-        for (var thread : threads) thread.start();
-        try {
-            for (var thread : threads) thread.join();
-        } catch (InterruptedException ignored) {}
-        return this;
-    }
-
-    /**
      * Combines Anti-Aliasing (AA) and Depth of Field (DOF) effects for a specific pixel.
      * For a given pixel, the algorithm uses getAAVectors to get a list
      * of the Anti-Aliasing vectors (the directions of the AA rays).
@@ -781,42 +777,144 @@ public class Camera implements Cloneable {
         return totalColor.reduce(AAVectors.size());
     }
 
+
+
+
+
+
     /**
-     * Calculates the color for a pixel using adaptive supersampling.
-     * It constructs a center ray, traces it, and then calculates the adaptive supersampling color.
+     * Adaptive super sampling for Anti-Aliasing (AA).
+     * Starts sampling from minSamplesAA rays, compares colors, and if colors differ above threshold,
+     * subdivides pixel area recursively up to maxSamples.
      *
-     * @param j the horizontal pixel index
-     * @param i the vertical pixel index
-     * @return the color calculated using adaptive supersampling
+     * @param j       the horizontal pixel index
+     * @param i       the vertical pixel index
+     * @param depth   current recursion depth (starts at 0)
+     * @return        the averaged color after adaptive sampling
      */
-    private Color castBeamAdaptiveSuperSampling(int i, int j) {
-        Ray center = constructRay(i, j);
-        Color centerColor = rayTracer.traceRay(center);
-        return calcAdaptiveSuperSampling(i, j, adaptiveSSMaxLevel , centerColor);
+    private Color adaptiveSuperSampling(int j, int i, int depth) {
+        // Base pixel center and radius (half of pixel size)
+        Point pc = calculatePixelCenter(j, i);
+        double pixelRadius = (viewPlaneWidth / nX) / 2.0;
+
+        // Generate jittered sample points around the pixel center with minSamplesAA count
+        List<Point> samplePoints = BlackBoard.generateJitteredSamples(
+                pc, vRight, vUp, pixelRadius, NUM_OF_BASE_SAMPLES_ADAPTIVE_AA, boardShape);
+
+        List<Color> sampleColors = new ArrayList<>();
+
+        // Trace rays through all samples, collect colors
+        for (Point samplePoint : samplePoints) {
+            Vector dir = samplePoint.subtract(location).normalize();
+            Ray ray = new Ray(location, dir);
+            sampleColors.add(rayTracer.traceRay(ray));
+        }
+
+        // Check color variance - if variance is small or max recursion depth reached, average and return
+        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || !colorsDifferSignificantly(sampleColors)) {
+            return averageColors(sampleColors);
+        }
+
+        // Otherwise, subdivide pixel into 4 sub-pixels and recurse
+        double halfRadius = pixelRadius / 2.0;
+        Color totalColor = Color.BLACK;
+
+        // Offsets to subdivide pixel area (top-left, top-right, bottom-left, bottom-right)
+        double[] offsetsX = {-halfRadius, halfRadius};
+        double[] offsetsY = {-halfRadius, halfRadius};
+
+        int subSamplesCount = 0;
+        for (double offsetX : offsetsX) {
+            for (double offsetY : offsetsY) {
+                // Calculate new sub-pixel center by offsetting pixelCenter
+                Point subPixelCenter = pc.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
+
+                // We need to calculate pixel indices for subPixelCenter approximation
+                // But since we recurse based on pixel index, we can simulate this by passing depth+1 and jittering samples accordingly
+                // So we create a helper that casts rays from subPixelCenter with minSamplesAA rays and do the same checks.
+
+                // Instead of recalculating j,i for subPixelCenter, we can create an overload helper method that accepts center and radius
+
+                totalColor = totalColor.add(adaptiveSuperSamplingAtPoint(subPixelCenter, halfRadius, depth + 1));
+                subSamplesCount++;
+            }
+        }
+
+        return totalColor.reduce(subSamplesCount);
     }
 
-    private Color calcAdaptiveSuperSampling(double i, double j, int level, Color centerColor) {
-        // recursion reached maximum level
-        if (level == 0) {
-            return centerColor;
-        }
-        Color color = centerColor;
+    /**
+     * Helper method for adaptive sampling on arbitrary point and radius.
+     *
+     * @param center pixel center point to sample around
+     * @param radius sampling radius (half pixel size or smaller)
+     * @param depth  current recursion depth
+     * @return averaged color for the sampled area
+     */
+    private Color adaptiveSuperSamplingAtPoint(Point center, double radius, int depth) {
+        List<Point> samplePoints = BlackBoard.generateJitteredSamples(
+                center, vRight, vUp, radius, NUM_OF_BASE_SAMPLES_ADAPTIVE_AA, boardShape);
 
-        // divide pixel into 4 mini-pixels
-        Ray[] beam = new Ray[]{
-                constructRay(2 * i, 2 * j),
-                constructRay(2 * i, 2 * j + 1),
-                constructRay(2 * i + 1, 2 * j),
-                constructRay(2 * i + 1, 2 * j + 1)};
-        // for each mini-pixel
-        for (int ray = 0; ray < 4; ray++) {
-            Color currentColor = rayTracer.traceRay(beam[ray]);
-            if (!currentColor.equals(centerColor))
-                currentColor = calcAdaptiveSuperSampling(
-                        2 * i + ray / 2, 2 * j + ray % 2, level - 1, currentColor);
-            color = color.add(currentColor);
+        List<Color> sampleColors = new ArrayList<>();
+
+        for (Point samplePoint : samplePoints) {
+            Vector dir = samplePoint.subtract(location).normalize();
+            Ray ray = new Ray(location, dir);
+            sampleColors.add(rayTracer.traceRay(ray));
         }
-        return color.reduce(5);
+
+        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || !colorsDifferSignificantly(sampleColors)) {
+            return averageColors(sampleColors);
+        }
+
+        double halfRadius = radius / 2.0;
+        Color totalColor = Color.BLACK;
+        double[] offsetsX = {-halfRadius, halfRadius};
+        double[] offsetsY = {-halfRadius, halfRadius};
+        int subSamplesCount = 0;
+
+        for (double offsetX : offsetsX) {
+            for (double offsetY : offsetsY) {
+                Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
+                totalColor = totalColor.add(adaptiveSuperSamplingAtPoint(subCenter, halfRadius, depth + 1));
+                subSamplesCount++;
+            }
+        }
+
+        return totalColor.reduce(subSamplesCount);
     }
+
+    /**
+     * Checks if colors differ significantly beyond a threshold.
+     *
+     * @param colors list of sampled colors
+     * @return true if color variance exceeds threshold, false otherwise
+     */
+    private boolean colorsDifferSignificantly(List<Color> colors) {
+        for (int i = 0; i < colors.size(); i++) {
+            for (int j = i + 1; j < colors.size(); j++) {
+                if (colors.get(i).distance(colors.get(j)) > colorThresholdAadaptiveAA) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Averages a list of colors.
+     *
+     * @param colors list of colors
+     * @return the average color
+     */
+    private Color averageColors(List<Color> colors) {
+        Color total = Color.BLACK;
+        for (Color c : colors) {
+            total = total.add(c);
+        }
+        return total.reduce(colors.size());
+    }
+
+
 }
 

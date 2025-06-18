@@ -118,6 +118,19 @@ public class Color {
       return new Color(rgb.reduce(k));
    }
 
+   public double distance(Color other) {
+      Double3 rgb1 = this.rgb;
+      Double3 rgb2 = other.rgb;
+
+      double dr = rgb1.d1() - rgb2.d1();
+      double dg = rgb1.d2() - rgb2.d2();
+      double db = rgb1.d3() - rgb2.d3();
+
+      return Math.sqrt(dr * dr + dg * dg + db * db);
+   }
+
+
+
    @Override
    public String toString() { return "rgb:" + rgb; }
 }

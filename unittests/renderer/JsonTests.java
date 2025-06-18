@@ -256,13 +256,7 @@ public class JsonTests {
                     .setResolution(1000, 1000)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE)
-                    .setAdaptiveSuperSampling(1)
-                    .setMultithreading(-1)
-                    .setAmountOfRays_AA(4)
-                    .setAmountOfRays_DOF(4)
-                    .setDepthOfField(160)
-                    .setApertureRadius(2)
-                    .setDebugPrint(1);
+                    .setMultithreading(-1);
             camera
                     .build()
                     .renderImage()
