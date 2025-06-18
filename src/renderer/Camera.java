@@ -8,11 +8,8 @@ import primitives.Point;
         import scene.Scene;
         import renderer.BlackBoard.BoardShape;
 
-        import java.util.ArrayList;
-        import java.util.LinkedList;
-        import java.util.List;
-        import java.util.MissingResourceException;
-        import java.util.stream.IntStream;
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
 * Represents a camera in 3D space, capable of generating rays through a view plane.
@@ -88,6 +85,8 @@ public class Camera implements Cloneable {
     /** Number of rays for Anti-Aliasing (AA) effect. */
     private int amountOfRays_AA = 1;
 
+    /** Maximum level for adaptive supersampling (SS) */
+    private int adaptiveSSMaxLevel = 0;
 
     /**
      * Builder class for constructing a Camera instance with a fluent API.
@@ -337,6 +336,17 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the maximum level for adaptive supersampling (SS).
+         * @param adaptiveSSMaxLevel the maximum level for adaptive SS
+         * @return the builder instance
+         * @throws IllegalArgumentException if adaptiveSSMaxLevel is less than zero
+         */
+        public Builder setAdaptiveSuperSampling(int adaptiveSSMaxLevel) {
+            this.camera.adaptiveSSMaxLevel = adaptiveSSMaxLevel;
+            return this;
+        }
+
+        /**
          * Builds and returns the configured Camera instance.
          * @return the constructed Camera
          * @throws MissingResourceException if any required field is missing
@@ -407,16 +417,52 @@ public class Camera implements Cloneable {
     }
 
     /**
+     * Constructs a ray from the camera through subpixel location (x,y).
+     * x and y are pixel coordinates where 0 <= x < nX, 0 <= y < nY
+     *
+     * @param x subpixel column coordinate (can be fractional)
+     * @param y subpixel row coordinate (can be fractional)
+     * @return the ray through the exact (x,y) point on the view plane
+     */
+    public Ray constructRay(double x, double y) {
+        double pixelWidth = viewPlaneWidth / nX;
+        double pixelHeight = viewPlaneHeight / nY;
+
+        double xOffset = (x - (nX - 1) / 2.0) * pixelWidth;
+        double yOffset = (y - (nY - 1) / 2.0) * pixelHeight;
+
+        Point pij = location.add(vTo.scale(vpDistance));
+
+        if (xOffset != 0)
+            pij = pij.add(vRight.scale(xOffset));
+        if (yOffset != 0)
+            pij = pij.add(vUp.scale(-yOffset)); // y חיובי הוא למטה
+
+        Vector dir = pij.subtract(location);
+        return new Ray(location, dir.normalize());
+    }
+
+
+    /**
      * Renders the image by casting rays through each pixel.
      * @return the camera instance
      */
     public Camera renderImage() {
         pixelManager = new PixelManager(nY, nX, printInterval);
-        return switch (threadsCount) {
-            case 0 -> renderImageNoThreads();
-            case -1 -> renderImageStream();
-            default -> renderImageRawThreads();
-        };
+
+        if (adaptiveSSMaxLevel > 0) {
+            return switch (threadsCount) {
+                case 0 -> renderImageAdaptiveNoThreads();
+                case -1 -> renderImageAdaptiveStream();
+                default -> renderImageAdaptiveRawThreads();
+            };
+        } else {
+            return switch (threadsCount) {
+                case 0 -> renderImageNoThreads();
+                case -1 -> renderImageStream();
+                default -> renderImageRawThreads();
+            };
+        }
     }
 
     /**
@@ -469,7 +515,10 @@ public class Camera implements Cloneable {
         boolean useAA = amountOfRays_AA > 1;
         boolean useDOF = amountOfRays_DOF > 1 && apertureRadius != 0;
 
-        if (useAA && useDOF) {
+        if (adaptiveSSMaxLevel > 0) {
+            color = castBeamAdaptiveSuperSampling(j, i);
+        }
+        else if (useAA && useDOF) {
             color = AAandDOFCombinedColor(j, i);
 
         } else if (useAA) {
@@ -657,6 +706,56 @@ public class Camera implements Cloneable {
 
 
     /**
+     * Renders the image using adaptive supersampling without threads.
+     * This method processes each pixel sequentially, which may be slower.
+     * @return the camera instance
+     */
+    private Camera renderImageAdaptiveNoThreads() {
+        for (int i = 0; i < nY ; i++) {
+            for (int j = 0; j < nX; j++) {
+                imageWriter.writePixel(j, i, castBeamAdaptiveSuperSampling(j, i));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Renders the image using adaptive supersampling with a single stream.
+     * This method processes each pixel in parallel, improving performance.
+     * @return the camera instance
+     */
+    private Camera renderImageAdaptiveStream() {
+        IntStream.range(0, nY).parallel()
+                .forEach(i -> IntStream.range(0, nX).parallel()
+                        .forEach(j -> imageWriter.writePixel(j, i, castBeamAdaptiveSuperSampling(j, i))));
+        return this;
+    }
+
+    /**
+     * Renders the image using adaptive supersampling with multiple threads.
+     * Each thread processes pixels in parallel, improving performance.
+     * @return the camera instance
+     */
+    private Camera renderImageAdaptiveRawThreads() {
+        var threads = new LinkedList<Thread>();
+        for (int i = 0; i < threadsCount; ++i) {
+            threads.add(new Thread(() -> {
+                PixelManager.Pixel pixel;
+                while ((pixel = pixelManager.nextPixel()) != null) {
+                    imageWriter.writePixel(pixel.col(), pixel.row(),
+                            castBeamAdaptiveSuperSampling(pixel.col(), pixel.row()));
+                }
+            }));
+        }
+
+        for (var thread : threads) thread.start();
+        try {
+            for (var thread : threads) thread.join();
+        } catch (InterruptedException ignored) {}
+        return this;
+    }
+
+    /**
      * Combines Anti-Aliasing (AA) and Depth of Field (DOF) effects for a specific pixel.
      * For a given pixel, the algorithm uses getAAVectors to get a list
      * of the Anti-Aliasing vectors (the directions of the AA rays).
@@ -682,6 +781,42 @@ public class Camera implements Cloneable {
         return totalColor.reduce(AAVectors.size());
     }
 
+    /**
+     * Calculates the color for a pixel using adaptive supersampling.
+     * It constructs a center ray, traces it, and then calculates the adaptive supersampling color.
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the color calculated using adaptive supersampling
+     */
+    private Color castBeamAdaptiveSuperSampling(int i, int j) {
+        Ray center = constructRay(i, j);
+        Color centerColor = rayTracer.traceRay(center);
+        return calcAdaptiveSuperSampling(i, j, adaptiveSSMaxLevel , centerColor);
+    }
 
+    private Color calcAdaptiveSuperSampling(double i, double j, int level, Color centerColor) {
+        // recursion reached maximum level
+        if (level == 0) {
+            return centerColor;
+        }
+        Color color = centerColor;
+
+        // divide pixel into 4 mini-pixels
+        Ray[] beam = new Ray[]{
+                constructRay(2 * i, 2 * j),
+                constructRay(2 * i, 2 * j + 1),
+                constructRay(2 * i + 1, 2 * j),
+                constructRay(2 * i + 1, 2 * j + 1)};
+        // for each mini-pixel
+        for (int ray = 0; ray < 4; ray++) {
+            Color currentColor = rayTracer.traceRay(beam[ray]);
+            if (!currentColor.equals(centerColor))
+                currentColor = calcAdaptiveSuperSampling(
+                        2 * i + ray / 2, 2 * j + ray % 2, level - 1, currentColor);
+            color = color.add(currentColor);
+        }
+        return color.reduce(5);
+    }
 }
 

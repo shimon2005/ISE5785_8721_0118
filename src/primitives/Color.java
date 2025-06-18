@@ -63,6 +63,13 @@ public class Color {
       return new java.awt.Color(ir > 255 ? 255 : ir, ig > 255 ? 255 : ig, ib > 255 ? 255 : ib);
    }
 
+    /**
+     * Color getter - returns the color as a triad of RGB components
+     * @return Double3 object with RGB components
+     */
+    public Double3 getRGB() {
+        return rgb;
+    }
    /**
     * Operation of adding this and one or more other colors (by component)
     * @param  colors one or more other colors to add
