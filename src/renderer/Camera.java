@@ -106,7 +106,7 @@ public class Camera implements Cloneable {
     private int maxSamplesAdaptiveAA = 36;
 
     /** Threshold for color difference in Anti-Aliasing (AA) effect. */
-    private double colorThresholdAadaptiveAA = 0.02;
+    private double colorThresholdAdaptiveAA = 2;
 
 
 
@@ -397,8 +397,10 @@ public class Camera implements Cloneable {
          * @throws IllegalArgumentException if maxSamples is less than or equal to zero
          */
         public Builder setMaxSamplesAdaptiveAA(int maxSamplesAdaptiveAA) {
-            if (maxSamplesAdaptiveAA < 1) {
-                throw new IllegalArgumentException("maxSamples must be greater than zero");
+            if (maxSamplesAdaptiveAA < NUM_OF_BASE_SAMPLES_ADAPTIVE_AA) {
+                throw new IllegalArgumentException(
+                        "maxSamplesAdaptiveAA must be greater than or equal to base num of samples," +
+                                " which is " + NUM_OF_BASE_SAMPLES_ADAPTIVE_AA);
             }
             this.camera.maxSamplesAdaptiveAA = maxSamplesAdaptiveAA;
             return this;
@@ -407,15 +409,15 @@ public class Camera implements Cloneable {
 
         /**
          * Sets the color threshold for Anti-Aliasing (AA) effect for adaptive super sampling.
-         * @param colorThresholdAadaptiveAA the color difference threshold
+         * @param colorThresholdAdaptiveAA the color difference threshold
          * @return the builder instance
          * @throws IllegalArgumentException if colorThreshold is less than or equal to zero
          */
-        public Builder setColorThresholdAadaptiveAA(double colorThresholdAadaptiveAA) {
-            if (colorThresholdAadaptiveAA <= 0) {
+        public Builder setColorThresholdAdaptiveAA(double colorThresholdAdaptiveAA) {
+            if (colorThresholdAdaptiveAA < 0) {
                 throw new IllegalArgumentException("colorThreshold must be greater than zero");
             }
-            this.camera.colorThresholdAadaptiveAA = colorThresholdAadaptiveAA;
+            this.camera.colorThresholdAdaptiveAA = colorThresholdAdaptiveAA;
             return this;
         }
 
@@ -565,7 +567,7 @@ public class Camera implements Cloneable {
             color = AAandDOFCombinedColor(j, i);
         } else if (useAA) {
             if (useAdaptiveSuperSamplingForAA) {
-                color = adaptiveSuperSampling(j, i, 0);
+                color = adaptiveSuperSampling(j, i);
             } else {
                 List<Ray> rays = constructAARays(j, i);
                 color = averageRays(rays);
@@ -780,68 +782,20 @@ public class Camera implements Cloneable {
 
 
 
-
-
     /**
-     * Adaptive super sampling for Anti-Aliasing (AA).
-     * Starts sampling from minSamplesAA rays, compares colors, and if colors differ above threshold,
-     * subdivides pixel area recursively up to maxSamples.
+     * Adaptive super sampling for Anti-Aliasing (AA) effect.
+     * This method samples the pixel area adaptively based on color variance.
      *
-     * @param j       the horizontal pixel index
-     * @param i       the vertical pixel index
-     * @param depth   current recursion depth (starts at 0)
-     * @return        the averaged color after adaptive sampling
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the averaged color for the sampled area
      */
-    private Color adaptiveSuperSampling(int j, int i, int depth) {
-        // Base pixel center and radius (half of pixel size)
+    private Color adaptiveSuperSampling(int j, int i) {
         Point pc = calculatePixelCenter(j, i);
         double pixelRadius = (viewPlaneWidth / nX) / 2.0;
-
-        // Generate jittered sample points around the pixel center with minSamplesAA count
-        List<Point> samplePoints = BlackBoard.generateJitteredSamples(
-                pc, vRight, vUp, pixelRadius, NUM_OF_BASE_SAMPLES_ADAPTIVE_AA, boardShape);
-
-        List<Color> sampleColors = new ArrayList<>();
-
-        // Trace rays through all samples, collect colors
-        for (Point samplePoint : samplePoints) {
-            Vector dir = samplePoint.subtract(location).normalize();
-            Ray ray = new Ray(location, dir);
-            sampleColors.add(rayTracer.traceRay(ray));
-        }
-
-        // Check color variance - if variance is small or max recursion depth reached, average and return
-        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || !colorsDifferSignificantly(sampleColors)) {
-            return averageColors(sampleColors);
-        }
-
-        // Otherwise, subdivide pixel into 4 sub-pixels and recurse
-        double halfRadius = pixelRadius / 2.0;
-        Color totalColor = Color.BLACK;
-
-        // Offsets to subdivide pixel area (top-left, top-right, bottom-left, bottom-right)
-        double[] offsetsX = {-halfRadius, halfRadius};
-        double[] offsetsY = {-halfRadius, halfRadius};
-
-        int subSamplesCount = 0;
-        for (double offsetX : offsetsX) {
-            for (double offsetY : offsetsY) {
-                // Calculate new sub-pixel center by offsetting pixelCenter
-                Point subPixelCenter = pc.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
-
-                // We need to calculate pixel indices for subPixelCenter approximation
-                // But since we recurse based on pixel index, we can simulate this by passing depth+1 and jittering samples accordingly
-                // So we create a helper that casts rays from subPixelCenter with minSamplesAA rays and do the same checks.
-
-                // Instead of recalculating j,i for subPixelCenter, we can create an overload helper method that accepts center and radius
-
-                totalColor = totalColor.add(adaptiveSuperSamplingAtPoint(subPixelCenter, halfRadius, depth + 1));
-                subSamplesCount++;
-            }
-        }
-
-        return totalColor.reduce(subSamplesCount);
+        return adaptiveSuperSamplingAtPoint(pc, pixelRadius, 0);
     }
+
 
     /**
      * Helper method for adaptive sampling on arbitrary point and radius.
@@ -863,7 +817,7 @@ public class Camera implements Cloneable {
             sampleColors.add(rayTracer.traceRay(ray));
         }
 
-        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || !colorsDifferSignificantly(sampleColors)) {
+        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || colorsAreSimilar(sampleColors)) {
             return averageColors(sampleColors);
         }
 
@@ -888,17 +842,17 @@ public class Camera implements Cloneable {
      * Checks if colors differ significantly beyond a threshold.
      *
      * @param colors list of sampled colors
-     * @return true if color variance exceeds threshold, false otherwise
+     * @return true if color variance exceeds a threshold (colorThresholdAdaptiveAA), false otherwise
      */
-    private boolean colorsDifferSignificantly(List<Color> colors) {
+    private boolean colorsAreSimilar(List<Color> colors) {
         for (int i = 0; i < colors.size(); i++) {
             for (int j = i + 1; j < colors.size(); j++) {
-                if (colors.get(i).distance(colors.get(j)) > colorThresholdAadaptiveAA) {
-                    return true;
+                if (colors.get(i).distance(colors.get(j)) > colorThresholdAdaptiveAA) {
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**

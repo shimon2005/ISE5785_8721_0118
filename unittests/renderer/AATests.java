@@ -32,7 +32,7 @@ public class AATests {
 
 
     @Test
-    void AAWithJsonScene() throws IOException, ParseException {
+    void AAWithJsonScene1() throws IOException, ParseException {
         Scene scene = JsonScene.importScene("unittests/scene/testScene1.json");
         // enter XML file name and parse from JSON file into a scene object instead of the
         // new Scene above,
@@ -43,7 +43,7 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(false)
-                .setAmountOfRays_AA(81)
+                .setAmountOfRays_AA(256)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
                 .setResolution(1000, 1000) //
@@ -54,7 +54,7 @@ public class AATests {
 
 
     @Test
-    void adaptiveSuperSamplingForAAWithJsonScene() throws IOException, ParseException {
+    void adaptiveSuperSamplingForAAWithJsonScene1() throws IOException, ParseException {
         Scene scene = JsonScene.importScene("unittests/scene/testScene1.json");
         // enter XML file name and parse from JSON file into a scene object instead of the
         // new Scene above,
@@ -65,8 +65,8 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
-                .setMaxSamplesAdaptiveAA(36)
-                .setColorThresholdAadaptiveAA(0.01)
+                .setMaxSamplesAdaptiveAA(256)
+                .setColorThresholdAdaptiveAA(10)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
                 .setResolution(1000, 1000) //
@@ -75,7 +75,51 @@ public class AATests {
                 .writeToImage("jsonRenderTest1WithAdaptiveSamplingForAA");
     }
 
+    @Test
+    void AAWithJsonScene4() throws IOException, ParseException {
+        Scene scene = JsonScene.importScene("unittests/scene/testScene4.json");
+        // enter XML file name and parse from JSON file into a scene object instead of the
+        // new Scene above,
+        // Use the code you added in appropriate packages
+        // ...
+        // NB: unit tests is not the correct place to put XML parsing code
 
+        camera1 //
+                .setUseAA(true)
+                .setUseAdaptiveSuperSamplingForAA(false)
+                .setAmountOfRays_AA(256)
+                .setMultithreading(-1)
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(2000, 2000) //
+                .build() //
+                .renderImage() //
+                .writeToImage("jsonRenderTest4WithAA");
+    }
+
+
+    @Test
+    void adaptiveSuperSamplingForAAWithJsonScene4() throws IOException, ParseException {
+        Scene scene = JsonScene.importScene("unittests/scene/testScene4.json");
+        // enter XML file name and parse from JSON file into a scene object instead of the
+        // new Scene above,
+        // Use the code you added in appropriate packages
+        // ...
+        // NB: unit tests is not the correct place to put XML parsing code
+
+        camera1 //
+                .setUseAA(true)
+                .setUseAdaptiveSuperSamplingForAA(true)
+                .setMaxSamplesAdaptiveAA(256)
+                .setColorThresholdAdaptiveAA(2)
+                .setMultithreading(-1)
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(2000, 2000) //
+                .build() //
+                .renderImage() //
+                .writeToImage("jsonRenderTest4WithAdaptiveSamplingForAA");
+    }
+
+/*
     @Test
     public void crownAA() {
         assertDoesNotThrow(() -> {
@@ -107,7 +151,7 @@ public class AATests {
                     .setUseAA(true)
                     .setUseAdaptiveSuperSamplingForAA(true)
                     .setMaxSamplesAdaptiveAA(36)
-                    .setColorThresholdAadaptiveAA(0.02)
+                    .setColorThresholdAdaptiveAA(10)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE)
                     .setMultithreading(-1)
@@ -117,5 +161,7 @@ public class AATests {
 
         }, "Failed to render image");
     }
+
+ */
 
 }

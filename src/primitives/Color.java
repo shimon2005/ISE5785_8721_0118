@@ -118,6 +118,7 @@ public class Color {
       return new Color(rgb.reduce(k));
    }
 
+
    public double distance(Color other) {
       Double3 rgb1 = this.rgb;
       Double3 rgb2 = other.rgb;
