@@ -10,8 +10,6 @@ import renderer.BlackBoard.BoardShape;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 public class AATests {
 
     /** Cameras builders for testing */
@@ -43,7 +41,7 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(false)
-                .setAmountOfRays_AA(256)
+                .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
                 .setResolution(1000, 1000) //
@@ -65,7 +63,8 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
-                .setMaxSamplesAdaptiveAA(256)
+                .setNumOfSubAreaSamplesAdaptiveAA(4)
+                .setMaxSamplesAdaptiveAA(64)
                 .setColorThresholdAdaptiveAA(10)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
@@ -109,6 +108,7 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
+                .setNumOfSubAreaSamplesAdaptiveAA(4)
                 .setMaxSamplesAdaptiveAA(256)
                 .setColorThresholdAdaptiveAA(2)
                 .setMultithreading(-1)
@@ -150,6 +150,7 @@ public class AATests {
                     .setResolution(1000, 1000)
                     .setUseAA(true)
                     .setUseAdaptiveSuperSamplingForAA(true)
+                    .setNumOfSubAreaSamplesAdaptiveAA(4)
                     .setMaxSamplesAdaptiveAA(36)
                     .setColorThresholdAdaptiveAA(10)
                     .setDebugPrint(1)

@@ -20,9 +20,6 @@ import java.util.stream.IntStream;
  */
 public class Camera implements Cloneable {
 
-    /** The minimum number of samples for Anti-Aliasing (AA) effect with adaptive super sampling. */
-    private static final int NUM_OF_BASE_SAMPLES_ADAPTIVE_AA  = 4;
-
 
     // Camera fields
     /** The position of the camera in 3D space. */
@@ -85,28 +82,31 @@ public class Camera implements Cloneable {
     private boolean useDOF = false;
 
     /** Number of rays for Depth of Field (DOF) effect. */
-    private int amountOfRays_DOF = 1;
+    private int amountOfRays_DOF = 0;
 
     /** the radius of the aperture for Depth of Field (DOF) effect. */
-    private double apertureRadius = 2;
+    private double apertureRadius = 0;
 
     /** the distance from the camera to the focal plane for Depth of Field (DOF) effect. */
-    private double depthOfField = 100;
+    private double depthOfField = 0;
 
     /** Field that detects whether to use Anti-Aliasing (AA) effect or not. */
     private boolean useAA = false;
 
     /** Number of rays for Anti-Aliasing (AA) effect. */
-    private int amountOfRays_AA = 1;
+    private int amountOfRays_AA = 0;
 
     /** Field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not. */
-    private boolean useAdaptiveSuperSamplingForAA = true;
+    private boolean useAdaptiveSuperSamplingForAA = false;
+
+    /** The number of samples per area for Anti-Aliasing (AA) effect with adaptive super sampling. */
+    private int numOfSubAreaSamplesAdaptiveAA = 0;
 
     /** Maximum number of samples for Anti-Aliasing (AA) effect. */
-    private int maxSamplesAdaptiveAA = 36;
+    private int maxSamplesAdaptiveAA = 0;
 
     /** Threshold for color difference in Anti-Aliasing (AA) effect. */
-    private double colorThresholdAdaptiveAA = 2;
+    private double colorThresholdAdaptiveAA = 0;
 
 
 
@@ -391,17 +391,23 @@ public class Camera implements Cloneable {
 
 
         /**
+         * Sets the number of samples per area for Anti-Aliasing (AA) effect with adaptive super sampling.
+         * @param numOfSubAreaSamplesAdaptiveAA the number of samples per area
+         * @return the builder instance
+         * @throws IllegalArgumentException if numOfAreaSamples is less than or equal to zero
+         */
+        public Builder setNumOfSubAreaSamplesAdaptiveAA(int numOfSubAreaSamplesAdaptiveAA) {
+            this.camera.numOfSubAreaSamplesAdaptiveAA = numOfSubAreaSamplesAdaptiveAA;
+            return this;
+        }
+
+        /**
          * Sets the maximum number of samples for Anti-Aliasing (AA) effect with adaptive super sampling.
          * @param maxSamplesAdaptiveAA the maximum number of samples
          * @return the builder instance
          * @throws IllegalArgumentException if maxSamples is less than or equal to zero
          */
         public Builder setMaxSamplesAdaptiveAA(int maxSamplesAdaptiveAA) {
-            if (maxSamplesAdaptiveAA < NUM_OF_BASE_SAMPLES_ADAPTIVE_AA) {
-                throw new IllegalArgumentException(
-                        "maxSamplesAdaptiveAA must be greater than or equal to base num of samples," +
-                                " which is " + NUM_OF_BASE_SAMPLES_ADAPTIVE_AA);
-            }
             this.camera.maxSamplesAdaptiveAA = maxSamplesAdaptiveAA;
             return this;
         }
@@ -454,15 +460,89 @@ public class Camera implements Cloneable {
                 throw new IllegalArgumentException("vTo and vUp vectors must be orthogonal");
             }
 
-            if (!this.camera.useAA && this.camera.amountOfRays_AA > 1) {
-                throw new IllegalStateException("AmountOfRays_AA > 1 even though AA is disabled." +
-                        " Set useAA to true to enable AA.");
+            if (!this.camera.useAA && this.camera.amountOfRays_AA != 0) {
+                throw new IllegalStateException("You have specified AA parameters " +
+                        "even though useAA is false. Set useAA to true to enable AA.");
             }
 
-            if (!this.camera.useDOF && this.camera.amountOfRays_DOF > 1) {
-                throw new IllegalStateException("AmountOfRays_DOF > 1 even though DOF is disabled." +
-                        " Set useDOF to true to enable DOF.");
+            if (this.camera.useAA && !this.camera.useAdaptiveSuperSamplingForAA && this.camera.amountOfRays_AA <= 0) {
+                throw new IllegalArgumentException("amountOfRays_AA must be greater than zero when using AA");
             }
+
+            if (!this.camera.useDOF && (this.camera.amountOfRays_DOF != 0 || this.camera.apertureRadius != 0 ||
+                    this.camera.depthOfField != 0)) {
+                throw new IllegalStateException("You have specified DOF parameters " +
+                        "even though useDOF is false. Set useDOF to true to enable DOF.");
+            }
+
+            if (this.camera.useDOF) {
+                if (this.camera.amountOfRays_DOF <= 0) {
+                    throw new IllegalArgumentException("amountOfRays_DOF must be greater than zero when using DOF");
+                }
+
+                if (this.camera.apertureRadius <= 0) {
+                    throw new IllegalArgumentException("apertureRadius must be greater than zero when using DOF");
+                }
+
+                if (this.camera.depthOfField <= 0) {
+                    throw new IllegalArgumentException("depthOfField must be greater than zero when using DOF");
+                }
+            }
+
+            if (!this.camera.useAdaptiveSuperSamplingForAA && (this.camera.numOfSubAreaSamplesAdaptiveAA != 0 ||
+                    this.camera.maxSamplesAdaptiveAA != 0 || this.camera.colorThresholdAdaptiveAA != 0)) {
+                throw new IllegalStateException("You have specified adaptive super sampling parameters " +
+                        "even though useAdaptiveSuperSamplingForAA is false. Set useAdaptiveSuperSamplingForAA to true to enable adaptive super sampling.");
+
+            }
+
+
+            if (this.camera.useAdaptiveSuperSamplingForAA) {
+
+                if (this.camera.numOfSubAreaSamplesAdaptiveAA <= 0) {
+                    throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
+                }
+
+                if (this.camera.maxSamplesAdaptiveAA<= 0) {
+                    throw new IllegalArgumentException("maxSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
+                }
+
+                if (this.camera.colorThresholdAdaptiveAA <= 0) {
+                    throw new IllegalArgumentException("colorThresholdAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
+                }
+
+                if (this.camera.maxSamplesAdaptiveAA < this.camera.numOfSubAreaSamplesAdaptiveAA) {
+                    throw new IllegalArgumentException(
+                            "maxSamplesAdaptiveAA must be greater than or equal to numOfSubAreaSamplesAdaptiveAA," +
+                                    " which is " + this.camera.numOfSubAreaSamplesAdaptiveAA);
+                }
+                int ratio = this.camera.maxSamplesAdaptiveAA / this.camera.numOfSubAreaSamplesAdaptiveAA;
+
+                // Validation conditions to ensure maxSamplesAdaptiveAA is numOfSubAreaSamplesAdaptiveAA
+                // multiplied by a power of 4.
+                if(
+                    // Condition 1:
+                    // Check that maxSamplesAdaptiveAA is divisible by numOfSubAreaSamplesAdaptiveAA without remainder.
+                    // If not divisible, ratio is not an integer and the requirement fails.
+                    (this.camera.maxSamplesAdaptiveAA % this.camera.numOfSubAreaSamplesAdaptiveAA != 0 ||
+
+                    // Condition 2:
+                    // Check if ratio is a power of 2.
+                    // Using bitwise trick: For any power of 2, (n & (n - 1)) == 0.
+                    // If this is not true, ratio is not a power of 2.
+                    (ratio & (ratio - 1)) != 0 ||
+
+                    // Condition 3:
+                    // Check if ratio modulo 3 equals 1.
+                    // This ensures ratio is a power of 4, since all powers of 4 modulo 3 equal 1.
+                    // If not equal to 1, ratio is a power of 2 but not a power of 4.
+                    ratio % 3 != 1)
+                ) {
+                    throw new IllegalArgumentException(
+                            "maxSamplesAdaptiveAA must be numOfSubAreaSamplesAdaptiveAA multiplied by a power of 4");
+                }
+            }
+
 
             this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
 
@@ -807,7 +887,7 @@ public class Camera implements Cloneable {
      */
     private Color adaptiveSuperSamplingAtPoint(Point center, double radius, int depth) {
         List<Point> samplePoints = BlackBoard.generateJitteredSamples(
-                center, vRight, vUp, radius, NUM_OF_BASE_SAMPLES_ADAPTIVE_AA, boardShape);
+                center, vRight, vUp, radius, numOfSubAreaSamplesAdaptiveAA, boardShape);
 
         List<Color> sampleColors = new ArrayList<>();
 
@@ -817,7 +897,15 @@ public class Camera implements Cloneable {
             sampleColors.add(rayTracer.traceRay(ray));
         }
 
-        if (NUM_OF_BASE_SAMPLES_ADAPTIVE_AA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || colorsAreSimilar(sampleColors)) {
+
+        // If the number of samples exceeds the maximum allowed or colors are similar, return the average color.
+
+        // Math.pow(4, depth) represents the number of subareas the pixel area is divided into at the current recursion depth.
+        // Multiplying it by numOfSubAreaSamplesAdaptiveAA gives the total number of rays (samples) traced at this depth.
+
+        // for the maximum check we could use == because the number of samples is always numOfSubAreaSamplesAdaptiveAA * k^4,
+        // but we use >= just to be safe
+        if (numOfSubAreaSamplesAdaptiveAA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || colorsAreSimilar(sampleColors)) {
             return averageColors(sampleColors);
         }
 
