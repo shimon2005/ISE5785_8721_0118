@@ -503,12 +503,18 @@ public class Camera implements Cloneable {
                     throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
                 }
 
-                if (this.camera.maxSamplesAdaptiveAA<= 0) {
+                if (this.camera.maxSamplesAdaptiveAA <= 0) {
                     throw new IllegalArgumentException("maxSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
                 }
 
                 if (this.camera.colorThresholdAdaptiveAA <= 0) {
                     throw new IllegalArgumentException("colorThresholdAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
+                }
+
+                int rootNumOfSubAreaSamplesAdaptiveAA = (int) Math.sqrt(this.camera.numOfSubAreaSamplesAdaptiveAA);
+
+                if (rootNumOfSubAreaSamplesAdaptiveAA * rootNumOfSubAreaSamplesAdaptiveAA != this.camera.numOfSubAreaSamplesAdaptiveAA) {
+                    throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveAA must be a perfect square (e.g. 81, 100, 121)");
                 }
 
                 if (this.camera.maxSamplesAdaptiveAA < this.camera.numOfSubAreaSamplesAdaptiveAA) {
