@@ -86,10 +86,10 @@ public class AATests {
         camera1 //
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(false)
-                .setAmountOfRays_AA(256)
+                .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(1000, 1000) //
                 .build() //
                 .renderImage() //
                 .writeToImage("jsonRenderTest4WithAA");
@@ -109,11 +109,11 @@ public class AATests {
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
                 .setNumOfSubAreaSamplesAdaptiveAA(4)
-                .setMaxSamplesAdaptiveAA(256)
+                .setMaxSamplesAdaptiveAA(64)
                 .setColorThresholdAdaptiveAA(2)
                 .setMultithreading(-1)
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(1000, 1000) //
                 .build() //
                 .renderImage() //
                 .writeToImage("jsonRenderTest4WithAdaptiveSamplingForAA");
@@ -129,7 +129,7 @@ public class AATests {
                     .setResolution(1000, 1000)
                     .setUseAA(true)
                     .setUseAdaptiveSuperSamplingForAA(false)
-                    .setAmountOfRays_AA(36)
+                    .setAmountOfRays_AA(64)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE)
                     .setMultithreading(-1)
@@ -151,7 +151,7 @@ public class AATests {
                     .setUseAA(true)
                     .setUseAdaptiveSuperSamplingForAA(true)
                     .setNumOfSubAreaSamplesAdaptiveAA(4)
-                    .setMaxSamplesAdaptiveAA(36)
+                    .setMaxSamplesAdaptiveAA(64)
                     .setColorThresholdAdaptiveAA(10)
                     .setDebugPrint(1)
                     .setRayTracer(scene,RayTracerType.SIMPLE)
