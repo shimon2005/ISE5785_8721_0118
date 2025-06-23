@@ -465,8 +465,23 @@ public class Camera implements Cloneable {
                         "even though useAA is false. Set useAA to true to enable AA.");
             }
 
-            if (this.camera.useAA && !this.camera.useAdaptiveSuperSamplingForAA && this.camera.amountOfRays_AA <= 0) {
-                throw new IllegalArgumentException("amountOfRays_AA must be greater than zero when using AA");
+            if(!this.camera.useAA && this.camera.useAdaptiveSuperSamplingForAA) {
+                throw new IllegalStateException("UseAdaptiveSuperSamplingForAA is set to true " +
+                        "even though useAA is set false. Set useAA to true if you wish to use adaptive super sampling for AA.");
+            }
+
+            if (this.camera.useAA && !this.camera.useAdaptiveSuperSamplingForAA) {
+                // those are cheks regarding amountOfRays_AA, so we only perform them when useAA is true,
+                // and also useAdaptiveSuperSamplingForAA is false,
+                // because amountOfRays_AA is irrelevant when using adaptive super sampling for aa
+                if (this.camera.amountOfRays_AA <= 0) {
+                    throw new IllegalArgumentException("amountOfRays_AA must be greater than zero when using AA");
+                }
+
+                int rootAmountOfRays_AA = (int) Math.sqrt(this.camera.amountOfRays_AA);
+                if (rootAmountOfRays_AA * rootAmountOfRays_AA != this.camera.amountOfRays_AA) {
+                    throw new IllegalArgumentException("amountOfRays_AA must be a perfect square (e.g. 16, 25, 36)");
+                }
             }
 
             if (!this.camera.useDOF && (this.camera.amountOfRays_DOF != 0 || this.camera.apertureRadius != 0 ||
@@ -478,6 +493,11 @@ public class Camera implements Cloneable {
             if (this.camera.useDOF) {
                 if (this.camera.amountOfRays_DOF <= 0) {
                     throw new IllegalArgumentException("amountOfRays_DOF must be greater than zero when using DOF");
+                }
+
+                int rootAmountOfRays_DOF = (int) Math.sqrt(this.camera.amountOfRays_DOF);
+                if (rootAmountOfRays_DOF * rootAmountOfRays_DOF != this.camera.amountOfRays_DOF) {
+                    throw new IllegalArgumentException("amountOfRays_DOF must be a perfect square (e.g. 9, 16, 25)");
                 }
 
                 if (this.camera.apertureRadius <= 0) {
@@ -650,10 +670,11 @@ public class Camera implements Cloneable {
         Color color;
 
         if (useAA && useDOF) {
+            // the AAandDOFCombinedColor method can handle both regular AA and adaptive super sampling for AA
             color = AAandDOFCombinedColor(j, i);
         } else if (useAA) {
             if (useAdaptiveSuperSamplingForAA) {
-                color = adaptiveSuperSampling(j, i);
+                color = pixelColorForAdaptiveSuperSamplingAA(j, i);
             } else {
                 List<Ray> rays = constructAARays(j, i);
                 color = averageRays(rays);
@@ -731,31 +752,29 @@ public class Camera implements Cloneable {
 
     /**
      * Constructs Depth of Field (DOF) rays for a specific pixel.
+     * This method is used when Depth of Field (DOF) effect is enabled.
+     *
      * @param j the horizontal pixel index
      * @param i the vertical pixel index
      * @return a list of DOF rays
      */
     private ArrayList<Ray> constructDOFRays(int j, int i) {
-        return constructDOFRaysWithDirection(j, i, null);
+        Point pixelCenter = calculatePixelCenter(j, i);
+        Vector direction = pixelCenter.subtract(location).normalize();
+        return constructDOFRaysFromDirection(direction);
     }
 
 
+
     /**
-     * Constructs Depth of Field (DOF) rays for a specific pixel with a given direction.
-     * If the direction is null, it calculates the direction based on the pixel center.
+     * Constructs Depth of Field (DOF) rays in a specific direction.
+     * This method is used when Depth of Field (DOF) effect is enabled.
      *
-     * @param j the horizontal pixel index
-     * @param i the vertical pixel index
-     * @param direction the direction vector for the DOF rays, or null to calculate it
+     * @param direction the direction vector for the DOF rays
      * @return a list of DOF rays
      */
-    private ArrayList<Ray> constructDOFRaysWithDirection(int j, int i, Vector direction) {
+    private ArrayList<Ray> constructDOFRaysFromDirection(Vector direction) {
         ArrayList<Ray> DOFRays = new ArrayList<>();
-
-        if (direction == null) {
-            Point pij = calculatePixelCenter(j, i);
-            direction = pij.subtract(location).normalize();
-        }
 
         Point focalPoint = location.add(direction.scale(depthOfField));
 
@@ -853,16 +872,25 @@ public class Camera implements Cloneable {
      * @return the combined color from AA and DOF effects
      */
     private Color AAandDOFCombinedColor(int j, int i) {
-        List<Vector> AAVectors = getAAVectors(j, i);
-        Color totalColor = Color.BLACK;
 
-        for (Vector AAVector : AAVectors) {
-            ArrayList<Ray> DOFrays = constructDOFRaysWithDirection(j, i, AAVector);
+        List<Vector> AAVectors;
+        Color color;
 
-            totalColor = totalColor.add(averageRays(DOFrays));
+        if (useAdaptiveSuperSamplingForAA) {
+            // the pixelColorForAdaptiveSuperSamplingAA method can handle both regular AA and adaptive super sampling for AA
+            color = pixelColorForAdaptiveSuperSamplingAA(j, i);
+        } else {
+            Color totalColor = Color.BLACK;
+            AAVectors = getAAVectors(j, i);
+
+            for (Vector AAVector : AAVectors) {
+                ArrayList<Ray> DOFrays = constructDOFRaysFromDirection(AAVector);
+                totalColor = totalColor.add(averageRays(DOFrays));
+            }
+            color = totalColor.reduce(AAVectors.size());
         }
 
-        return totalColor.reduce(AAVectors.size());
+        return color;
     }
 
 
@@ -876,10 +904,10 @@ public class Camera implements Cloneable {
      * @param i the vertical pixel index
      * @return the averaged color for the sampled area
      */
-    private Color adaptiveSuperSampling(int j, int i) {
+    private Color pixelColorForAdaptiveSuperSamplingAA(int j, int i) {
         Point pc = calculatePixelCenter(j, i);
         double pixelRadius = (viewPlaneWidth / nX) / 2.0;
-        return adaptiveSuperSamplingAtPoint(pc, pixelRadius, 0);
+        return subPixelColorForAdaptiveSuperSamplingAA(pc, pixelRadius, 0);
     }
 
 
@@ -891,7 +919,7 @@ public class Camera implements Cloneable {
      * @param depth  current recursion depth
      * @return averaged color for the sampled area
      */
-    private Color adaptiveSuperSamplingAtPoint(Point center, double radius, int depth) {
+    private Color subPixelColorForAdaptiveSuperSamplingAA(Point center, double radius, int depth) {
         List<Point> samplePoints = BlackBoard.generateJitteredSamples(
                 center, vRight, vUp, radius, numOfSubAreaSamplesAdaptiveAA, boardShape);
 
@@ -900,7 +928,17 @@ public class Camera implements Cloneable {
         for (Point samplePoint : samplePoints) {
             Vector dir = samplePoint.subtract(location).normalize();
             Ray ray = new Ray(location, dir);
-            sampleColors.add(rayTracer.traceRay(ray));
+            Color sampleColor;
+
+            if (useDOF) {
+                ArrayList<Ray> DOFrays = constructDOFRaysFromDirection(dir);
+                sampleColor = averageRays(DOFrays);
+            }
+            else {
+                sampleColor = rayTracer.traceRay(ray);
+            }
+
+            sampleColors.add(sampleColor);
         }
 
 
@@ -924,13 +962,15 @@ public class Camera implements Cloneable {
         for (double offsetX : offsetsX) {
             for (double offsetY : offsetsY) {
                 Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
-                totalColor = totalColor.add(adaptiveSuperSamplingAtPoint(subCenter, halfRadius, depth + 1));
+                totalColor = totalColor.add(subPixelColorForAdaptiveSuperSamplingAA(subCenter, halfRadius, depth + 1));
                 subSamplesCount++;
             }
         }
 
         return totalColor.reduce(subSamplesCount);
     }
+
+
 
     /**
      * Checks if colors differ significantly beyond a threshold.
