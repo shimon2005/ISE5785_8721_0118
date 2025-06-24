@@ -69,10 +69,10 @@ public class CombinedDofAndAATests {
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
-                .setLocation(new Point(-5, 0, 200))
+                .setLocation(new Point(-5, 10, 200))
                 .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
                 .setVpDistance(150)
-                .setVpSize(40, 40)
+                .setVpSize(75, 75)
                 .setBoardShape(BlackBoard.BoardShape.SQUARE)
                 .setUseDOF(true)
                 .setDepthOfField(160)
