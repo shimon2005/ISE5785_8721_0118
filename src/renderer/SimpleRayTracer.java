@@ -1,17 +1,13 @@
 package renderer;
 
-import lighting.DirectionalLight;
+
 import lighting.LightSource;
-import lighting.PointLight;
-import lighting.SpotLight;
 import primitives.*;
 import scene.Scene;
 import geometries.Intersectable.Intersection;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * A simple implementation of a ray tracer for rendering a 3D scene.
@@ -274,8 +270,6 @@ public class SimpleRayTracer extends RayTracerBase {
 
         // Loop through intersections and calculate cumulative transparency
         for (Intersection i : intersectionsInDistance) {
-
-            double distanceToIntersection = i.point.distance(intersection.point);
             ktr = ktr.product(i.material.kT);
 
             // Performance shortcut: exit early if ktr is very small

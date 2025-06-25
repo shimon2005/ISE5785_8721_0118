@@ -96,16 +96,28 @@ public class Camera implements Cloneable {
     /** Number of rays for Anti-Aliasing (AA) effect. */
     private int amountOfRays_AA = 0;
 
+    /** Field that detects whether to use adaptive super sampling for Depth of Field (DOF) effect or not. */
+    private boolean useAdaptiveSuperSamplingForDOF = false;
+
+    /** The number of samples per area for Depth of Field (DOF) effect with adaptive super sampling. */
+    private int numOfSubAreaSamplesAdaptiveDOF = 0;
+
+    /** Maximum number of samples for adaptive super sampling for Depth of Field (DOF) effect. */
+    private int maxSamplesAdaptiveDOF = 0;
+
+    /** Threshold for color difference for adaptive super sampling for Depth of Field (DOF) effect. */
+    private double colorThresholdAdaptiveDOF = 0;
+
     /** Field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not. */
     private boolean useAdaptiveSuperSamplingForAA = false;
 
     /** The number of samples per area for Anti-Aliasing (AA) effect with adaptive super sampling. */
     private int numOfSubAreaSamplesAdaptiveAA = 0;
 
-    /** Maximum number of samples for Anti-Aliasing (AA) effect. */
+    /** Maximum number of samples for adaptive super sampling for Anti-Aliasing (AA) effect. */
     private int maxSamplesAdaptiveAA = 0;
 
-    /** Threshold for color difference in Anti-Aliasing (AA) effect. */
+    /** Threshold for color difference for adaptive super sampling for Anti-Aliasing (AA) effect. */
     private double colorThresholdAdaptiveAA = 0;
 
 
@@ -174,7 +186,6 @@ public class Camera implements Cloneable {
          * @return the builder instance
          * @throws IllegalArgumentException if the target point is the same as the camera location
          */
-        //to fix
         public Builder setDirection(Point target) {
             if (this.camera.location == null) {
                 throw new IllegalStateException("Camera location must be set before setting direction with target point.");
@@ -182,7 +193,7 @@ public class Camera implements Cloneable {
             if (target.equals(this.camera.location)) {
                 throw new IllegalArgumentException("the target point cannot be the camera position");
             }
-            Vector up =Vector.AXIS_Y;
+            Vector up = Vector.AXIS_Y;
             this.camera.vTo = target.subtract(this.camera.location).normalize();
             Vector vRight = (this.camera.vTo).crossProduct(up);
             this.camera.vUp = (vRight).crossProduct(this.camera.vTo).normalize();
@@ -380,6 +391,62 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets whether to use adaptive super sampling for Depth of Field (DOF) effect or not.
+         * @param useAdaptiveSuperSamplingForDOF true to enable adaptive super sampling, false to disable
+         * @return the builder instance
+         */
+        public Builder setUseAdaptiveSuperSamplingForDOF(boolean useAdaptiveSuperSamplingForDOF) {
+            this.camera.useAdaptiveSuperSamplingForDOF = useAdaptiveSuperSamplingForDOF;
+            return this;
+        }
+
+
+        /**
+         * Sets the number of samples per area for Depth of Field (DOF) effect with adaptive super sampling.
+         * @param numOfSubAreaSamplesAdaptiveDOF the number of samples per area
+         * @return the builder instance
+         * @throws IllegalArgumentException if numOfAreaSamples is less than or equal to zero
+         */
+        public Builder setNumOfSubAreaSamplesAdaptiveDOF(int numOfSubAreaSamplesAdaptiveDOF) {
+            if (numOfSubAreaSamplesAdaptiveDOF <= 0) {
+                throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveDOF must be greater than zero");
+            }
+            this.camera.numOfSubAreaSamplesAdaptiveDOF = numOfSubAreaSamplesAdaptiveDOF;
+            return this;
+        }
+
+
+        /**
+         * Sets the maximum number of samples for adaptive super sampling for Depth of Field (DOF) effect.
+         * @param maxSamplesAdaptiveDOF the maximum number of samples
+         * @return the builder instance
+         * @throws IllegalArgumentException if maxSamples is less than or equal to zero
+         */
+        public Builder setMaxSamplesAdaptiveDOF(int maxSamplesAdaptiveDOF) {
+            if (maxSamplesAdaptiveDOF <= 0) {
+                throw new IllegalArgumentException("maxSamplesAdaptiveDOF must be greater than zero");
+            }
+            this.camera.maxSamplesAdaptiveDOF = maxSamplesAdaptiveDOF;
+            return this;
+        }
+
+
+        /**
+         * Sets the color threshold for adaptive super sampling for Depth of Field (DOF) effect.
+         * @param colorThresholdAdaptiveDOF the color difference threshold
+         * @return the builder instance
+         * @throws IllegalArgumentException if colorThreshold is less than or equal to zero
+         */
+        public Builder setColorThresholdAdaptiveDOF(double colorThresholdAdaptiveDOF) {
+            if (colorThresholdAdaptiveDOF < 0) {
+                throw new IllegalArgumentException("colorThreshold must be greater than or equal to zero");
+            }
+            this.camera.colorThresholdAdaptiveDOF = colorThresholdAdaptiveDOF;
+            return this;
+        }
+
+
+        /**
          * Sets a field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not.
          * @param useAdaptiveSuperSamplingForAA true to enable adaptive super sampling, false to disable
          * @return the builder instance
@@ -437,6 +504,8 @@ public class Camera implements Cloneable {
          */
         public Camera build() {
             final String camFieldMissingMsg = "The camera field is missing";
+
+            // Validation checks for the camera fields
             if (this.camera.location == null) {
                 throw new MissingResourceException(camFieldMissingMsg, "Camera", "Camera location");
             }
@@ -465,11 +534,6 @@ public class Camera implements Cloneable {
                         "even though useAA is false. Set useAA to true to enable AA.");
             }
 
-            if(!this.camera.useAA && this.camera.useAdaptiveSuperSamplingForAA) {
-                throw new IllegalStateException("UseAdaptiveSuperSamplingForAA is set to true " +
-                        "even though useAA is set false. Set useAA to true if you wish to use adaptive super sampling for AA.");
-            }
-
             if (this.camera.useAA && !this.camera.useAdaptiveSuperSamplingForAA) {
                 // those are cheks regarding amountOfRays_AA, so we only perform them when useAA is true,
                 // and also useAdaptiveSuperSamplingForAA is false,
@@ -491,15 +555,6 @@ public class Camera implements Cloneable {
             }
 
             if (this.camera.useDOF) {
-                if (this.camera.amountOfRays_DOF <= 0) {
-                    throw new IllegalArgumentException("amountOfRays_DOF must be greater than zero when using DOF");
-                }
-
-                int rootAmountOfRays_DOF = (int) Math.sqrt(this.camera.amountOfRays_DOF);
-                if (rootAmountOfRays_DOF * rootAmountOfRays_DOF != this.camera.amountOfRays_DOF) {
-                    throw new IllegalArgumentException("amountOfRays_DOF must be a perfect square (e.g. 9, 16, 25)");
-                }
-
                 if (this.camera.apertureRadius <= 0) {
                     throw new IllegalArgumentException("apertureRadius must be greater than zero when using DOF");
                 }
@@ -509,30 +564,99 @@ public class Camera implements Cloneable {
                 }
             }
 
+            if (this.camera.useDOF && !this.camera.useAdaptiveSuperSamplingForDOF) {
+                // those are checks regarding amountOfRays_DOF, so we only perform them when useDOF is true,
+                // and also useAdaptiveSuperSamplingForDOF is false,
+                // because amountOfRays_DOF is irrelevant when using adaptive super sampling for DOF
+                if (this.camera.amountOfRays_DOF <= 0) {
+                    throw new IllegalArgumentException("amountOfRays_DOF must be greater than zero when using DOF");
+                }
+
+                int rootAmountOfRays_DOF = (int) Math.sqrt(this.camera.amountOfRays_DOF);
+                if (rootAmountOfRays_DOF * rootAmountOfRays_DOF != this.camera.amountOfRays_DOF) {
+                    throw new IllegalArgumentException("amountOfRays_DOF must be a perfect square (e.g. 16, 25, 36)");
+                }
+            }
+
             if (!this.camera.useAdaptiveSuperSamplingForAA && (this.camera.numOfSubAreaSamplesAdaptiveAA != 0 ||
                     this.camera.maxSamplesAdaptiveAA != 0 || this.camera.colorThresholdAdaptiveAA != 0)) {
                 throw new IllegalStateException("You have specified adaptive super sampling parameters " +
                         "even though useAdaptiveSuperSamplingForAA is false. Set useAdaptiveSuperSamplingForAA to true to enable adaptive super sampling.");
+            }
 
+            if (this.camera.useAdaptiveSuperSamplingForDOF)
+            {
+                if (!this.camera.useDOF) {
+                    throw new IllegalStateException("UseAdaptiveSuperSamplingForDOF is set to true " +
+                            "even though useDOF is set false. Set useDOF to true if you wish to use adaptive super sampling for DOF.");
+                }
+                if (this.camera.numOfSubAreaSamplesAdaptiveDOF <= 0) {
+                    throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveDOF must be greater than zero when using adaptive super sampling for DOF");
+                }
+                if (this.camera.maxSamplesAdaptiveDOF <= 0) {
+                    throw new IllegalArgumentException("maxSamplesAdaptiveDOF must be greater than zero when using adaptive super sampling for DOF");
+                }
+                if (this.camera.colorThresholdAdaptiveDOF < 0) {
+                    throw new IllegalArgumentException("colorThresholdAdaptiveDOF must be greater than zero when using adaptive super sampling for DOF");
+                }
+
+                int rootNumOfSubAreaSamplesAdaptiveDOF = (int) Math.sqrt(this.camera.numOfSubAreaSamplesAdaptiveDOF);
+                if (rootNumOfSubAreaSamplesAdaptiveDOF * rootNumOfSubAreaSamplesAdaptiveDOF != this.camera.numOfSubAreaSamplesAdaptiveDOF) {
+                    throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveDOF must be a perfect square (e.g. 81, 100, 121)");
+                }
+
+                if (this.camera.maxSamplesAdaptiveDOF < this.camera.numOfSubAreaSamplesAdaptiveDOF) {
+                    throw new IllegalArgumentException(
+                            "maxSamplesAdaptiveDOF must be greater than or equal to numOfSubAreaSamplesAdaptiveDOF," +
+                                    " which is " + this.camera.numOfSubAreaSamplesAdaptiveDOF);
+                }
+
+                int ratio = this.camera.maxSamplesAdaptiveDOF / this.camera.numOfSubAreaSamplesAdaptiveDOF;
+
+                // Only if all 3 of the following conditions are met, then maxSamplesAdaptiveDOF is
+                // numOfSubAreaSamplesAdaptiveDOF multiplied by a power of 4.
+                // If even 1 of these conditions is not met, we throw an IllegalArgumentException.
+                if(
+                    // Condition 1:
+                    // Check that maxSamplesAdaptiveDOF is divisible by numOfSubAreaSamplesAdaptiveDOF without remainder.
+                    // If not divisible, ratio is not an integer and the requirement fails.
+                    (this.camera.maxSamplesAdaptiveDOF % this.camera.numOfSubAreaSamplesAdaptiveDOF != 0 ||
+
+                    // Condition 2:
+                    // Check if ratio is a power of 2.
+                    // Using bitwise trick: For any power of 2, (n & (n - 1)) == 0.
+                    // If this is not true, ratio is not a power of 2, and therefore not a power of 4.
+                    (ratio & (ratio - 1)) != 0 ||
+
+                    // Condition 3:
+                    // Check if ratio modulo 3 equals 1.
+                    // This ensures ratio is a power of 4, since all powers of 4 modulo 3 equal 1.
+                    // If not equal to 1, ratio is not a power of 4.
+                    ratio % 3 != 1)
+                ) {
+                    throw new IllegalArgumentException(
+                            "maxSamplesAdaptiveDOF must be numOfSubAreaSamplesAdaptiveDOF multiplied by a power of 4");
+                }
             }
 
 
             if (this.camera.useAdaptiveSuperSamplingForAA) {
 
+                if(!this.camera.useAA) {
+                    throw new IllegalStateException("UseAdaptiveSuperSamplingForAA is set to true " +
+                            "even though useAA is set false. Set useAA to true if you wish to use adaptive super sampling for AA.");
+                }
                 if (this.camera.numOfSubAreaSamplesAdaptiveAA <= 0) {
                     throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
                 }
-
                 if (this.camera.maxSamplesAdaptiveAA <= 0) {
                     throw new IllegalArgumentException("maxSamplesAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
                 }
-
-                if (this.camera.colorThresholdAdaptiveAA <= 0) {
+                if (this.camera.colorThresholdAdaptiveAA < 0) {
                     throw new IllegalArgumentException("colorThresholdAdaptiveAA must be greater than zero when using adaptive super sampling for AA");
                 }
 
                 int rootNumOfSubAreaSamplesAdaptiveAA = (int) Math.sqrt(this.camera.numOfSubAreaSamplesAdaptiveAA);
-
                 if (rootNumOfSubAreaSamplesAdaptiveAA * rootNumOfSubAreaSamplesAdaptiveAA != this.camera.numOfSubAreaSamplesAdaptiveAA) {
                     throw new IllegalArgumentException("numOfSubAreaSamplesAdaptiveAA must be a perfect square (e.g. 81, 100, 121)");
                 }
@@ -542,10 +666,12 @@ public class Camera implements Cloneable {
                             "maxSamplesAdaptiveAA must be greater than or equal to numOfSubAreaSamplesAdaptiveAA," +
                                     " which is " + this.camera.numOfSubAreaSamplesAdaptiveAA);
                 }
+
                 int ratio = this.camera.maxSamplesAdaptiveAA / this.camera.numOfSubAreaSamplesAdaptiveAA;
 
-                // Validation conditions to ensure maxSamplesAdaptiveAA is numOfSubAreaSamplesAdaptiveAA
-                // multiplied by a power of 4.
+                // Only if all 3 of the following conditions are met, then maxSamplesAdaptiveAA is
+                // numOfSubAreaSamplesAdaptiveAA multiplied by a power of 4.
+                // If even 1 of these conditions is not met, we throw an IllegalArgumentException.
                 if(
                     // Condition 1:
                     // Check that maxSamplesAdaptiveAA is divisible by numOfSubAreaSamplesAdaptiveAA without remainder.
@@ -561,15 +687,17 @@ public class Camera implements Cloneable {
                     // Condition 3:
                     // Check if ratio modulo 3 equals 1.
                     // This ensures ratio is a power of 4, since all powers of 4 modulo 3 equal 1.
-                    // If not equal to 1, ratio is a power of 2 but not a power of 4.
+                    // If not equal to 1, ratio is not a power of 4.
                     ratio % 3 != 1)
                 ) {
                     throw new IllegalArgumentException(
                             "maxSamplesAdaptiveAA must be numOfSubAreaSamplesAdaptiveAA multiplied by a power of 4");
                 }
             }
+            // End of validation checks for the camera fields
 
 
+            // Calculate the right vector (vRight) as the cross product of vTo and vUp
             this.camera.vRight = (this.camera.vTo).crossProduct(this.camera.vUp);
 
             if (this.camera.rayTracer == null) {
@@ -680,8 +808,12 @@ public class Camera implements Cloneable {
                 color = averageRays(rays);
             }
         } else if (useDOF) {
-            List<Ray> rays = constructDOFRays(j, i);
-            color = averageRays(rays);
+            if (useAdaptiveSuperSamplingForDOF) {
+                color = colorForAdaptiveSuperSamplingDofFromPixelIndices(j, i);
+            } else {
+                List<Ray> rays = constructDOFRaysFromPixelIndices(j, i);
+                color = averageRays(rays);
+            }
         } else {
             Ray ray = constructRay(j, i);
             color = rayTracer.traceRay(ray);
@@ -691,6 +823,13 @@ public class Camera implements Cloneable {
         pixelManager.pixelDone();
     }
 
+
+    /**
+     * Calculate the average color from the traces of the rays in the given list.
+     *
+     * @param rays the list of rays to trace
+     * @return the average color of the rays
+     */
     private Color averageRays(List<Ray> rays) {
         if (rays.isEmpty()) {
             return Color.BLACK;
@@ -758,7 +897,7 @@ public class Camera implements Cloneable {
      * @param i the vertical pixel index
      * @return a list of DOF rays
      */
-    private ArrayList<Ray> constructDOFRays(int j, int i) {
+    private ArrayList<Ray> constructDOFRaysFromPixelIndices(int j, int i) {
         Point pixelCenter = calculatePixelCenter(j, i);
         Vector direction = pixelCenter.subtract(location).normalize();
         return constructDOFRaysFromDirection(direction);
@@ -894,6 +1033,89 @@ public class Camera implements Cloneable {
     }
 
 
+    /**
+     * Calculates the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
+     * Based on given pixel indices.
+     * Using the colorForAdaptiveSuperSamplingDofFromDirection method.
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
+     */
+    private Color colorForAdaptiveSuperSamplingDofFromPixelIndices(int j, int i) {
+        Point pixelCenter = calculatePixelCenter(j, i);
+        Vector direction = pixelCenter.subtract(location).normalize();
+        return colorForAdaptiveSuperSamplingDOFFromDirection(direction);
+    }
+
+
+    /**
+     * Calculate the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
+     * Based on a given direction vector.
+     *
+     * @param direction the direction vector for the DOF rays
+     * @return the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
+     */
+    private Color colorForAdaptiveSuperSamplingDOFFromDirection(Vector direction) {
+
+        // The focal point is where all rays should converge
+        Point focalPoint = location.add(direction.scale(depthOfField));
+
+        // Start recursion on the aperture, not the pixel
+        return subAreaColorForAdaptiveSuperSamplingDOF(location, apertureRadius, focalPoint, 0);
+    }
+
+
+    /**
+     * Helper method for adaptive sampling on arbitrary point and radius.
+     * This method samples the pixel area adaptively based on color variance.
+     *
+     * @param center center point of the sub-area
+     * @param radius if sampling area (boardShape) is circular, this is the radius of that circle, if square, this is half the side length
+     * @param focalPoint the focal point for DOF
+     * @param depth current recursion depth
+     * @return averaged color for the sampled area
+     */
+    private Color subAreaColorForAdaptiveSuperSamplingDOF(Point center, double radius, Point focalPoint, int depth) {
+        List<Point> apertureSamples = BlackBoard.generateJitteredSamples(
+                center, vRight, vUp, radius, numOfSubAreaSamplesAdaptiveDOF, boardShape);
+
+        List<Color> sampleColors = new ArrayList<>();
+
+        for (Point apertureSample : apertureSamples) {
+            Vector dir = focalPoint.subtract(apertureSample).normalize();
+            Ray ray = new Ray(apertureSample, dir);
+            Color color = rayTracer.traceRay(ray);
+            sampleColors.add(color);
+        }
+
+        // If the number of samples exceeds the maximum allowed or colors are similar, return the average color.
+
+        // Math.pow(4, depth) represents the number of subareas the area is divided into at the current recursion depth.
+        // Multiplying it by numOfSubAreaSamplesAdaptiveDOF gives the total number of rays (samples) traced at this depth.
+
+        // for the maximum check we could use == because the number of samples is always numOfSubAreaSamplesAdaptiveDOF * k^4,
+        // but we use >= just to be safe
+        if (numOfSubAreaSamplesAdaptiveDOF * Math.pow(4, depth) >= maxSamplesAdaptiveDOF || colorsAreSimilar(sampleColors, colorThresholdAdaptiveDOF)) {
+            return averageColors(sampleColors);
+        }
+
+        double halfRadius = radius / 2.0;
+        Color totalColor = Color.BLACK;
+        double[] offsetsX = {-halfRadius, halfRadius};
+        double[] offsetsY = {-halfRadius, halfRadius};
+
+        for (double offsetX : offsetsX) {
+            for (double offsetY : offsetsY) {
+                Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
+                totalColor = totalColor.add(subAreaColorForAdaptiveSuperSamplingDOF(subCenter, halfRadius, focalPoint, depth + 1));
+            }
+        }
+
+        // We reduce by 4 to get the average, because total color is the sum of the colors of 4 sub-areas.
+        return totalColor.reduce(4);
+    }
+
 
 
     /**
@@ -914,8 +1136,8 @@ public class Camera implements Cloneable {
     /**
      * Helper method for adaptive sampling on arbitrary point and radius.
      *
-     * @param center pixel center point to sample around
-     * @param radius sampling radius (half pixel size or smaller)
+     * @param center center point of the sub-pixel area
+     * @param radius if sampling area (boardShape) is circular, this is the radius of that circle, if square, this is half the side length
      * @param depth  current recursion depth
      * @return averaged color for the sampled area
      */
@@ -941,7 +1163,6 @@ public class Camera implements Cloneable {
             sampleColors.add(sampleColor);
         }
 
-
         // If the number of samples exceeds the maximum allowed or colors are similar, return the average color.
 
         // Math.pow(4, depth) represents the number of subareas the pixel area is divided into at the current recursion depth.
@@ -949,7 +1170,7 @@ public class Camera implements Cloneable {
 
         // for the maximum check we could use == because the number of samples is always numOfSubAreaSamplesAdaptiveAA * k^4,
         // but we use >= just to be safe
-        if (numOfSubAreaSamplesAdaptiveAA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || colorsAreSimilar(sampleColors)) {
+        if (numOfSubAreaSamplesAdaptiveAA * Math.pow(4, depth) >= maxSamplesAdaptiveAA || colorsAreSimilar(sampleColors, colorThresholdAdaptiveAA)) {
             return averageColors(sampleColors);
         }
 
@@ -957,31 +1178,30 @@ public class Camera implements Cloneable {
         Color totalColor = Color.BLACK;
         double[] offsetsX = {-halfRadius, halfRadius};
         double[] offsetsY = {-halfRadius, halfRadius};
-        int subSamplesCount = 0;
 
         for (double offsetX : offsetsX) {
             for (double offsetY : offsetsY) {
                 Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
                 totalColor = totalColor.add(subPixelColorForAdaptiveSuperSamplingAA(subCenter, halfRadius, depth + 1));
-                subSamplesCount++;
             }
         }
 
-        return totalColor.reduce(subSamplesCount);
+        // We reduce by 4 to get the average, because total color is the sum of the colors of 4 sub-areas.
+        return totalColor.reduce(4);
     }
 
 
-
     /**
-     * Checks if colors differ significantly beyond a threshold.
+     * Checks if the colors in the list are similar based on a color threshold.
      *
-     * @param colors list of sampled colors
-     * @return true if color variance exceeds a threshold (colorThresholdAdaptiveAA), false otherwise
+     * @param colors          list of colors to check
+     * @param colorThreshold  the maximum allowed distance between colors to consider them similar
+     * @return true if all colors are similar, false otherwise
      */
-    private boolean colorsAreSimilar(List<Color> colors) {
+    private boolean colorsAreSimilar(List<Color> colors, double colorThreshold) {
         for (int i = 0; i < colors.size(); i++) {
             for (int j = i + 1; j < colors.size(); j++) {
-                if (colors.get(i).distance(colors.get(j)) > colorThresholdAdaptiveAA) {
+                if (colors.get(i).distance(colors.get(j)) > colorThreshold) {
                     return false;
                 }
             }

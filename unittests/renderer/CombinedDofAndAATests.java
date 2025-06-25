@@ -30,7 +30,7 @@ public class CombinedDofAndAATests {
                 .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(9)
+                .setAmountOfRays_DOF(64)
                 .setMultithreading(-1)
                 .setDebugPrint(1);
 
@@ -59,7 +59,7 @@ public class CombinedDofAndAATests {
                 .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(9)
+                .setAmountOfRays_DOF(64)
                 .setUseAA(true)
                 .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
@@ -70,7 +70,7 @@ public class CombinedDofAndAATests {
                 .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("dof_aa_json_test");
+                .writeToImage("non_adaptive_dof_non_adaptive_aa_json_test");
     }
 
 
@@ -91,7 +91,7 @@ public class CombinedDofAndAATests {
                 .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(9)
+                .setAmountOfRays_DOF(64)
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
                 .setColorThresholdAdaptiveAA(2)
@@ -105,6 +105,74 @@ public class CombinedDofAndAATests {
                 .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("dof_adaptive_aa_json_test");
+                .writeToImage("non_adaptive_dof_adaptive_aa_json_test");
+    }
+
+    /**
+     * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
+     */
+    @Test
+    public void adaptiveDepthOfFieldAndAAJsonTest() throws IOException, ParseException {
+
+        Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
+
+        cameraBuilder
+                .setLocation(new Point(-5, 10, 200))
+                .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
+                .setVpDistance(150)
+                .setVpSize(75, 75)
+                .setBoardShape(BlackBoard.BoardShape.SQUARE)
+                .setUseDOF(true)
+                .setDepthOfField(160)
+                .setApertureRadius(1)
+                .setUseAdaptiveSuperSamplingForDOF(true)
+                .setNumOfSubAreaSamplesAdaptiveDOF(4)
+                .setUseAA(true)
+                .setAmountOfRays_AA(64)
+                .setMultithreading(-1)
+                .setDebugPrint(1);
+
+        cameraBuilder
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(500, 500) //
+                .build()
+                .renderImage()
+                .writeToImage("adaptive_dof_non_adaptive_aa_json_test");
+    }
+
+    /**
+     * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
+     */
+    @Test
+    public void adaptiveDepthOfFieldAndAdaptiveAAJsonTest() throws IOException, ParseException {
+
+        Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
+
+        cameraBuilder
+                .setLocation(new Point(-5, 10, 200))
+                .setDirection(new Vector(0, 0, -1), new Vector(0, 1, 0))
+                .setVpDistance(150)
+                .setVpSize(75, 75)
+                .setBoardShape(BlackBoard.BoardShape.SQUARE)
+                .setUseDOF(true)
+                .setUseAdaptiveSuperSamplingForDOF(true)
+                .setDepthOfField(160)
+                .setApertureRadius(1)
+                .setUseAdaptiveSuperSamplingForDOF(true)
+                .setNumOfSubAreaSamplesAdaptiveDOF(4)
+                .setUseAA(true)
+                .setUseAdaptiveSuperSamplingForAA(true)
+                .setColorThresholdAdaptiveAA(2)
+                .setNumOfSubAreaSamplesAdaptiveAA(4)
+                .setMaxSamplesAdaptiveAA(64)
+                .setMultithreading(-1)
+                .setDebugPrint(1);
+
+        cameraBuilder
+                .setRayTracer(scene, RayTracerType.SIMPLE) //
+                .setResolution(500, 500) //
+                .build()
+                .renderImage()
+                .writeToImage("adaptive_dof_adaptive_aa_json_test");
     }
 }
