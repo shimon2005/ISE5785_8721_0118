@@ -797,24 +797,18 @@ public class Camera implements Cloneable {
     public void castRay(int j, int i) {
         Color color;
 
-        if (useAA && useDOF) {
-            // the AAandDOFCombinedColor method can handle both regular AA and adaptive super sampling for AA
-            color = AAandDOFCombinedColor(j, i);
-        } else if (useAA) {
-            if (useAdaptiveSuperSamplingForAA) {
-                color = pixelColorForAdaptiveSuperSamplingAA(j, i);
-            } else {
-                List<Ray> rays = constructAARays(j, i);
-                color = averageRays(rays);
-            }
+        if (useAA) {
+            // this method also handles dof (if we used both aa and dof)
+            color = aaColor(j, i);
+
         } else if (useDOF) {
-            if (useAdaptiveSuperSamplingForDOF) {
-                color = colorForAdaptiveSuperSamplingDofFromPixelIndices(j, i);
-            } else {
-                List<Ray> rays = constructDOFRaysFromPixelIndices(j, i);
-                color = averageRays(rays);
-            }
+            // if aa is used, the previous case already handled dof,
+            // and we don't need to handle with it here.
+            // that's why it is else-if and not just if.
+            color = DofColorFromPixelIndices(j, i);
+
         } else {
+            // handles the simple case where aa and dof are both not used
             Ray ray = constructRay(j, i);
             color = rayTracer.traceRay(ray);
         }
@@ -889,21 +883,6 @@ public class Camera implements Cloneable {
     }
 
 
-    /**
-     * Constructs Depth of Field (DOF) rays for a specific pixel.
-     * This method is used when Depth of Field (DOF) effect is enabled.
-     *
-     * @param j the horizontal pixel index
-     * @param i the vertical pixel index
-     * @return a list of DOF rays
-     */
-    private ArrayList<Ray> constructDOFRaysFromPixelIndices(int j, int i) {
-        Point pixelCenter = calculatePixelCenter(j, i);
-        Vector direction = pixelCenter.subtract(location).normalize();
-        return constructDOFRaysFromDirection(direction);
-    }
-
-
 
     /**
      * Constructs Depth of Field (DOF) rays in a specific direction.
@@ -912,7 +891,7 @@ public class Camera implements Cloneable {
      * @param direction the direction vector for the DOF rays
      * @return a list of DOF rays
      */
-    private ArrayList<Ray> constructDOFRaysFromDirection(Vector direction) {
+    private ArrayList<Ray> constructDOFRays(Vector direction) {
         ArrayList<Ray> DOFRays = new ArrayList<>();
 
         Point focalPoint = location.add(direction.scale(depthOfField));
@@ -1010,20 +989,19 @@ public class Camera implements Cloneable {
      * @param i the vertical pixel index
      * @return the combined color from AA and DOF effects
      */
-    private Color AAandDOFCombinedColor(int j, int i) {
+    private Color aaAndDOFCombinedColor(int j, int i) {
 
         List<Vector> AAVectors;
         Color color;
 
         if (useAdaptiveSuperSamplingForAA) {
-            // the pixelColorForAdaptiveSuperSamplingAA method can handle both regular AA and adaptive super sampling for AA
-            color = pixelColorForAdaptiveSuperSamplingAA(j, i);
+            color = aaColor(j, i);
         } else {
             Color totalColor = Color.BLACK;
             AAVectors = getAAVectors(j, i);
 
             for (Vector AAVector : AAVectors) {
-                ArrayList<Ray> DOFrays = constructDOFRaysFromDirection(AAVector);
+                ArrayList<Ray> DOFrays = constructDOFRays(AAVector);
                 totalColor = totalColor.add(averageRays(DOFrays));
             }
             color = totalColor.reduce(AAVectors.size());
@@ -1033,19 +1011,11 @@ public class Camera implements Cloneable {
     }
 
 
-    /**
-     * Calculates the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
-     * Based on given pixel indices.
-     * Using the colorForAdaptiveSuperSamplingDofFromDirection method.
-     *
-     * @param j the horizontal pixel index
-     * @param i the vertical pixel index
-     * @return the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
-     */
-    private Color colorForAdaptiveSuperSamplingDofFromPixelIndices(int j, int i) {
+    private Color DofColorFromPixelIndices(int j, int i) {
+
         Point pixelCenter = calculatePixelCenter(j, i);
         Vector direction = pixelCenter.subtract(location).normalize();
-        return colorForAdaptiveSuperSamplingDOFFromDirection(direction);
+        return dofColorFromDirection(direction);
     }
 
 
@@ -1056,13 +1026,28 @@ public class Camera implements Cloneable {
      * @param direction the direction vector for the DOF rays
      * @return the averaged color for the sampled area using adaptive super sampling for Depth of Field (DOF).
      */
-    private Color colorForAdaptiveSuperSamplingDOFFromDirection(Vector direction) {
+    private Color dofColorFromDirection(Vector direction) {
 
-        // The focal point is where all rays should converge
-        Point focalPoint = location.add(direction.scale(depthOfField));
+        Color color;
 
-        // Start recursion on the aperture, not the pixel
-        return subAreaColorForAdaptiveSuperSamplingDOF(location, apertureRadius, focalPoint, 0);
+        if (useAdaptiveSuperSamplingForDOF) {
+            // The focal point is where all rays should converge
+            Point focalPoint = location.add(direction.scale(depthOfField));
+
+            // Start recursion on the aperture, not the pixel
+            color = adaptiveDofColorForSubArea(location, apertureRadius, focalPoint, 0);
+        } else {
+            color = nonAdaptiveDofColor(direction);
+        }
+
+        return color;
+    }
+
+
+
+    private Color nonAdaptiveDofColor(Vector direction) {
+        ArrayList<Ray> DOFrays = constructDOFRays(direction);
+        return averageRays(DOFrays);
     }
 
 
@@ -1076,7 +1061,7 @@ public class Camera implements Cloneable {
      * @param depth current recursion depth
      * @return averaged color for the sampled area
      */
-    private Color subAreaColorForAdaptiveSuperSamplingDOF(Point center, double radius, Point focalPoint, int depth) {
+    private Color adaptiveDofColorForSubArea(Point center, double radius, Point focalPoint, int depth) {
         List<Point> apertureSamples = BlackBoard.generateJitteredSamples(
                 center, vRight, vUp, radius, numOfSubAreaSamplesAdaptiveDOF, boardShape);
 
@@ -1108,7 +1093,7 @@ public class Camera implements Cloneable {
         for (double offsetX : offsetsX) {
             for (double offsetY : offsetsY) {
                 Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
-                totalColor = totalColor.add(subAreaColorForAdaptiveSuperSamplingDOF(subCenter, halfRadius, focalPoint, depth + 1));
+                totalColor = totalColor.add(adaptiveDofColorForSubArea(subCenter, halfRadius, focalPoint, depth + 1));
             }
         }
 
@@ -1126,10 +1111,41 @@ public class Camera implements Cloneable {
      * @param i the vertical pixel index
      * @return the averaged color for the sampled area
      */
-    private Color pixelColorForAdaptiveSuperSamplingAA(int j, int i) {
-        Point pc = calculatePixelCenter(j, i);
-        double pixelRadius = (viewPlaneWidth / nX) / 2.0;
-        return subPixelColorForAdaptiveSuperSamplingAA(pc, pixelRadius, 0);
+    private Color aaColor(int j, int i) {
+        Color color;
+
+        if (useAdaptiveSuperSamplingForAA) {
+            Point pc = calculatePixelCenter(j, i);
+            double pixelRadius = (viewPlaneWidth / nX) / 2.0;
+            color = adaptiveAaColorForSubArea(pc, pixelRadius, 0);
+
+        } else {
+            color = nonAdaptiveAaColor(j, i);
+        }
+
+        return color;
+    }
+
+    private Color nonAdaptiveAaColor (int j, int i) {
+
+        Color color;
+
+        if (useDOF) {
+            Color totalColor = Color.BLACK;
+            List<Vector> AAVectors = getAAVectors(j, i);
+
+            for (Vector AAVector : AAVectors) {
+                Color dofColorForAaVector = dofColorFromDirection(AAVector);
+                totalColor = totalColor.add(dofColorForAaVector);
+            }
+            color = totalColor.reduce(AAVectors.size());
+
+        } else {
+            List<Ray> rays = constructAARays(j, i);
+            color = averageRays(rays);
+        }
+
+        return color;
     }
 
 
@@ -1141,7 +1157,7 @@ public class Camera implements Cloneable {
      * @param depth  current recursion depth
      * @return averaged color for the sampled area
      */
-    private Color subPixelColorForAdaptiveSuperSamplingAA(Point center, double radius, int depth) {
+    private Color adaptiveAaColorForSubArea(Point center, double radius, int depth) {
         List<Point> samplePoints = BlackBoard.generateJitteredSamples(
                 center, vRight, vUp, radius, numOfSubAreaSamplesAdaptiveAA, boardShape);
 
@@ -1153,8 +1169,7 @@ public class Camera implements Cloneable {
             Color sampleColor;
 
             if (useDOF) {
-                ArrayList<Ray> DOFrays = constructDOFRaysFromDirection(dir);
-                sampleColor = averageRays(DOFrays);
+                sampleColor = dofColorFromDirection(dir);
             }
             else {
                 sampleColor = rayTracer.traceRay(ray);
@@ -1182,7 +1197,7 @@ public class Camera implements Cloneable {
         for (double offsetX : offsetsX) {
             for (double offsetY : offsetsY) {
                 Point subCenter = center.add(vRight.scale(offsetX)).add(vUp.scale(offsetY));
-                totalColor = totalColor.add(subPixelColorForAdaptiveSuperSamplingAA(subCenter, halfRadius, depth + 1));
+                totalColor = totalColor.add(adaptiveAaColorForSubArea(subCenter, halfRadius, depth + 1));
             }
         }
 

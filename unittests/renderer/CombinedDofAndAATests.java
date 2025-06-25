@@ -11,14 +11,12 @@ import java.io.IOException;
 
 public class CombinedDofAndAATests {
 
-    private final Camera.Builder cameraBuilder = Camera.getBuilder();
-
     /**
      * Test method for combined depth of field without anti-aliasing effects, using a JSON scene
      */
     @Test
     public void DepthOfFieldWithoutAAJsonTestForComparison() throws IOException, ParseException {
-
+        Camera.Builder cameraBuilder = Camera.getBuilder();
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
@@ -46,8 +44,8 @@ public class CombinedDofAndAATests {
      * Test method for combined depth of field and anti-aliasing effects, using a JSON scene
      */
     @Test
-    public void DepthOfFieldAndAAJsonTest() throws IOException, ParseException {
-
+    public void nonAdaptiveDepthOfFieldAndNonAdaptiveAAJsonTest() throws IOException, ParseException {
+        Camera.Builder cameraBuilder = Camera.getBuilder();
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
@@ -59,7 +57,7 @@ public class CombinedDofAndAATests {
                 .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(64)
+                .setAmountOfRays_DOF(16)
                 .setUseAA(true)
                 .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
@@ -78,8 +76,8 @@ public class CombinedDofAndAATests {
      * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
      */
     @Test
-    public void DepthOfFieldAndAdaptiveAAJsonTest() throws IOException, ParseException {
-
+    public void nonAdaptiveDepthOfFieldAndAdaptiveAAJsonTest() throws IOException, ParseException {
+        Camera.Builder cameraBuilder = Camera.getBuilder();
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
@@ -91,7 +89,7 @@ public class CombinedDofAndAATests {
                 .setUseDOF(true)
                 .setDepthOfField(160)
                 .setApertureRadius(1)
-                .setAmountOfRays_DOF(64)
+                .setAmountOfRays_DOF(16)
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
                 .setColorThresholdAdaptiveAA(2)
@@ -112,8 +110,8 @@ public class CombinedDofAndAATests {
      * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
      */
     @Test
-    public void adaptiveDepthOfFieldAndAAJsonTest() throws IOException, ParseException {
-
+    public void adaptiveDepthOfFieldAndNonAdaptiveAAJsonTest() throws IOException, ParseException {
+        Camera.Builder cameraBuilder = Camera.getBuilder();
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
@@ -127,6 +125,7 @@ public class CombinedDofAndAATests {
                 .setApertureRadius(1)
                 .setUseAdaptiveSuperSamplingForDOF(true)
                 .setNumOfSubAreaSamplesAdaptiveDOF(4)
+                .setMaxSamplesAdaptiveDOF(16)
                 .setUseAA(true)
                 .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
@@ -145,7 +144,7 @@ public class CombinedDofAndAATests {
      */
     @Test
     public void adaptiveDepthOfFieldAndAdaptiveAAJsonTest() throws IOException, ParseException {
-
+        Camera.Builder cameraBuilder = Camera.getBuilder();
         Scene scene = JsonScene.importScene("unittests/scene/dof_json_scene.json");
 
         cameraBuilder
@@ -160,6 +159,7 @@ public class CombinedDofAndAATests {
                 .setApertureRadius(1)
                 .setUseAdaptiveSuperSamplingForDOF(true)
                 .setNumOfSubAreaSamplesAdaptiveDOF(4)
+                .setMaxSamplesAdaptiveDOF(16)
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
                 .setColorThresholdAdaptiveAA(2)
