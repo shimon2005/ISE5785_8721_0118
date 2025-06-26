@@ -988,6 +988,14 @@ public class Camera implements Cloneable {
 
 
 
+    /**
+     * Calculate the averaged color for the sampled area using Depth of Field (DOF) effect.
+     * Based on pixel indices (j, i).
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the averaged color for the sampled area using Depth of Field (DOF) effect.
+     */
     private Color dofColorFromPixelIndices(int j, int i) {
 
         Point pixelCenter = calculatePixelCenter(j, i);
@@ -1021,7 +1029,13 @@ public class Camera implements Cloneable {
     }
 
 
-
+    /**
+     * Calculate the averaged color for the sampled area using non-adaptive super sampling for Depth of Field (DOF).
+     * Based on a given direction vector.
+     *
+     * @param direction the direction vector for the DOF rays
+     * @return the averaged color for the sampled area using non-adaptive super sampling for Depth of Field (DOF).
+     */
     private Color nonAdaptiveDofColor(Vector direction) {
         ArrayList<Ray> DOFrays = constructDOFRays(direction);
         return averageRays(DOFrays);
@@ -1103,6 +1117,15 @@ public class Camera implements Cloneable {
         return color;
     }
 
+
+    /**
+     * Non-adaptive super sampling for Anti-Aliasing (AA) effect.
+     * This method samples the pixel area uniformly.
+     *
+     * @param j the horizontal pixel index
+     * @param i the vertical pixel index
+     * @return the averaged color for the sampled area
+     */
     private Color nonAdaptiveAaColor (int j, int i) {
 
         Color color;
