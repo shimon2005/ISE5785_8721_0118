@@ -22,6 +22,11 @@ public class Camera implements Cloneable {
 
 
     // Camera fields
+    // Many of the fields (not all of them) are initialized to invalid values,
+    // so we can throw an exception if the user doesn't set them himself with valid values
+    // when using features that those fields are relevant for.
+    // That will help to prevent a situation where the user forgets to set a field that is necessary
+    // for the image he wishes to render.
     /** The position of the camera in 3D space. */
     private Point location = null;
 
@@ -106,7 +111,7 @@ public class Camera implements Cloneable {
     private int maxSamplesAdaptiveDOF = 0;
 
     /** Threshold for color difference for adaptive super sampling for Depth of Field (DOF) effect. */
-    private double colorThresholdAdaptiveDOF = 0;
+    private double colorThresholdAdaptiveDOF = -1;
 
     /** Field that detects whether to use adaptive super sampling for Anti-Aliasing (AA) effect or not. */
     private boolean useAdaptiveSuperSamplingForAA = false;
@@ -118,7 +123,7 @@ public class Camera implements Cloneable {
     private int maxSamplesAdaptiveAA = 0;
 
     /** Threshold for color difference for adaptive super sampling for Anti-Aliasing (AA) effect. */
-    private double colorThresholdAdaptiveAA = 0;
+    private double colorThresholdAdaptiveAA = -1;
 
 
 
@@ -579,7 +584,7 @@ public class Camera implements Cloneable {
             }
 
             if (!this.camera.useAdaptiveSuperSamplingForAA && (this.camera.numOfSubAreaSamplesAdaptiveAA != 0 ||
-                    this.camera.maxSamplesAdaptiveAA != 0 || this.camera.colorThresholdAdaptiveAA != 0)) {
+                    this.camera.maxSamplesAdaptiveAA != 0 || this.camera.colorThresholdAdaptiveAA != -1)) {
                 throw new IllegalStateException("You have specified adaptive super sampling parameters " +
                         "even though useAdaptiveSuperSamplingForAA is false. Set useAdaptiveSuperSamplingForAA to true to enable adaptive super sampling.");
             }
@@ -636,6 +641,12 @@ public class Camera implements Cloneable {
                 ) {
                     throw new IllegalArgumentException(
                             "maxSamplesAdaptiveDOF must be numOfSubAreaSamplesAdaptiveDOF multiplied by a power of 4");
+                }
+
+                if (!this.camera.useAdaptiveSuperSamplingForDOF && (this.camera.numOfSubAreaSamplesAdaptiveDOF != 0 ||
+                        this.camera.maxSamplesAdaptiveDOF != 0 || this.camera.colorThresholdAdaptiveDOF != -1)) {
+                    throw new IllegalStateException("You have specified adaptive super sampling parameters " +
+                            "even though useAdaptiveSuperSamplingForDOF is false. Set useAdaptiveSuperSamplingForDOF to true to enable adaptive super sampling.");
                 }
             }
 
@@ -805,7 +816,7 @@ public class Camera implements Cloneable {
             // if aa is used, the previous case already handled dof,
             // and we don't need to handle with it here.
             // that's why it is else-if and not just if.
-            color = DofColorFromPixelIndices(j, i);
+            color = dofColorFromPixelIndices(j, i);
 
         } else {
             // handles the simple case where aa and dof are both not used
@@ -976,42 +987,8 @@ public class Camera implements Cloneable {
     }
 
 
-    /**
-     * Combines Anti-Aliasing (AA) and Depth of Field (DOF) effects for a specific pixel.
-     * For a given pixel, the algorithm uses getAAVectors to get a list
-     * of the Anti-Aliasing vectors (the directions of the AA rays).
-     * For each of those vectors, it constructs a beam of DOF rays in the vector direction using constructDOFRaysWithDirection,
-     * and calculates the average color of the rays in that beam using averageRays.
-     * Then it calculates the average color of all those average colors,
-     * and returns it as the final color for the pixel.
-     *
-     * @param j the horizontal pixel index
-     * @param i the vertical pixel index
-     * @return the combined color from AA and DOF effects
-     */
-    private Color aaAndDOFCombinedColor(int j, int i) {
 
-        List<Vector> AAVectors;
-        Color color;
-
-        if (useAdaptiveSuperSamplingForAA) {
-            color = aaColor(j, i);
-        } else {
-            Color totalColor = Color.BLACK;
-            AAVectors = getAAVectors(j, i);
-
-            for (Vector AAVector : AAVectors) {
-                ArrayList<Ray> DOFrays = constructDOFRays(AAVector);
-                totalColor = totalColor.add(averageRays(DOFrays));
-            }
-            color = totalColor.reduce(AAVectors.size());
-        }
-
-        return color;
-    }
-
-
-    private Color DofColorFromPixelIndices(int j, int i) {
+    private Color dofColorFromPixelIndices(int j, int i) {
 
         Point pixelCenter = calculatePixelCenter(j, i);
         Vector direction = pixelCenter.subtract(location).normalize();
