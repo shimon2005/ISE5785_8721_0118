@@ -41,16 +41,17 @@ public class Triangle extends Polygon {
     }
 
 
+
     /**
-     * Calculates the intersection points between a ray and the triangle.
-     * The method first checks if the ray intersects the plane of the triangle.
-     * If it does, it then checks if the intersection point lies inside the triangle
-     * using barycentric coordinates.
+     * Calculates the intersection between a ray and the triangle using the barycentric (ray-plane first) method.
+     * <p>
+     * First computes the intersection point with the plane of the triangle.
+     * If it exists, checks if the point lies inside the triangle using barycentric coordinates.
+     * Ignores intersections on edges and vertices.
      *
-     * @param ray The ray to check for intersection.
-     * @param maxDistance The maximum distance to check for intersections.
-     * @return A list containing the intersection point wrapped in an {@link Intersection} object,
-     *         or {@code null} if there is no intersection.
+     * @param ray        the ray to check for intersection
+     * @param maxDistance the maximum distance to consider for intersections
+     * @return a list containing the intersection point wrapped in an {@link Intersection} if found, or {@code null} otherwise
      */
     public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         final double EPSILON = 1e-10;
