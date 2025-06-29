@@ -11,8 +11,9 @@ import java.io.IOException;
 
 public class CombinedDofAndAATests {
 
+
     /**
-     * Test method for anti-aliasing of field without depth of field effects, using a JSON scene
+     * Test method fot rendering a scene without depth of field and without anti-aliasing, using a JSON scene
      */
     @Test
     public void noDofNoAaJsonTest() throws IOException, ParseException {
@@ -36,8 +37,9 @@ public class CombinedDofAndAATests {
     }
 
 
+
     /**
-     * Test method for anti-aliasing of field without depth of field effects, using a JSON scene
+     * Test method for rendering a scene without depth of field and with non adaptive anti-aliasing, using a JSON scene
      */
     @Test
     public void noDofNonAdaptiveAaJsonTest() throws IOException, ParseException {
@@ -63,8 +65,9 @@ public class CombinedDofAndAATests {
                 .writeToImage("no_dof_non_adaptive_aa_json_test");
     }
 
+
     /**
-     * Test method for combined depth of field without anti-aliasing effects, using a JSON scene
+     * Test method for rendering a scene with non adaptive depth of field and without anti-aliasing, using a JSON scene
      */
     @Test
     public void nonAdaptiveDofNoAaJsonTest() throws IOException, ParseException {
@@ -92,8 +95,10 @@ public class CombinedDofAndAATests {
                 .writeToImage("non_adaptive_dof_no_aa_json_test");
     }
 
+
+
     /**
-     * Test method for combined depth of field and anti-aliasing effects, using a JSON scene
+     * Test method for rendering a scene with non adaptive depth of field and non adaptive anti-aliasing, using a JSON scene
      */
     @Test
     public void nonAdaptiveDofNonAdaptiveAAJsonTest() throws IOException, ParseException {
@@ -124,8 +129,9 @@ public class CombinedDofAndAATests {
     }
 
 
+
     /**
-     * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
+     * Test method for non adaptive depth of field and adaptive anti-aliasing effects, using a JSON scene
      */
     @Test
     public void nonAdaptiveDofAdaptiveAAJsonTest() throws IOException, ParseException {
@@ -158,8 +164,9 @@ public class CombinedDofAndAATests {
                 .writeToImage("non_adaptive_dof_adaptive_aa_json_test");
     }
 
+
     /**
-     * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
+     * Test method for adaptive depth of field and non adaptive anti-aliasing effects, using a JSON scene
      */
     @Test
     public void adaptiveDofNonAdaptiveAAJsonTest() throws IOException, ParseException {
@@ -192,8 +199,9 @@ public class CombinedDofAndAATests {
                 .writeToImage("adaptive_dof_non_adaptive_aa_json_test");
     }
 
+
     /**
-     * Test method for depth of field and adaptive anti-aliasing effects, using a JSON scene
+     * Test method for adaptive depth of field and adaptive anti-aliasing effects, using a JSON scene
      */
     @Test
     public void adaptiveDofAdaptiveAAJsonTest() throws IOException, ParseException {
