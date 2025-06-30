@@ -1019,7 +1019,6 @@ public class Camera implements Cloneable {
             // The focal point is where all rays should converge
             Point focalPoint = location.add(direction.scale(depthOfField));
 
-            // Start recursion on the aperture, not the pixel
             color = adaptiveDofColorForSubArea(location, apertureRadius, focalPoint, 0);
         } else {
             color = nonAdaptiveDofColor(direction);
