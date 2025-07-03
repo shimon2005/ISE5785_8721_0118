@@ -78,6 +78,22 @@
         "emission": "50 100 100",
         "material": "0"
       },
+      {
+        "sphere": {
+          "center": "10 -10 104",
+          "radius": 3.0
+        },
+        "emission": "200 10 10",
+        "material": "0"
+      },
+      {
+        "sphere": {
+          "center": "-45 15 -80",
+          "radius": 5.0
+        },
+        "emission": "255 255 255",
+        "material": "0"
+      },
 
 
       {
@@ -306,6 +322,19 @@
         "point": {
           "color": "150 150 150",
           "position": "20 20 20"
+        }
+      },
+      {
+        "directional": {
+          "color": "70 60 30",
+          "direction": "0 -1 -2"
+        }
+      },
+      {
+        "spot": {
+          "color": "20 30 200",
+          "position": "-5 15 40",
+          "direction": "0 0 -1"
         }
       }
     ]
