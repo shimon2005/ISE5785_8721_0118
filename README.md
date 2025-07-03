@@ -93,8 +93,5 @@ java -cp bin renderer.Main
 ## 👨‍💻 Team
 
 - **Shimon Khakshour**
-- **Asher Abensour**  
-
-ISE5785 – Introduction to Software Engineering  
-Lev Academic Center, 2025
+- **Asher Abensour**
 ---
