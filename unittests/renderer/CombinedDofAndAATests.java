@@ -223,6 +223,6 @@ public class CombinedDofAndAATests {
                 .setResolution(2000, 2000) //
                 .build()
                 .renderImage()
-                .writeToImage("adaptive_dof_adaptive_aa_json_test");
+                .writeToImage("FinalAdaptiveDofAdaptiveAAJsonTest");
     }
 }

@@ -39,7 +39,7 @@ Ray tracing simulates how light travels through space and interacts with surface
 
 | Anti-Aliasing Only | DOF + AA (Final Render) |
 |--------------------|---------------|
-| ![](images/non_dof_adaptive_aa_json_test.png) | ![]()         |
+| ![](images/non_dof_adaptive_aa_json_test.png) | ![](images/FinalAdaptiveDofAdaptiveAAJsonTest.png)         |
 
 ---
 
