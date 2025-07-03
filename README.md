@@ -90,7 +90,7 @@ java -cp bin renderer.Main
 
 ---
 
-## 👨‍💻 Team
+## 👨‍💻 Authors
 
 - [Shimon Khakshour](https://github.com/shimon2005)
 - [Asher Abensour](https://github.com/asher603)
