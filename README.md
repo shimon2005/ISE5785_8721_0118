@@ -24,7 +24,7 @@ Ray tracing simulates how light travels through space and interacts with surface
 - ✅ **Jittered Sampling** – Smoothed randomness for realism  
 - ✅ **Depth of Field (DOF)** – Simulate focus blur using aperture-based ray cones  
 - ✅ **Anti-Aliasing (AA)** – Smooth jagged edges with smart supersampling
-- ✅ **Multithreading Support** – Pixel rendering tasks are distributed across multiple threads for significantly faster rendering performance on multi-core systems. 
+- ✅ **Multithreaded Rendering** – Faster rendering using parallel ray tracing on multiple cores
 - ✅ **Adaptive Super Sampling** – Faster rendering with fewer rays using local color variance  
 - ✅ **Modular Design** – Clear separation of camera, scene, renderer, lighting  
 - ✅ **Physics-Based Rendering** – Realistic shading with material-aware ray tracing
