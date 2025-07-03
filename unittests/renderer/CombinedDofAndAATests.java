@@ -111,15 +111,21 @@ public class CombinedDofAndAATests {
                 .setVpDistance(150)
                 .setVpSize(75, 75)
                 .setBoardShape(BlackBoard.BoardShape.SQUARE)
+                .setUseDOF(true)
+                .setDepthOfField(160)
+                .setApertureRadius(1)
+                .setAmountOfRays_DOF(64)
+                .setUseAA(true)
+                .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
                 .setDebugPrint(1);
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("non_dof_non_aa_json_test");
+                .writeToImage("non_adaptive_dof_non_adaptive_aa_json_test");
     }
 
 
@@ -138,6 +144,10 @@ public class CombinedDofAndAATests {
                 .setVpDistance(150)
                 .setVpSize(75, 75)
                 .setBoardShape(BlackBoard.BoardShape.SQUARE)
+                .setUseDOF(true)
+                .setDepthOfField(160)
+                .setApertureRadius(1)
+                .setAmountOfRays_DOF(64)
                 .setUseAA(true)
                 .setUseAdaptiveSuperSamplingForAA(true)
                 .setColorThresholdAdaptiveAA(2)
@@ -148,10 +158,10 @@ public class CombinedDofAndAATests {
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("non_dof_adaptive_aa_json_test");
+                .writeToImage("non_adaptive_dof_adaptive_aa_json_test");
     }
 
 
@@ -170,21 +180,23 @@ public class CombinedDofAndAATests {
                 .setVpSize(75, 75)
                 .setBoardShape(BlackBoard.BoardShape.SQUARE)
                 .setUseDOF(true)
-                .setDepthOfField(200)
+                .setDepthOfField(160)
                 .setApertureRadius(1)
                 .setUseAdaptiveSuperSamplingForDOF(true)
                 .setColorThresholdAdaptiveDOF(2)
                 .setNumOfSubAreaSamplesAdaptiveDOF(4)
                 .setMaxSamplesAdaptiveDOF(64)
+                .setUseAA(true)
+                .setAmountOfRays_AA(64)
                 .setMultithreading(-1)
                 .setDebugPrint(1);
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("adaptive_dof_non_aa_json_test");
+                .writeToImage("adaptive_dof_non_adaptive_aa_json_test");
     }
 
 
@@ -204,7 +216,7 @@ public class CombinedDofAndAATests {
                 .setBoardShape(BlackBoard.BoardShape.SQUARE)
                 .setUseDOF(true)
                 .setUseAdaptiveSuperSamplingForDOF(true)
-                .setDepthOfField(200)
+                .setDepthOfField(160)
                 .setApertureRadius(1)
                 .setUseAdaptiveSuperSamplingForDOF(true)
                 .setColorThresholdAdaptiveDOF(2)
@@ -220,9 +232,9 @@ public class CombinedDofAndAATests {
 
         cameraBuilder
                 .setRayTracer(scene, RayTracerType.SIMPLE) //
-                .setResolution(2000, 2000) //
+                .setResolution(500, 500) //
                 .build()
                 .renderImage()
-                .writeToImage("FinalAdaptiveDofAdaptiveAAJsonTest");
+                .writeToImage("adaptive_dof_adaptive_aa_json_test");
     }
 }
