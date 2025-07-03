@@ -92,6 +92,6 @@ java -cp bin renderer.Main
 
 ## 👨‍💻 Team
 
-- **Shimon Khakshour**
-- **Asher Abensour**
+- [Shimon Khakshour](https://github.com/shimon2005)
+- [Asher Abensour](https://github.com/asher603)
 ---
